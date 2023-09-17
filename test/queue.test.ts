@@ -106,9 +106,27 @@ function iteratorTest(queue: IQueue<number> | IDequeue<number>) {
     queue.enqueue(2)
     queue.enqueue(3)
 
-    const results = [1, 2, 3]
+    expect(queue.size).toBe(3)
+    let results = [1, 2, 3]
     for (let number of queue) {
       expect(number).toBe(results.shift())
+    }
+    expect(queue.size).toBe(3)
+    expect(results).toHaveLength(0)
+    results = [1, 2, 3]
+    for (let number of queue) {
+      expect(number).toBe(results.shift())
+    }
+    expect(queue.size).toBe(3)
+    expect(results).toHaveLength(0)
+
+    if (queue instanceof Dequeue) {
+      results = [1, 2, 3]
+      for (let number of queue.reverseIterator()) {
+        expect(number).toBe(results.pop())
+      }
+      expect(queue.size).toBe(3)
+      expect(results).toHaveLength(0)
     }
   });
 }

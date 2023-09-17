@@ -1,14 +1,23 @@
 {
-  "name": "shared",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@avensio/datastructures",
+  "version": "0.2.0",
   "type": "module",
+  "main": "./dist/shared.cjs.js",
+  "module": "./dist/shared.es.js",
+  "types": "./dist/shared.es.d.ts",
   "scripts": {
     "dev": "vite",
+    "dev:test": "vitest",
     "build": "vite build",
     "test": "vitest --coverage",
     "preview": "vite preview"
   },
+  "publishConfig": {
+    "registry": "https://repo.avensio.de/repository/npm-hosted/"
+  },
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@vitest/coverage-v8": "^0.34.3",
     "vite": "^4.4.5",

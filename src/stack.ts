@@ -9,11 +9,11 @@ export interface IStack<E> extends Collection<E> {
 export class Stack<E> implements IStack<E> {
   private arr: E[] = []
   size = 0
-  constructor(e?: E | E[] | Set<E>) {
-    if (Array.isArray(e) || e instanceof Set) {
-      e.forEach(_e => this.push(_e))
-    } else if (e != undefined) {
-      this.push(e)
+  constructor(collection?: Collection<E> | Array<E> | Set<E>) {
+    if (collection) {
+      for(const el of collection) {
+        this.push(el)
+      }
     }
   }
 
@@ -48,12 +48,16 @@ export class Stack<E> implements IStack<E> {
 
   [Symbol.iterator](): Iterator<E> {
     const stack = this
+    let index = this.size - 1
     return {
       next: () => {
-        const top = stack.pop()
+        let top
+        try {
+          top = stack.arr[index--]
+        } catch (e) {}
         return {
-          done: stack.isEmpty(),
-          value: top
+          done: index === -2,
+          value: top!
         }
       }
     };
@@ -63,11 +67,11 @@ export class Stack<E> implements IStack<E> {
 export class LinkedStack<E> implements IStack<E> {
   private top: Node<E>
   size = 0
-  constructor(e?: E | E[] | Set<E>) {
-    if (Array.isArray(e) || e instanceof Set) {
-      e.forEach(_e => this.push(_e))
-    } else if (e != undefined) {
-      this.push(e)
+  constructor(collection?: Collection<E> | Array<E> | Set<E>) {
+    if (collection) {
+      for(const el of collection) {
+        this.push(el)
+      }
     }
   }
 
@@ -123,13 +127,14 @@ export class LinkedStack<E> implements IStack<E> {
    * O(size - 1)
    */
   [Symbol.iterator](): Iterator<E> {
-    const stack = this
+    let top = this.top
     return {
       next: () => {
-        const top = stack.pop()
+        const _top = top
+        top = _top?.prev
         return {
-          done: stack.isEmpty(),
-          value: top
+          done: _top == undefined,
+          value: _top?.value!
         }
       }
     };

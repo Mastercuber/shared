@@ -20,20 +20,28 @@ export class List<E> implements IList<E> {
   private arr: E[] = []
   size = 0;
 
+  constructor(collection?: Collection<E> | Array<E> | Set<E>) {
+    if (collection) {
+      for (let el of collection) {
+        this.add(el)
+      }
+    }
+  }
+
   add(e: E): void {
-    if (e != undefined) {
+    if (e !== undefined) {
       this.arr.push(e)
       this.size++
     }
   }
   get(index: number): E {
     const el = this.arr[index]
-    if (el == undefined) throw new Error("no such element")
+    if (el === undefined) throw new Error("no such element")
     return el
   }
 
   set(index: number, e: E): boolean {
-    if (index < 0 || index >= this.size) return false
+    if (index < 0 || index >= this.size || e === undefined) return false
     this.arr[index] = e
     return true
   }
@@ -65,13 +73,16 @@ export class List<E> implements IList<E> {
 
   [Symbol.iterator](): Iterator<E> {
     const list = this
+    let index = list.size - 1
     return {
       next: () => {
-        const el = list.get(list.size - 1)
-        list.remove(list.size - 1)
+        let el
+        try {
+          el = list.get(index--)
+        } catch (e) {}
         return {
-          done: list.isEmpty(),
-          value: el
+          done: index === -2,
+          value: el!
         }
       }
     };
@@ -82,6 +93,14 @@ export class LinkedList<E> implements ILinkedList<E> {
   private first: Node<E>
   private last: Node<E>
   size: number = 0
+
+  constructor(collection?: Collection<E> | Array<E> | Set<E>) {
+    if (collection) {
+      for (let el of collection) {
+        this.add(el)
+      }
+    }
+  }
 
   /**
    * O(1)
@@ -96,7 +115,7 @@ export class LinkedList<E> implements ILinkedList<E> {
    * @param e
    */
   addFirst(e: E): void {
-    if (e == undefined) return
+    if (e === undefined) return
     this.first = {
       value: e,
       next: this.first
@@ -112,7 +131,7 @@ export class LinkedList<E> implements ILinkedList<E> {
    * @param e
    */
   addLast(e: E): void {
-    if (e == undefined) return
+    if (e === undefined) return
     const node = {
       value: e
     };
@@ -150,7 +169,7 @@ export class LinkedList<E> implements ILinkedList<E> {
    * Ω(1)
    */
   set(index: number, e: E): boolean {
-    if (index < 0 || index >= this.size) return false
+    if (index < 0 || index >= this.size || e === undefined) return false
     this.getNode(index)!.value = e
     return true
   }
@@ -260,7 +279,7 @@ export class LinkedList<E> implements ILinkedList<E> {
   }
 
   /**
-   * O(size)<br>
+   * O(index + 1)<br>
    * Ω(1)
    * @param index
    */
@@ -273,10 +292,12 @@ export class LinkedList<E> implements ILinkedList<E> {
     return node
   }
 
+  /**
+   * O(∑ i=1 to size (i))
+   */
   *reverseIterator() {
-    while (!this.isEmpty()) {
-      yield this.getLast()
-      this.removeLast()
+    for (let i = this.size - 1; i >= 0 ; i--) {
+      yield this.getNode(i)!.value
     }
   }
 
@@ -284,14 +305,19 @@ export class LinkedList<E> implements ILinkedList<E> {
    * O(size)
    */
   [Symbol.iterator](): Iterator<E> {
-    const list = this
+    let first = this.first
     return {
       next: () => {
-        const el = list.getFirst()
-        list.removeFirst()
         return {
-          done: list.isEmpty(),
-          value: el
+          done: first == undefined,
+          value: (() => {
+            if (first) {
+              const val = first.value
+              first = first.next
+              return val
+            }
+            return undefined!
+          })()
         }
       }
     };
@@ -302,6 +328,14 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
   private first: Node<E>
   private last: Node<E>
   size = 0
+
+  constructor(collection?: Collection<E> | Array<E> | Set<E>) {
+    if (collection) {
+      for (let el of collection) {
+        this.add(el)
+      }
+    }
+  }
 
   /**
    * O(1)
@@ -316,7 +350,7 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
    * @param e
    */
   addFirst(e: E): void {
-    if (e == undefined) return
+    if (e === undefined) return
 
     const oldFirst = this.first
     this.first = {
@@ -338,7 +372,7 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
    * @param e
    */
   addLast(e: E): void {
-    if (e == undefined) return
+    if (e === undefined) return
 
     const node = {
       value: e
@@ -382,7 +416,7 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
    * @param e
    */
   set(index: number, e: E): boolean {
-    if (index < 0 || index >= this.size) return false
+    if (index < 0 || index >= this.size || e === undefined) return false
     this.getNode(index)!.value = e
     return true
   }
@@ -521,13 +555,11 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
   }
 
   /**
-   * O(size * (size / 2))<br>
-   * Ω(size)
+   * O(∑ i=1 to size (i))
    */
   *reverseIterator() {
-    while (!this.isEmpty()) {
-      yield this.getLast()
-      this.removeLast()
+    for (let i = this.size - 1; i >= 0 ; i--) {
+      yield this.getNode(i)!.value
     }
   }
 
@@ -535,14 +567,19 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
    * O(size)
    */
   [Symbol.iterator](): Iterator<E> {
-    const list = this
+    let first = this.first
     return {
       next: () => {
-        const el = list.getFirst()
-        list.removeFirst()
         return {
-          done: list.isEmpty(),
-          value: el
+          done: first == undefined,
+          value: (() => {
+            if (first) {
+              const val = first.value
+              first = first.next
+              return val
+            }
+            return undefined!
+          })()
         }
       }
     };
@@ -553,6 +590,14 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
   private first: Node<E>
   private last: Node<E>
   size = 0;
+
+  constructor(collection?: Collection<E> | Array<E> | Set<E>) {
+    if (collection) {
+      for (let el of collection) {
+        this.add(el)
+      }
+    }
+  }
 
   /**
    * O(1)
@@ -616,6 +661,7 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
       this.last = node
       this.last.prev = oldLast
       this.last.next = this.first
+      this.first.prev = this.last
     }
     this.size++
   }
@@ -644,7 +690,7 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
    * @param e
    */
   set(index: number, e: E): boolean {
-    if (index < 0 || index >= this.size) return false
+    if (index < 0 || index >= this.size || e === undefined) return false
     this.getNode(index)!.value = e
     return true
   }
@@ -791,12 +837,11 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
   }
 
   /**
-   * O(size * (size / 2))
+   * O(∑ i=1 to size (i))
    */
   *reverseIterator() {
-    while (!this.isEmpty()) {
-      yield this.getLast()
-      this.removeLast()
+    for (let i = this.size - 1; i >= 0 ; i--) {
+      yield this.getNode(i)!.value
     }
   }
 
@@ -804,14 +849,21 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
    * O(size)
    */
   [Symbol.iterator](): Iterator<E> {
-    const list = this
+    let first = this.first
+    let i = this.size - 1
     return {
       next: () => {
-        const el = list.getFirst()
-        list.removeFirst()
         return {
-          done: list.isEmpty(),
-          value: el
+          done: i === -1,
+          value: (() => {
+            if (first && i >= 0) {
+              const val = first.value
+              first = first.next
+              i--
+              return val
+            }
+            return undefined!
+          })()
         }
       }
     };

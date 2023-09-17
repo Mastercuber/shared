@@ -107,10 +107,19 @@ function iteratorTest(stack: IStack<number>) {
     stack.push(2)
     stack.push(3)
 
-    const results = [1, 2, 3]
+    let results = [1, 2, 3]
+    expect(stack.size).toBe(3)
     for (let number of stack) {
       expect(number).toBe(results.pop())
     }
+    expect(stack.size).toBe(3)
+    expect(results).toHaveLength(0)
+    results = [1, 2, 3]
+    for (let number of stack) {
+      expect(number).toBe(results.pop())
+    }
+    expect(stack.size).toBe(3)
+    expect(results).toHaveLength(0)
   });
 }
 
