@@ -1,6 +1,8 @@
 import {Ordering} from "./heap.ts";
 
-export interface Collection<E> extends Iterable<E> {
+export type Collection<E> = ICollection<E> | Array<E> | Set<E>
+
+export interface ICollection<E> extends Iterable<E> {
   size: number
   isEmpty(): boolean
   clear(): void
@@ -14,7 +16,6 @@ export type Node<E> = undefined | {
 }
 
 export function numberComparator(n1: number, n2: number) {
-  if (typeof n1 === 'object' && n1['__empty']) return Ordering.GT
   if (n1 === n2) return Ordering.EQ
   if (n1 < n2) return Ordering.LT
   return Ordering.GT
@@ -27,7 +28,6 @@ export function stringComparator(s1: string, s2: string) {
 }
 
 // @TODO optimize for Garbage Collection
-// @TODO iterators without removing elements from collection
 // @TODO correct all time complexities
 export * from './stack'
 export * from './queue'

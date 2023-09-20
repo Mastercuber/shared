@@ -1,4 +1,5 @@
-import {Graph, Vertex} from "../src";
+// @ts-ignore
+import {Graph, Vertex} from "@/";
 
 export class GraphFactory {
     static createDirectedGraphA() {

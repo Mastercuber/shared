@@ -1,13 +1,13 @@
 import {beforeAll, beforeEach, describe, expect, it} from "vitest";
 import {FibonacciHeap, numberComparator, Ordering} from "../src";
 
+// A bunch of tests of this test file are taken from "ts-fibonacci-heap" which is under the MIT license
+// Copyright (c) 2014 Daniel Imms, http://www.growingwiththeweb.com
+// See https://github.com/gwtw/ts-fibonacci-heap/tree/master/src/test
 describe("fibonacci heap", () => {
   let heap: FibonacciHeap<number>
   beforeAll(() => {
     const comparator = (n1: number, n2: number) => {
-      if (typeof n1 === 'object') {
-        return Ordering.GT
-      }
       if (n1 === n2) return Ordering.EQ
       else if (n1 < n2) return Ordering.LT
       return Ordering.GT
@@ -18,6 +18,36 @@ describe("fibonacci heap", () => {
 
   it('should create an empty heap', () => {
     expect(heap).not.toBeNull
+  });
+  it('should be possible to add "null" values to the heap', () => {
+    heap.insert(null!)
+    expect(heap.size).toBe(1)
+    expect(heap.minimum().value).toBeNull()
+    expect(heap.extractMin().value).toBeNull()
+    expect(heap.size).toBe(0)
+
+    heap.insert(null!)
+    heap.insert(null!)
+    expect(heap.size).toBe(2)
+    expect(heap.minimum().value).toBeNull()
+    expect(heap.extractMin().value).toBeNull()
+    expect(heap.extractMin().value).toBeNull()
+    expect(heap.size).toBe(0)
+
+    heap.insert(null!)
+    heap.insert(null!)
+    heap.insert(null!)
+    expect(heap.size).toBe(3)
+    expect(heap.minimum().value).toBeNull()
+    expect(heap.extractMin().value).toBeNull()
+    expect(heap.extractMin().value).toBeNull()
+    expect(heap.extractMin().value).toBeNull()
+    expect(heap.size).toBe(0)
+  });
+  it('should not be possible to add "undefined" values to the heap', () => {
+    const undef = heap.insert(undefined!)
+    expect(undef).toBeUndefined()
+    expect(heap.size).toBe(0)
   });
   describe("extract correct values", () => {
     it('should return correct values (bit bigger heap)', () => {
@@ -97,16 +127,16 @@ describe("fibonacci heap", () => {
       expect(heap.extractMin().value).toBe(node0.value);
       expect(heap.size).toBe(4);
       expect(node1.parent).toBeFalsy()
-      expect(numberComparator(node2.parent!.value, node1.value)).toEqual(Ordering.EQ)
-      expect(numberComparator(node3.parent!.value, node1.value)).toEqual(Ordering.EQ)
-      expect(numberComparator(node4.parent!.value, node3.value)).toEqual(Ordering.EQ)
-      expect(numberComparator(node1.right!.value, node1.value)).toEqual(Ordering.EQ)
-      expect(numberComparator(node2.right!.value, node3.value)).toEqual(Ordering.EQ)
-      expect(numberComparator(node3.right!.value, node2.value)).toEqual(Ordering.EQ)
-      expect(numberComparator(node4.right!.value, node4.value)).toEqual(Ordering.EQ)
-      expect(numberComparator(node1.child!.value, node2.value)).toEqual(Ordering.EQ)
+      expect(numberComparator(node2.parent!.value!, node1.value!)).toEqual(Ordering.EQ)
+      expect(numberComparator(node3.parent!.value!, node1.value!)).toEqual(Ordering.EQ)
+      expect(numberComparator(node4.parent!.value!, node3.value!)).toEqual(Ordering.EQ)
+      expect(numberComparator(node1.right!.value!, node1.value!)).toEqual(Ordering.EQ)
+      expect(numberComparator(node2.right!.value!, node3.value!)).toEqual(Ordering.EQ)
+      expect(numberComparator(node3.right!.value!, node2.value!)).toEqual(Ordering.EQ)
+      expect(numberComparator(node4.right!.value!, node4.value!)).toEqual(Ordering.EQ)
+      expect(numberComparator(node1.child!.value!, node2.value!)).toEqual(Ordering.EQ)
       expect(node2.child).toBeFalsy()
-      expect(numberComparator(node3.child!.value, node4.value)).toEqual(Ordering.EQ)
+      expect(numberComparator(node3.child!.value!, node4.value!)).toEqual(Ordering.EQ)
       expect(node4.child).toBeFalsy()
     });
     it('should consolidate after extract min is called on a tree with a single tree in the root node list', () => {
@@ -164,6 +194,7 @@ describe("fibonacci heap", () => {
   })
 
   it('should have the correct size', () => {
+    expect(() => heap.minimum()).toThrowError("no such element")
     expect(() => heap.extractMin()).toThrowError("no such element")
     expect(heap.size).toBe(0)
     expect(heap.isEmpty()).toBeTruthy()
@@ -229,6 +260,13 @@ describe("fibonacci heap", () => {
       expect(heapElement).toBe(results[index++])
     }
     expect(heap.size).toBe(7)
+
+    heap.clear()
+    let iterationCount = 0
+    for (let {} of heap) {
+      iterationCount++
+    }
+    expect(iterationCount).toBe(0)
   });
 
   describe("union", () => {
@@ -302,15 +340,30 @@ describe("fibonacci heap", () => {
       }
       expect(heaps[0].isEmpty()).toBeTruthy()
     });
+    it('should union an empty heap with another non empty one', () => {
+      const emptyHeap = new FibonacciHeap(numberComparator)
+      const otherHeap = new FibonacciHeap(numberComparator)
+      const n1 = otherHeap.insert(1)
+      const n2 = otherHeap.insert(2)
+
+      expect(emptyHeap.size).toBe(0)
+      expect(otherHeap.size).toBe(2)
+
+      emptyHeap.union(otherHeap)
+      expect(emptyHeap.size).toBe(2)
+      expect(otherHeap.size).toBe(2)
+      expect(emptyHeap.extractMin()).toEqual(n1)
+      expect(emptyHeap.extractMin()).toEqual(n2)
+    });
   });
 
   describe('delete', () => {
-    it('should delete the head of the heap', () => {
+    it('should delete the min value of the heap', () => {
       const heap = new FibonacciHeap(numberComparator);
       const node1 = heap.insert(1);
       const node2 = heap.insert(2);
-      heap.delete(node1);
-      expect(heap.extractMin().value).toBe(node2.value);
+      expect(heap.delete(node1)).toEqual(node1)
+      expect(heap.extractMin()).toEqual(node2);
       expect(heap.isEmpty()).toBeTruthy()
     });
 
@@ -322,11 +375,12 @@ describe("fibonacci heap", () => {
       const node1 = heap.insert(-6);
       const node5 = heap.insert(27);
       expect(heap.size).toBe(5);
-      expect(heap.extractMin().value).toBe(node1.value);
-      expect(heap.extractMin().value).toBe(node2.value);
-      expect(heap.extractMin().value).toBe(node3.value);
-      expect(heap.extractMin().value).toBe(node4.value);
-      expect(heap.extractMin().value).toBe(node5.value);
+      expect(heap.delete(node1)).toEqual(node1)
+      expect(heap.size).toBe(4);
+      expect(heap.extractMin()).toEqual(node2);
+      expect(heap.delete(node3)).toEqual(node3)
+      expect(heap.extractMin()).toEqual(node4);
+      expect(heap.extractMin()).toEqual(node5);
       expect(heap.isEmpty());
     });
 
@@ -338,12 +392,12 @@ describe("fibonacci heap", () => {
       const node1 = heap.insert(-6);
       const node5 = heap.insert(27);
       expect(heap.size).toBe(5);
-      heap.delete(node3);
+      expect(heap.delete(node3)).toEqual(node3)
       expect(heap.size).toBe(4);
-      expect(heap.extractMin().value).toBe(node1.value);
-      expect(heap.extractMin().value).toBe(node2.value);
-      expect(heap.extractMin().value).toBe(node4.value);
-      expect(heap.extractMin().value).toBe(node5.value);
+      expect(heap.extractMin()).toEqual(node1);
+      expect(heap.extractMin()).toEqual(node2);
+      expect(heap.extractMin()).toEqual(node4);
+      expect(heap.extractMin()).toEqual(node5);
       expect(heap.isEmpty());
     });
 
@@ -362,13 +416,13 @@ describe("fibonacci heap", () => {
       //                  |        4
       //                  4
       //
-      expect(heap.extractMin().value).toBe(node1.value);
+      expect(heap.extractMin()).toEqual(node1);
       // Deleting the node should trigger a cut and cascadingCut on the heap.
-      heap.delete(node4);
+      expect(heap.delete(node4)).toEqual(node4)
 
       expect(heap.size).toBe(2);
-      expect(heap.extractMin().value).toBe(node2.value);
-      expect(heap.extractMin().value).toBe(node3.value);
+      expect(heap.extractMin()).toEqual(node2);
+      expect(heap.extractMin()).toEqual(node3);
       expect(heap.isEmpty()).toBeTruthy()
     });
 
@@ -394,7 +448,7 @@ describe("fibonacci heap", () => {
       //                                |
       //                                8
       //
-      expect(heap.extractMin().value).toBe(node0.value);
+      expect(heap.extractMin()).toEqual(node0);
 
       // Delete node 8
       //
@@ -406,16 +460,19 @@ describe("fibonacci heap", () => {
       //  |          7 6 4
       //  8
       //
-      heap.delete(node8);
+      expect(heap.size).toBe(8);
+      expect(heap.delete(node8)).toEqual(node8)
+      expect(heap.minNode).not.toBeNull()
+      expect(heap.minNode).not.toBeUndefined()
 
       expect(heap.size).toBe(7);
-      expect(heap.extractMin().value).toBe(node1.value);
-      expect(heap.extractMin().value).toBe(node2.value);
-      expect(heap.extractMin().value).toBe(node3.value);
-      expect(heap.extractMin().value).toBe(node4.value);
-      expect(heap.extractMin().value).toBe(node5.value);
-      expect(heap.extractMin().value).toBe(node6.value);
-      expect(heap.extractMin().value).toBe(node7.value);
+      expect(heap.extractMin()).toBe(node1);
+      expect(heap.extractMin()).toBe(node2);
+      expect(heap.extractMin()).toBe(node3);
+      expect(heap.extractMin()).toBe(node4);
+      expect(heap.extractMin()).toBe(node5);
+      expect(heap.extractMin()).toBe(node6);
+      expect(heap.extractMin()).toBe(node7);
       expect(heap.isEmpty());
     });
 
@@ -441,7 +498,7 @@ describe("fibonacci heap", () => {
       //                                |
       //                                8
       //
-      expect(heap.extractMin().value).toBe(node0.value);
+      expect(heap.extractMin()).toEqual(node0);
 
       // Delete node 6, marking 5
       //
@@ -453,7 +510,7 @@ describe("fibonacci heap", () => {
       //  |           |
       //  8           8
       //
-      heap.delete(node6);
+      expect(heap.delete(node6)).toEqual(node6)
       expect(node5.marked);
 
       // Delete node 7, cutting the sub-tree
@@ -466,18 +523,15 @@ describe("fibonacci heap", () => {
       //  |            4
       //  8
       //
-      heap.delete(node7);
-      expect(numberComparator(node5.value, node1.value)).toBe(Ordering.EQ)
-      expect(numberComparator(node2.value, node3.value)).toBe(Ordering.EQ)
-      expect(numberComparator(node3.value, node2.value)).toBe(Ordering.EQ)
+      expect(heap.delete(node7)).toEqual(node7)
 
       expect(heap.size).toBe(6);
-      expect(heap.extractMin().value).toBe(node1.value);
-      expect(heap.extractMin().value).toBe(node2.value);
-      expect(heap.extractMin().value).toBe(node3.value);
-      expect(heap.extractMin().value).toBe(node4.value);
-      expect(heap.extractMin().value).toBe(node5.value);
-      expect(heap.extractMin().value).toBe(node8.value);
+      expect(heap.extractMin()).toEqual(node1);
+      expect(heap.extractMin()).toEqual(node2);
+      expect(heap.extractMin()).toEqual(node3);
+      expect(heap.extractMin()).toEqual(node4);
+      expect(heap.extractMin()).toEqual(node5);
+      expect(heap.extractMin()).toEqual(node8);
       expect(heap.isEmpty());
     });
 
@@ -503,7 +557,7 @@ describe("fibonacci heap", () => {
       //                                |
       //                                8
       //
-      expect(heap.extractMin().value).toBe(node0.value);
+      expect(heap.extractMin()).toEqual(node0);
 
       // Delete node 6, marking 5
       //
@@ -515,16 +569,17 @@ describe("fibonacci heap", () => {
       //  |           |
       //  8           8
       //
-      heap.delete(node6);
-      expect(node5.child!.value).toBe(node7.value)
-      expect(node5.child === node7);
+      expect(heap.delete(node6)).toEqual(node6)
+      expect(node5.child).toEqual(node7)
+      expect(node5.child).toEqual(node7)
     });
   });
 
   describe('decreaseKey', () => {
     it('should throw an exception given a non-existent node', () => {
       const heap = new FibonacciHeap(numberComparator);
-      expect(() => heap.decreaseKey(<any>undefined, 2)).toThrowError("")
+      expect(() => heap.decreaseKey(<any>undefined, 2)).toThrowError("node to decrease is null!")
+      expect(() => heap.decreaseKey(<any>null, 2)).toThrowError("node to decrease is null!")
     });
 
     it('should throw an exception given a new key larger than the old key', () => {

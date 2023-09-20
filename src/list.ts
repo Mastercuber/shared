@@ -1,9 +1,9 @@
-import {Collection, Node} from "./index";
+import {ICollection, Collection, Node} from "./index";
 
-export interface IList<E> extends Collection<E> {
+export interface IList<E> extends ICollection<E> {
   add(e: E): void
   get(index: number): E
-  set(index: number, e: E): boolean
+  set(index: number, e: E | null): boolean
   remove(index: number): boolean
   reverseIterator(): Generator<E>
 }
@@ -20,7 +20,7 @@ export class List<E> implements IList<E> {
   private arr: E[] = []
   size = 0;
 
-  constructor(collection?: Collection<E> | Array<E> | Set<E>) {
+  constructor(collection?: Collection<E>) {
     if (collection) {
       for (let el of collection) {
         this.add(el)
@@ -35,9 +35,7 @@ export class List<E> implements IList<E> {
     }
   }
   get(index: number): E {
-    const el = this.arr[index]
-    if (el === undefined) throw new Error("no such element")
-    return el
+    return this.arr[index]
   }
 
   set(index: number, e: E): boolean {
@@ -66,22 +64,22 @@ export class List<E> implements IList<E> {
   }
 
   *reverseIterator() {
-    for (let e of this.arr) {
-      yield e
+    for (let i = this.arr.length - 1; i >= 0; i--) {
+      yield this.arr[i]
     }
   }
 
   [Symbol.iterator](): Iterator<E> {
     const list = this
-    let index = list.size - 1
+    let index = 0
     return {
       next: () => {
         let el
         try {
-          el = list.get(index--)
+          el = list.get(index)
         } catch (e) {}
         return {
-          done: index === -2,
+          done: index++ === list.size,
           value: el!
         }
       }
@@ -94,7 +92,7 @@ export class LinkedList<E> implements ILinkedList<E> {
   private last: Node<E>
   size: number = 0
 
-  constructor(collection?: Collection<E> | Array<E> | Set<E>) {
+  constructor(collection?: Collection<E>) {
     if (collection) {
       for (let el of collection) {
         this.add(el)
@@ -161,7 +159,13 @@ export class LinkedList<E> implements ILinkedList<E> {
    * Ω(1)
    */
   get(index: number): E {
-    return this.getNode(index)!.value
+    try {
+      const node = this.getNode(index)
+      if (node) {
+        return node.value
+      }
+    } catch (e) {}
+    return undefined!
   }
 
   /**
@@ -309,7 +313,7 @@ export class LinkedList<E> implements ILinkedList<E> {
     return {
       next: () => {
         return {
-          done: first == undefined,
+          done: first === undefined,
           value: (() => {
             if (first) {
               const val = first.value
@@ -329,7 +333,7 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
   private last: Node<E>
   size = 0
 
-  constructor(collection?: Collection<E> | Array<E> | Set<E>) {
+  constructor(collection?: Collection<E>) {
     if (collection) {
       for (let el of collection) {
         this.add(el)
@@ -406,7 +410,13 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
    * @param index
    */
   get(index: number): E {
-    return this.getNode(index)!.value
+    try {
+      const node = this.getNode(index)
+      if (node) {
+        return node.value
+      }
+    } catch (e) {}
+    return undefined!
   }
 
   /**
@@ -571,7 +581,7 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
     return {
       next: () => {
         return {
-          done: first == undefined,
+          done: first === undefined,
           value: (() => {
             if (first) {
               const val = first.value
@@ -591,7 +601,7 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
   private last: Node<E>
   size = 0;
 
-  constructor(collection?: Collection<E> | Array<E> | Set<E>) {
+  constructor(collection?: Collection<E>) {
     if (collection) {
       for (let el of collection) {
         this.add(el)
@@ -680,7 +690,13 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
    * @param index
    */
   get(index: number): E {
-    return this.getNode(index)?.value!;
+    try {
+      const node = this.getNode(index)
+      if (node) {
+        return node.value
+      }
+    } catch (e) {}
+    return undefined!
   }
 
   /**

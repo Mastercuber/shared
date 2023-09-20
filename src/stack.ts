@@ -1,15 +1,15 @@
-import {Collection, Node} from "./index";
+import {ICollection, Collection, Node} from "./index";
 
-export interface IStack<E> extends Collection<E> {
+export interface IStack<E> extends ICollection<E> {
   push(e: E): void
   pop(): E
-  peek(): E
+  top(): E
 }
 
 export class Stack<E> implements IStack<E> {
   private arr: E[] = []
   size = 0
-  constructor(collection?: Collection<E> | Array<E> | Set<E>) {
+  constructor(collection?: Collection<E>) {
     if (collection) {
       for(const el of collection) {
         this.push(el)
@@ -26,21 +26,21 @@ export class Stack<E> implements IStack<E> {
     return this.size === 0
   }
 
-  peek(): E {
+  top(): E {
     const top = this.arr[this.size - 1]
-    if (top == undefined) throw new Error("no such element")
+    if (top === undefined) throw new Error("no such element")
     return top
   }
 
   pop(): E {
     const top = this.arr.pop()
-    if (top == undefined) throw new Error("no such element")
+    if (top === undefined) throw new Error("no such element")
     this.size--
     return top
   }
 
   push(e: E): void {
-    if (e != undefined) {
+    if (e !== undefined) {
       this.arr.push(e)
       this.size++
     }
@@ -65,9 +65,9 @@ export class Stack<E> implements IStack<E> {
 }
 
 export class LinkedStack<E> implements IStack<E> {
-  private top: Node<E>
+  private _top: Node<E>
   size = 0
-  constructor(collection?: Collection<E> | Array<E> | Set<E>) {
+  constructor(collection?: Collection<E>) {
     if (collection) {
       for(const el of collection) {
         this.push(el)
@@ -80,10 +80,10 @@ export class LinkedStack<E> implements IStack<E> {
    * @param e
    */
   push(e: E) {
-    if (e != undefined) {
-      this.top = {
+    if (e !== undefined) {
+      this._top = {
         value: e,
-        prev: this.top
+        prev: this._top
       }
       this.size++
     }
@@ -93,9 +93,9 @@ export class LinkedStack<E> implements IStack<E> {
    * O(1)
    */
   pop() {
-    const node = this.top
-    if (node == undefined) throw new Error("no such element")
-    this.top = node.prev
+    const node = this._top
+    if (node === undefined) throw new Error("no such element")
+    this._top = node.prev
     this.size--
     return node.value
   }
@@ -110,16 +110,16 @@ export class LinkedStack<E> implements IStack<E> {
   /**
    * O(1)
    */
-  peek() {
-    if (this.top == undefined) throw new Error("no such element")
-    return this.top.value
+  top() {
+    if (this._top === undefined) throw new Error("no such element")
+    return this._top.value
   }
 
   /**
    * O(1)
    */
   clear() {
-    this.top = undefined
+    this._top = undefined
     this.size = 0
   }
 
@@ -127,13 +127,13 @@ export class LinkedStack<E> implements IStack<E> {
    * O(size - 1)
    */
   [Symbol.iterator](): Iterator<E> {
-    let top = this.top
+    let top = this._top
     return {
       next: () => {
         const _top = top
         top = _top?.prev
         return {
-          done: _top == undefined,
+          done: _top === undefined,
           value: _top?.value!
         }
       }

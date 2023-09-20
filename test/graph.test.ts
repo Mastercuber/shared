@@ -1,6 +1,6 @@
 import {beforeEach, describe, expect, it} from "vitest";
-import {AGraph, Edge, FibonacciHeap, Graph, GraphProperties, Ordering, Vertex} from "../src";
-import {GraphFactory} from './graph-factory.ts'
+import {AGraph, Edge, FibonacciHeap, Graph, GraphProperties, IVertex, Ordering, Vertex} from "../src";
+import {GraphFactory} from './factories/graph.ts'
 
 describe("Graph Testsuite", () => {
     let graph: Graph
@@ -264,10 +264,10 @@ describe("Graph Testsuite", () => {
                 expect(ccsB[1].vertices!.size).toBe(3)
                 expect(ccsB[2].vertices!.size).toBe(4)
                 expect(ccsB[3].vertices!.size).toBe(1)
-                const _v1 = Array.from(ccsB[3].vertices!)[0]
+                const _v1 = Array.from(ccsB[3].vertices!)[0] as IVertex
                 expect(_v1.title).toBe("12")
                 expect(ccsB[4].vertices!.size).toBe(1)
-                const _v2 = Array.from(ccsB[4].vertices!)[0]
+                const _v2 = Array.from(ccsB[4].vertices!)[0] as IVertex
                 expect(_v2.title).toBe("13")
             })
         })

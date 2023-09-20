@@ -1,9 +1,17 @@
 import {beforeEach, describe, expect, it} from "vitest";
-import {CyclicDoublyLinkedList, DoublyLinkedList, ILinkedList, IList, LinkedList, List} from "../src";
+import {
+  Collection,
+  CyclicDoublyLinkedList,
+  DoublyLinkedList,
+  ILinkedList,
+  IList,
+  LinkedList,
+  List
+} from "../src";
 
-function linkedListTests(list: ILinkedList<number>) {
-  commonListTests(list)
-  describe("first/last element", () => {
+function linkedListTests(list: ILinkedList<number>, listType: new (collection?: Collection<number>) => IList<number>) {
+  commonListTests(list, listType)
+  describe("common linked list tests", () => {
     beforeEach(() => {
       list.clear()
     })
@@ -130,11 +138,79 @@ function linkedListTests(list: ILinkedList<number>) {
   })
 }
 
-function commonListTests(list: IList<number>) {
+function commonListTests(list: IList<number>, listType: new (collection?: Collection<number>) => IList<number>) {
   describe("common list tests", () => {
     beforeEach(() => {
       list.clear()
     })
+    it('should construct a new List from given collection', () => {
+      let _list = new listType([1,2])
+      expect(_list.size).toBe(2)
+      expect(_list.get(0)).toBe(1)
+      expect(_list.get(1)).toBe(2)
+
+      _list = new listType(new Set([-1,0,1]))
+      expect(_list.size).toBe(3)
+      expect(_list.get(0)).toBe(-1)
+      expect(_list.get(1)).toBe(0)
+      expect(_list.get(2)).toBe(1)
+
+      _list = new listType(new List(_list))
+      expect(_list.size).toBe(3)
+      expect(_list.get(0)).toBe(-1)
+      expect(_list.get(1)).toBe(0)
+      expect(_list.get(2)).toBe(1)
+
+      _list = new listType(new LinkedList(_list))
+      expect(_list.size).toBe(3)
+      expect(_list.get(0)).toBe(-1)
+      expect(_list.get(1)).toBe(0)
+      expect(_list.get(2)).toBe(1)
+
+      _list = new listType(new DoublyLinkedList(_list))
+      expect(_list.size).toBe(3)
+      expect(_list.get(0)).toBe(-1)
+      expect(_list.get(1)).toBe(0)
+      expect(_list.get(2)).toBe(1)
+
+      _list = new listType(new CyclicDoublyLinkedList(_list))
+      expect(_list.size).toBe(3)
+      expect(_list.get(0)).toBe(-1)
+      expect(_list.get(1)).toBe(0)
+      expect(_list.get(2)).toBe(1)
+    });
+    it('should be possible to add "null" values to the list', () => {
+      list.add(null!)
+      expect(list.size).toBe(1)
+      expect(list.get(0)).toBeNull()
+      expect(list.remove(0)).toBeTruthy()
+      expect(list.size).toBe(0)
+
+      list.add(null!)
+      list.add(null!)
+      expect(list.size).toBe(2)
+      expect(list.get(0)).toBeNull()
+      expect(list.get(1)).toBeNull()
+      expect(list.remove(0)).toBeTruthy()
+      expect(list.remove(0)).toBeTruthy()
+      expect(list.size).toBe(0)
+
+      list.add(null!)
+      list.add(null!)
+      list.add(null!)
+      expect(list.size).toBe(3)
+      expect(list.get(0)).toBeNull()
+      expect(list.get(1)).toBeNull()
+      expect(list.get(2)).toBeNull()
+      expect(list.remove(0)).toBeTruthy()
+      expect(list.remove(0)).toBeTruthy()
+      expect(list.remove(0)).toBeTruthy()
+      expect(list.size).toBe(0)
+    });
+    it('should not be possible to add "undefined" values to the queue', () => {
+      list.add(undefined!)
+      expect(list.size).toBe(0)
+    });
     describe("add items", () => {
       it('should add "null" items', () => {
         list.add(null!)
@@ -168,7 +244,7 @@ function commonListTests(list: IList<number>) {
       })
       it('adds items (6 elements)', () => {
         expect(list.isEmpty()).toBeTruthy()
-        expect(() => list.get(0)).toThrowError("no such element")
+        expect(list.get(0)).toBeUndefined()
 
         list.add(-1)
         list.add(0)
@@ -187,7 +263,7 @@ function commonListTests(list: IList<number>) {
       });
       it('adds items (alternating list)', () => {
         expect(list.isEmpty()).toBeTruthy()
-        expect(() => list.get(0)).toThrowError("no such element")
+        expect(list.get(0)).toBeUndefined()
 
         list.add(-1)
         list.add(1)
@@ -262,7 +338,7 @@ function commonListTests(list: IList<number>) {
       it('should set "null" values', () => {
         list.add(10)
         list.add(-10)
-        expect(list.set(0, null!)).toBeTruthy()
+        expect(list.set(0, null)).toBeTruthy()
         expect(list.get(0)).toBeNull()
         expect(list.size).toBe(2)
       });
@@ -289,9 +365,9 @@ function commonListTests(list: IList<number>) {
         expect(list.get(0)).toBe(-4)
       });
       it('should return false on unknown index', () => {
-        expect(list.set(-1, null!)).toBeFalsy()
-        expect(list.set(0, null!)).toBeFalsy()
-        expect(list.set(1, null!)).toBeFalsy()
+        expect(list.set(-1, null)).toBeFalsy()
+        expect(list.set(0, null)).toBeFalsy()
+        expect(list.set(1, null)).toBeFalsy()
       });
     })
     describe("remove items", () => {
@@ -322,7 +398,7 @@ function commonListTests(list: IList<number>) {
         expect(list.get(0)).toBe(1)
         expect(list.size).toBe(1)
         expect(list.remove(0)).toBeTruthy()
-        expect(() => list.get(0)).toThrowError("no such element")
+        expect(list.get(0)).toBeUndefined()
 
         list.add(1)
         list.add(2)
@@ -382,11 +458,11 @@ function commonListTests(list: IList<number>) {
       expect(list.size).toBe(1)
       list.remove(0)
       expect(list.size).toBe(0)
-      expect(() => list.get(0)).toThrowError("no such element")
+      expect(list.get(0)).toBeUndefined()
     })
     it("should clear the list", () => {
       expect(list.size).toBe(0)
-      expect(() => list.get(0)).toThrowError("no such element")
+      expect(list.get(0)).toBeUndefined()
 
       list.add(1)
       list.add(2)
@@ -395,7 +471,7 @@ function commonListTests(list: IList<number>) {
       expect(list.size).toBe(3)
       list.clear()
       expect(list.isEmpty()).toBeTruthy()
-      expect(() => list.get(0)).toThrowError("no such element")
+      expect(list.get(0)).toBeUndefined()
     })
   })
 }
@@ -468,54 +544,22 @@ function iteratorTests(list: IList<number>) {
 describe("lists", () => {
   describe("list backed by native array", () => {
     const list = new List<number>()
-    commonListTests(list)
-    describe("iterator tests", () => {
-      beforeEach(() => list.clear())
-      it("iterates through list like a stack (LIFO)", () => {
-        list.add(1)
-        list.add(2)
-        list.add(3)
-        const results = [1, 2, 3]
-        expect(list.size).toBe(3)
-        for (let number of list) {
-          expect(number).toBe(results.pop())
-        }
-        expect(list.size).toBe(3)
-        expect(results).toHaveLength(0)
-      })
-      it('iterates through list like a queue (FIFO) with a reverse iterator', () => {
-        list.add(1)
-        list.add(2)
-        list.add(3)
-        let results = [1, 2, 3]
-        expect(list.size).toBe(3)
-        for (let number of list.reverseIterator()) {
-          expect(number).toBe(results.shift())
-        }
-        expect(list.size).toBe(3)
-        expect(results).toHaveLength(0)
-        results = [1, 2, 3]
-        for (let number of list.reverseIterator()) {
-          expect(number).toBe(results.shift())
-        }
-        expect(list.size).toBe(3)
-        expect(results).toHaveLength(0)
-      });
-    })
+    commonListTests(list, List<number>)
+    iteratorTests(list)
   })
   describe("linked list", () => {
     const list = new LinkedList<number>()
-    linkedListTests(list)
+    linkedListTests(list, LinkedList<number>)
     iteratorTests(list)
   })
   describe("doubly linked list", () => {
     const list = new DoublyLinkedList<number>()
-    linkedListTests(list)
+    linkedListTests(list, DoublyLinkedList<number>)
     iteratorTests(list)
   })
   describe("cyclic linked list", () => {
     const list = new CyclicDoublyLinkedList<number>()
-    linkedListTests(list)
+    linkedListTests(list, CyclicDoublyLinkedList<number>)
     iteratorTests(list)
   })
 })

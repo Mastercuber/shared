@@ -1,4 +1,4 @@
-import {Collection, CyclicDoublyLinkedList, LinkedList} from "./index";
+import {ICollection, CyclicDoublyLinkedList, LinkedList} from "./index";
 
 export type HeapNode<E> = {
   value: E
@@ -16,10 +16,11 @@ export enum Ordering {
   GT = 1
 }
 
-// The Comparator has one requirement: When the left value is a blank object the ordering must be Ordering.GT
+// The Comparator has one requirement: When the "left" value is "null" the ordering must be Ordering.GT
+// This is needed for delete to function
 export type Comparator<E> = (left: E, right: E) => Ordering
 
-export interface IFibonacciHeap<E> extends Collection<HeapNode<E>>{
+export interface IFibonacciHeap<E> extends ICollection<HeapNode<E>>{
   rootList: HeapNode<E>
   minNode: HeapNode<E>
   insert(element: E): HeapNode<E>
@@ -43,27 +44,8 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
     this.comparator = comparator
   }
 
-  printHeap(neighbours?: CyclicDoublyLinkedList<HeapNode<E>>, lvl = 1) {
-    if (!neighbours) neighbours = this.extractNeighbours(this.rootList, true)
-    const childs = new CyclicDoublyLinkedList<HeapNode<E>>()
-    let s = (lvl === 1 ? '\x1b[36m' : '') + lvl + '\x1b[0m:\t'
-    for (let neighbour of neighbours) {
-      s += `${neighbour.value}`
-      if (neighbour.parent) s+= `(P ${neighbour.parent.value})\t`
-      else s+= '\t'
-      if (neighbour.child) {
-        const c = this.extractChildren(neighbour)
-        for (let cElement of c) {
-          childs.add(cElement)
-        }
-      }
-    }
-    console.log(s)
-    if (!childs.isEmpty())
-      this.printHeap(childs, ++lvl)
-  }
-
   insert(e: E): HeapNode<E> {
+    if (e === undefined) return undefined!
     // @ts-ignore
     const node: HeapNode<E> = {
       value: e,
@@ -86,13 +68,23 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
   }
 
   delete(e: HeapNode<E>): HeapNode<E> {
-    this.decreaseKey(e, {__empty: true} as E)
+    this.decreaseKey(e, null!)
     return this.extractMin()
   }
 
+  /**
+   * Decreases a nodes key. When the newValue is null or undefined, node will get the new minNode
+   *
+   * @param node
+   * @param newValue
+   */
   decreaseKey(node: HeapNode<E>, newValue: E): void {
-    if (newValue && this.comparator(newValue, node.value) === Ordering.GT) {
+    if (!node) throw new Error("node to decrease is null!")
+    if (newValue && node && this.comparator(newValue, node.value) === Ordering.GT) {
       throw new Error("new value is greater then old one")
+    }
+    if ((typeof newValue !== 'number') && !newValue) {
+      this.minNode = node
     }
     node.value = newValue
     const parent = node.parent
@@ -122,7 +114,7 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
 
       this.removeFromRootList(min)
 
-      if (this.comparator(min.value, min.right!.value) === Ordering.EQ) {
+      if (this.size === 1) {
         this.minNode = this.rootList = undefined!
       } else {
         if (this.comparator(min.left.value, min.right.value) === Ordering.LT)
@@ -257,7 +249,6 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
       this.rootList = node
       this.rootList.parent = this.rootList.child = undefined
       this.rootList.left = this.rootList.right = this.rootList
-      this.rootList.degree = 0
       this.rootList.marked = false
     } else {
       node.right = this.rootList
@@ -279,7 +270,7 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
   }
 
   private consolidate() {
-    const Dh = Math.floor(this.log(this.goldenCut, this.size)) + 1
+    const Dh = Math.floor(this.log(this.goldenCut, this.size))
     const A = new CyclicDoublyLinkedList<HeapNode<E>>()
     for (let i = 0; i < Dh; i++) {
       A.add(null!)
@@ -290,7 +281,7 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
       let x = w
       let d = x.degree
 
-      while (A.get(d) !== null) {
+      while (A.get(d) != null) {
         let y = A.get(d)
         if (this.comparator(x.value, y.value) === Ordering.GT) {
           const temp = x
