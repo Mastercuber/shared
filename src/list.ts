@@ -1,13 +1,20 @@
-import {ICollection, Collection, Node} from "./index";
+import {ICollection, Collection, Node, Ordering, Comparator, ISortable} from "./index";
 
-export interface IList<E> extends ICollection<E> {
+export interface IList<E> extends ICollection<E>, ISortable<E> {
   add(e: E): void
+  addAll(c: ICollection<E>): void
   get(index: number): E
   set(index: number, e: E | null): boolean
+  slice(startIndex: number, endIndex: number): IList<E>
   remove(index: number): boolean
+  contains(e: E): boolean
+  comparator: Comparator<E>
   reverseIterator(): Generator<E>
 }
 export interface ILinkedList<E> extends IList<E> {
+  first: Node<E>
+  last: Node<E>
+  getNode(index: number): Node<E>
   addFirst(e: E): void
   addLast(e: E): void
   getFirst(): E
@@ -19,6 +26,7 @@ export interface ILinkedList<E> extends IList<E> {
 export class List<E> implements IList<E> {
   private arr: E[] = []
   size = 0;
+  comparator: Comparator<E> = null!
 
   constructor(collection?: Collection<E>) {
     if (collection) {
@@ -34,6 +42,11 @@ export class List<E> implements IList<E> {
       this.size++
     }
   }
+  addAll(c: ICollection<E>) {
+    for (let e of c) {
+      this.add(e)
+    }
+  }
   get(index: number): E {
     return this.arr[index]
   }
@@ -42,6 +55,14 @@ export class List<E> implements IList<E> {
     if (index < 0 || index >= this.size || e === undefined) return false
     this.arr[index] = e
     return true
+  }
+
+  slice(startIndex: number, endIndex: number): List<E> {
+    const slice = new List<E>()
+    for (let i = startIndex; i <= endIndex; i++) {
+      slice.add(this.get(i))
+    }
+    return slice;
   }
 
   clear(): void {
@@ -61,6 +82,21 @@ export class List<E> implements IList<E> {
     }
 
     return false
+  }
+
+  /**
+   * For this method to work, a comparator must be set
+   * @param e
+   */
+  contains(e: E): boolean {
+    for (const _e of this) {
+      if (this.comparator(e, _e) === Ordering.EQ) return true
+    }
+    return false;
+  }
+
+  sort(cmp: Comparator<E>): void {
+    this.arr.sort(cmp)
   }
 
   *reverseIterator() {
@@ -88,14 +124,16 @@ export class List<E> implements IList<E> {
 }
 
 export class LinkedList<E> implements ILinkedList<E> {
-  private first: Node<E>
-  private last: Node<E>
+  first: Node<E>
+  last: Node<E>
   size: number = 0
+  comparator: Comparator<E> = null!
 
-  constructor(collection?: Collection<E>) {
+  constructor(collection?: Collection<E>, reverse = false) {
     if (collection) {
       for (let el of collection) {
-        this.add(el)
+        if (reverse) this.addFirst(el)
+        else this.add(el)
       }
     }
   }
@@ -106,6 +144,12 @@ export class LinkedList<E> implements ILinkedList<E> {
    */
   add(e: E): void {
     this.addLast(e)
+  }
+
+  addAll(c: ICollection<E>) {
+    for (let e of c) {
+      this.add(e)
+    }
   }
 
   /**
@@ -153,7 +197,6 @@ export class LinkedList<E> implements ILinkedList<E> {
     this.size = 0
   }
 
-
   /**
    * O(size)<br>
    * Ω(1)
@@ -176,6 +219,14 @@ export class LinkedList<E> implements ILinkedList<E> {
     if (index < 0 || index >= this.size || e === undefined) return false
     this.getNode(index)!.value = e
     return true
+  }
+
+  slice(startIndex: number, endIndex: number): LinkedList<E> {
+    const slice = new LinkedList<E>()
+    for (let i = startIndex; i <= endIndex; i++) {
+      slice.add(this.get(i))
+    }
+    return slice;
   }
 
   /**
@@ -297,7 +348,23 @@ export class LinkedList<E> implements ILinkedList<E> {
   }
 
   /**
+   * For this method to work, a comparator must be set
+   * @param e
+   */
+  contains(e: E): boolean {
+    for (const _e of this) {
+      if (this.comparator(e, _e) === Ordering.EQ) return true
+    }
+    return false;
+  }
+
+  sort(cmp: Comparator<E>): void {
+    cmp(null!, null!)
+  }
+
+  /**
    * O(∑ i=1 to size (i))
+   * Ω(1)
    */
   *reverseIterator() {
     for (let i = this.size - 1; i >= 0 ; i--) {
@@ -329,14 +396,16 @@ export class LinkedList<E> implements ILinkedList<E> {
 }
 
 export class DoublyLinkedList<E> implements ILinkedList<E> {
-  private first: Node<E>
-  private last: Node<E>
+  first: Node<E>
+  last: Node<E>
   size = 0
+  comparator: Comparator<E> = null!
 
-  constructor(collection?: Collection<E>) {
+  constructor(collection?: Collection<E>, reverse = false) {
     if (collection) {
       for (let el of collection) {
-        this.add(el)
+        if (reverse) this.addFirst(el)
+        else this.add(el)
       }
     }
   }
@@ -347,6 +416,12 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
    */
   add(e: E): void {
     this.addLast(e)
+  }
+
+  addAll(c: ICollection<E>) {
+    for (let e of c) {
+      this.add(e)
+    }
   }
 
   /**
@@ -429,6 +504,14 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
     if (index < 0 || index >= this.size || e === undefined) return false
     this.getNode(index)!.value = e
     return true
+  }
+
+  slice(startIndex: number, endIndex: number): DoublyLinkedList<E> {
+    const slice = new DoublyLinkedList<E>()
+    for (let i = startIndex; i <= endIndex; i++) {
+      slice.add(this.get(i))
+    }
+    return slice;
   }
 
   /**
@@ -518,8 +601,7 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
   }
 
   /**
-   * O(size / 2)<br>
-   * Ω(1)
+   * O(1)
    */
   removeLast(): boolean {
     switch (this.size) {
@@ -565,7 +647,24 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
   }
 
   /**
-   * O(∑ i=1 to size (i))
+   * For this method to work, a comparator must be set
+   * @param e
+   */
+  contains(e: E): boolean {
+    for (const _e of this) {
+      if (this.comparator(e, _e) === Ordering.EQ) return true
+    }
+    return false;
+  }
+
+  sort(cmp: Comparator<E>): void {
+    cmp(null!, null!)
+  }
+
+  /**
+   * In even cases: O(∑ i=1 to &lfloor;size&divide;2&rfloor; (i*2))<br>
+   * In odd cases: O((∑ i=1 to &lfloor;size&divide;2&rfloor; (i*2)) + &lceil;size&divide;2&rceil;)<br>
+   * Ω(1)
    */
   *reverseIterator() {
     for (let i = this.size - 1; i >= 0 ; i--) {
@@ -597,14 +696,16 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
 }
 
 export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
-  private first: Node<E>
-  private last: Node<E>
+  first: Node<E>
+  last: Node<E>
   size = 0;
+  comparator: Comparator<E> = null!
 
-  constructor(collection?: Collection<E>) {
+  constructor(collection?: Collection<E>, reverse = false) {
     if (collection) {
       for (let el of collection) {
-        this.add(el)
+        if (reverse) this.addFirst(el)
+        else this.add(el)
       }
     }
   }
@@ -615,6 +716,12 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
    */
   add(e: E): void {
     this.addLast(e)
+  }
+
+  addAll(c: ICollection<E>) {
+    for (let e of c) {
+      this.add(e)
+    }
   }
 
   /**
@@ -709,6 +816,14 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
     if (index < 0 || index >= this.size || e === undefined) return false
     this.getNode(index)!.value = e
     return true
+  }
+
+  slice(startIndex: number, endIndex: number): CyclicDoublyLinkedList<E> {
+    const slice = new CyclicDoublyLinkedList<E>()
+    for (let i = startIndex; i <= endIndex; i++) {
+      slice.add(this.get(i))
+    }
+    return slice;
   }
 
   /**
@@ -853,7 +968,24 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
   }
 
   /**
-   * O(∑ i=1 to size (i))
+   * For this method to work, a comparator must be set
+   * @param e
+   */
+  contains(e: E): boolean {
+    for (const _e of this) {
+      if (this.comparator(e, _e) === Ordering.EQ) return true
+    }
+    return false;
+  }
+
+  sort(cmp: Comparator<E>): void {
+    cmp(null!, null!)
+  }
+
+  /**
+   * In even cases: O(∑ i=1 to &lfloor;size&divide;2&rfloor; (i*2))<br>
+   * In odd cases: O((∑ i=1 to &lfloor;size&divide;2&rfloor; (i*2)) + &lceil;size&divide;2&rceil;)<br>
+   * Ω(1)
    */
   *reverseIterator() {
     for (let i = this.size - 1; i >= 0 ; i--) {

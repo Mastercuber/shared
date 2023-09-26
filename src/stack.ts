@@ -1,14 +1,17 @@
-import {ICollection, Collection, Node} from "./index";
+import {Collection, Comparator, ICollection, Node, Ordering} from "./index";
 
 export interface IStack<E> extends ICollection<E> {
   push(e: E): void
   pop(): E
   top(): E
+  contains(e: E): boolean
+  comparator: Comparator<E>
 }
 
 export class Stack<E> implements IStack<E> {
   private arr: E[] = []
   size = 0
+  comparator: Comparator<E> = null!
   constructor(collection?: Collection<E>) {
     if (collection) {
       for(const el of collection) {
@@ -46,6 +49,17 @@ export class Stack<E> implements IStack<E> {
     }
   }
 
+  /**
+   * To use this method, a comparator must be set
+   * @param e
+   */
+  contains(e: E): boolean {
+    for (const _e of this) {
+      if (this.comparator(e, _e) === Ordering.EQ) return true
+    }
+    return false
+  }
+
   [Symbol.iterator](): Iterator<E> {
     const stack = this
     let index = this.size - 1
@@ -67,6 +81,7 @@ export class Stack<E> implements IStack<E> {
 export class LinkedStack<E> implements IStack<E> {
   private _top: Node<E>
   size = 0
+  comparator: Comparator<E> = null!
   constructor(collection?: Collection<E>) {
     if (collection) {
       for(const el of collection) {
@@ -124,7 +139,18 @@ export class LinkedStack<E> implements IStack<E> {
   }
 
   /**
-   * O(size - 1)
+   * To use this method, a comparator must be set
+   * @param e
+   */
+  contains(e: E): boolean {
+    for (const _e of this) {
+      if (this.comparator(e, _e) === Ordering.EQ) return true
+    }
+    return false
+  }
+
+  /**
+   * O(size)
    */
   [Symbol.iterator](): Iterator<E> {
     let top = this._top

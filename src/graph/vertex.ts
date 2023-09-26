@@ -1,4 +1,4 @@
-import {Point} from "../math/math.ts";
+import {Point} from "../math/point.ts";
 import {IEdge} from "./edge.ts";
 
 export type VertexProperties = {

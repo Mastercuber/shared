@@ -1,4 +1,4 @@
-import {ICollection, CyclicDoublyLinkedList, LinkedList} from "./index";
+import {ICollection, CyclicDoublyLinkedList, LinkedList, Comparator, Ordering} from "./index";
 
 export type HeapNode<E> = {
   value: E
@@ -10,17 +10,11 @@ export type HeapNode<E> = {
   child?: HeapNode<E>
 }
 
-export enum Ordering {
-  LT = -1,
-  EQ = 0,
-  GT = 1
-}
-
 // The Comparator has one requirement: When the "left" value is "null" the ordering must be Ordering.GT
-// This is needed for delete to function
-export type Comparator<E> = (left: E, right: E) => Ordering
+// This is needed for delete to function correctly
 
-export interface IFibonacciHeap<E> extends ICollection<HeapNode<E>>{
+
+export interface IFibonacciHeap<E> extends ICollection<HeapNode<E>> {
   rootList: HeapNode<E>
   minNode: HeapNode<E>
   insert(element: E): HeapNode<E>
@@ -44,6 +38,10 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
     this.comparator = comparator
   }
 
+  /**
+   * O(1)
+   * @param e
+   */
   insert(e: E): HeapNode<E> {
     if (e === undefined) return undefined!
     // @ts-ignore
@@ -67,6 +65,11 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
     return node
   }
 
+  /**
+   * O(log(size)) (amortized)
+   *
+   * @param e
+   */
   delete(e: HeapNode<E>): HeapNode<E> {
     this.decreaseKey(e, null!)
     return this.extractMin()
@@ -74,6 +77,8 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
 
   /**
    * Decreases a nodes key. When the newValue is null or undefined, node will get the new minNode
+   *
+   * O(1) (amortized)
    *
    * @param node
    * @param newValue
@@ -97,11 +102,17 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
     }
   }
 
+  /**
+   * O(1)
+   */
   minimum(): HeapNode<E> {
     if (this.isEmpty()) throw new Error("no such element")
     return this.minNode;
   }
 
+  /**
+   * O(log(size)) (amortized)
+   */
   extractMin(): HeapNode<E> {
     const min = this.minNode
     if (min) {
@@ -134,7 +145,7 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
   /**
    * O(1)
    *
-   * @param heap heap to merge in the current one
+   * @param heap to merge in the current one
    */
   union(heap: IFibonacciHeap<E>): void {
     if (!this.minNode) {
@@ -157,10 +168,16 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
     this.size = this.size + heap.size
   }
 
+  /**
+   * O(1)
+   */
   isEmpty(): boolean {
     return this.size === 0
   }
 
+  /**
+   * O(1)
+   */
   clear(): void {
     this.rootList = this.minNode = undefined!
     this.size = 0
@@ -245,18 +262,11 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
 
   // sieht gut aus
   private mergeWithRootList(node: HeapNode<E>): void {
-    if (!this.rootList) {
-      this.rootList = node
-      this.rootList.parent = this.rootList.child = undefined
-      this.rootList.left = this.rootList.right = this.rootList
-      this.rootList.marked = false
-    } else {
-      node.right = this.rootList
-      node.left = this.rootList.left
-      node.parent = undefined
-      this.rootList.left.right = node
-      this.rootList.left = node
-    }
+    node.right = this.rootList
+    node.left = this.rootList.left
+    node.parent = undefined
+    this.rootList.left.right = node
+    this.rootList.left = node
   }
 
   // sieht gut aus

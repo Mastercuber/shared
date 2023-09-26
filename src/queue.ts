@@ -1,4 +1,4 @@
-import {ICollection, Collection, Comparator, FibonacciHeap, IStack, Node} from "./index";
+import {ICollection, Collection, Comparator, FibonacciHeap, IStack, Node, Ordering} from "./index";
 
 export interface IQueue<E> extends ICollection<E> {
   enqueue(e: E): void
@@ -6,7 +6,7 @@ export interface IQueue<E> extends ICollection<E> {
   head(): E
 }
 
-export interface IDequeue<E> extends IQueue<E>, IStack<E>, ICollection<E> {
+export interface IDequeue<E> extends IQueue<E>, IStack<E> {
   reverseIterator(): Generator<E>
 }
 
@@ -137,7 +137,7 @@ export class LinkedQueue<E> implements IQueue<E> {
   }
 
   /**
-   * O(size - 1)
+   * O(size)
    */
   [Symbol.iterator](): Iterator<E> {
     let head = this._head
@@ -206,6 +206,7 @@ export class Dequeue<E> implements IDequeue<E> {
   size = 0
   private _head: Node<E>
   private tail: Node<E>
+  comparator: Comparator<E> = null!
 
   constructor(collection?: Collection<E>) {
     if (collection) {
@@ -340,6 +341,17 @@ export class Dequeue<E> implements IDequeue<E> {
   clear() {
     this._head = this.tail = undefined
     this.size = 0
+  }
+
+  /**
+   * For this method to work, a comparator must be set
+   * @param e
+   */
+  contains(e: E): boolean {
+    for (const _e of this) {
+      if (this.comparator(e, _e) === Ordering.EQ) return true
+    }
+    return false;
   }
 
   /**

@@ -1,13 +1,18 @@
-import {Ordering} from "./heap.ts";
-
-export type Collection<E> = ICollection<E> | Array<E> | Set<E>
-
 export interface ICollection<E> extends Iterable<E> {
   size: number
   isEmpty(): boolean
   clear(): void
-/*  has(e: E): boolean*/
+  /*current: Node<E>*/
+  /*  has(e: E): boolean*/
 }
+export type Collection<E> = ICollection<E> | Array<E> | Set<E>
+export enum Ordering {
+  LT = -1,
+  EQ = 0,
+  GT = 1
+}
+
+export type Comparator<E> = (e1: E, e2: E) => Ordering | number
 
 export type Node<E> = undefined | {
   value: E
@@ -34,3 +39,4 @@ export * from './queue'
 export * from './list'
 export * from './heap'
 export * from './graph'
+export * from './sort'

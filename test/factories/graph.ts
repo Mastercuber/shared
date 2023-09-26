@@ -1,5 +1,8 @@
 // @ts-ignore
 import {Graph, Vertex} from "@/";
+import {Comparator, Ordering} from "../../src";
+
+export let comparator: Comparator<Vertex> = (v1, v2) => v1.uuid === v2.uuid ? Ordering.EQ : v1.outdeg() < v2.outdeg() ? Ordering.LT : Ordering.GT
 
 export class GraphFactory {
     static createDirectedGraphA() {
@@ -11,7 +14,7 @@ export class GraphFactory {
 
         const graph = new Graph({
             vertices: new Set([a, b, c, d, e])
-        });
+        }, comparator);
         graph.createEdge(a, c)
         graph.createEdge(c, d)
         graph.createEdge(c, b)
@@ -41,7 +44,7 @@ export class GraphFactory {
 
         const graph = new Graph({
             vertices: new Set([_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13])
-        })
+        }, comparator)
         graph.createEdge(_1, _2)
         graph.createEdge(_2, _4)
         graph.createEdge(_4, _3)
@@ -75,7 +78,7 @@ export class GraphFactory {
         const graph = new Graph({
             vertices: new Set([_1, _2, _3, _4, _5, _6, _7]),
             title: 'example graph 118'
-        })
+        }, comparator)
         graph.createEdge(_1, _4)
         graph.createEdge(_4, _6)
         graph.createEdge(_7, _4)
@@ -99,7 +102,7 @@ export class GraphFactory {
         const graph = new Graph({
             vertices: new Set([C, D, E, F, G, H]),
             title: 'example graph G'
-        })
+        }, comparator)
 
         graph.createEdge(C, D, 'C -> D', true, 3)
         graph.createEdge(C, E, 'C -> E', true, 2)
@@ -125,7 +128,7 @@ export class GraphFactory {
         const graph = new Graph({
             vertices: new Set([A, B, C, D, E]),
             title: 'example graph G'
-        })
+        }, comparator)
 
         graph.createEdge(D, C, 'D -> C', false, 1)
         graph.createEdge(C, E, 'C -> E', false, 1)

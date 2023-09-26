@@ -1,6 +1,6 @@
-import {IEdge, Edge} from "./edge.ts";
+import {Edge, IEdge} from "./edge.ts";
 import {IVertex, Vertex} from "./vertex.ts";
-import {PriorityQueue, Ordering} from "../"
+import {Comparator, DoublyLinkedList, IStack, LinkedStack, Ordering, PriorityQueue} from "../"
 
 export type GraphProperties = {
     uuid?: string;
@@ -18,8 +18,8 @@ export type GraphProperties = {
 }
 export interface IGraph<V extends IVertex, E extends IEdge> extends GraphProperties {
     infer(): void;
-    depthFirstSearch(startVertex: V, L: Array<V>): Array<V>;
-    breadthFirstSearch(startVertex: V): Array<V>;
+    depthFirstSearch(startVertex: V, L: Array<V>): DoublyLinkedList<V>;
+    breadthFirstSearch(startVertex: V): DoublyLinkedList<V>;
     shortestPath(from: V, to: V): Array<V>;
     kShortestPaths(from: V, to: V, k: number): Array<Array<V>>;
     minimalSpanningTree(): IGraph<V, E>;
@@ -80,12 +80,15 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
     cycleCount = 0;
     hasCycles = false;
     hasNegativeCycles = false;
+    comparator: Comparator<V>
 
     constructor(
         options: GraphProperties = <GraphProperties>{},
+        _comparator: Comparator<V>,
         private vertexType: new(options?: any) => V,
         private edgeType: new(options?: any) => E,
     ) {
+        this.comparator = _comparator
         options = {
             ...{
                 uuid: crypto.randomUUID(),
@@ -123,24 +126,25 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
         this.checkForCycles()
     }
 
-    depthFirstSearch(startVertex: V, L?: V[]): V[] {
-        const stack: Array<V> = [];
+    depthFirstSearch(startVertex: V, L?: V[]): DoublyLinkedList<V> {
+        const stack: IStack<V> = new LinkedStack<V>()
         const neighbours: Map<V, Array<V>> = new Map<V, Array<V>>()
-        const markedVertices: Array<V> = []
+        const markedVertices: IStack<V> = new LinkedStack<V>()
+        markedVertices.comparator = this.comparator
 
         stack.push(startVertex)
         markedVertices.push(startVertex)
         neighbours.set(startVertex, [...startVertex.getReachableNeighbours()] as V[])
 
-        while (stack.length !== 0) {
-            const topOfStack = stack[stack.length - 1]
+        while (!stack.isEmpty()) {
+            const topOfStack = stack.top()
 
             if (neighbours.get(topOfStack)!.length !== 0) {
                 const v2 = neighbours.get(topOfStack)![0]
                 const _neighbours = neighbours.get(topOfStack) as V[]
                 _neighbours.splice(_neighbours.indexOf(v2), 1)
 
-                if (!markedVertices.find(v => v.uuid === v2.uuid)) {
+                if (!markedVertices.contains(v2)) {
                     stack.push(v2)
                     markedVertices.push(v2)
                     neighbours.set(v2, [...v2.getReachableNeighbours()] as V[])
@@ -151,27 +155,30 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
             }
         }
 
-        return markedVertices;
+        const list = new DoublyLinkedList<V>(markedVertices, true);
+        list.comparator = this.comparator
+        return list
     }
 
     breadthFirstSearch(startVertex: V) {
-        const stack: V[] = []
+        const stack: IStack<V> = new LinkedStack<V>()
         const neighbours: Map<V, Set<V>> = new Map()
-        const markedVertices: Array<V> = []
+        const markedVertices: IStack<V> = new LinkedStack<V>()
+        markedVertices.comparator = this.comparator
 
         markedVertices.push(startVertex)
 
         stack.push(startVertex);
         neighbours.set(startVertex, startVertex.getReachableNeighbours() as Set<V>)
 
-        while (stack.length !== 0) {
-            const v = stack[stack.length - 1]
+        while (!stack.isEmpty()) {
+            const v = stack.top()
 
             if (neighbours.get(v)!.size !== 0) {
                 const v2 = [...neighbours.get(v)!][0]
                 neighbours.get(v)!.delete(v2)
 
-                if (!markedVertices.includes(v2)) {
+                if (!markedVertices.contains(v2)) {
                     stack.push(v2)
                     markedVertices.push(v2)
                     neighbours.set(v2, v2.getReachableNeighbours() as Set<V>)
@@ -181,7 +188,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
             }
         }
 
-        return markedVertices;
+        return new DoublyLinkedList<V>(markedVertices, true);
     }
 
     /**
@@ -293,7 +300,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
         return new AGraph<V, E>({
             vertices: this.vertices,
             edges: _edges
-        }, this.vertexType, this.edgeType)
+        }, this.comparator, this.vertexType, this.edgeType)
     }
 
     topologicalSorting(): Array<V> {
@@ -509,13 +516,13 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
             for (let v of this.vertices) {
                 const dfs = this.depthFirstSearch(v)
                 const edges = new Set<E>()
-                dfs.forEach(_v => {
+                for (const _v of dfs) {
                     _v.outgoingEdges?.forEach(e => edges.add(e as E))
-                })
+                }
                 connectedComponents.push(new AGraph<V, E>({
                     vertices: new Set(dfs),
                     edges
-                }, this.vertexType, this.edgeType))
+                }, this.comparator, this.vertexType, this.edgeType))
             }
 
             this.connectedComponentsCount = connectedComponents.length
@@ -529,7 +536,9 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
 
         for (let v of this.vertices) {
             if (!visitedVertices.has(v)) {
-                this.depthFirstSearch(v).forEach(_v => vertices.add(_v))
+                for (const _v of this.depthFirstSearch(v)) {
+                    vertices.add(_v)
+                }
                 vertices.forEach(_v => visitedVertices.add(_v))
 
                 vertices.forEach(w => {
@@ -538,7 +547,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
 
                 connectedComponents.push(new AGraph<V, E>({
                     vertices, edges
-                }, this.vertexType, this.edgeType))
+                }, this.comparator, this.vertexType, this.edgeType))
 
                 vertices.clear()
                 edges.clear()
@@ -559,14 +568,14 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
                 components.add(new AGraph<V, E>({
                     vertices: new Set([a]),
                     edges: new Set()
-                }, this.vertexType, this.edgeType))
+                }, this.comparator, this.vertexType, this.edgeType))
                 continue;
             }
 
             for (let b of this.vertices) {
                 if (a.uuid === b.uuid) continue
 
-                let dfsv: Array<V>, dfsw: Array<V>;
+                let dfsv: DoublyLinkedList<V>, dfsw: DoublyLinkedList<V>;
                 if (cache.has(a)) {
                     dfsv = cache.get(a)
                 } else {
@@ -580,7 +589,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
                     cache.set(b, dfsw)
                 }
 
-                if (dfsw.includes(a) && dfsv.includes(b)) {
+                if (dfsw.contains(a) && dfsv.contains(b)) {
                     let first: IGraph<V, E> | null = null
                     for (let component of components) {
                         if (component.vertices?.has(a))
@@ -594,7 +603,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
                         components.add(new AGraph<V, E>({
                             vertices: new Set([a, b]),
                             edges: new Set()
-                        }, this.vertexType, this.edgeType))
+                        }, this.comparator, this.vertexType, this.edgeType))
                     }
                 }
             }
@@ -703,15 +712,15 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
                 .every(v => v)
         }
 
-        let last: Array<V> | null = null
+        let last: DoublyLinkedList<V> | null = null
 
         for (let currentVertex of this.vertices) {
             const reachableNeighbours = this.depthFirstSearch(currentVertex)
 
             if (last === null) last = reachableNeighbours
             else if (
-                last.length !== reachableNeighbours.length
-                || this.verticesArrayEquals(last, reachableNeighbours)
+                last.size !== reachableNeighbours.size
+                || this.verticesArrayEquals([...last], [...reachableNeighbours])
             ) {
                 return false;
             }
@@ -729,7 +738,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
         const reachableVertices = this.depthFirstSearch(v)
 
         for (let v2 of cloned) {
-            if (!reachableVertices.includes(v2)) {
+            if (!reachableVertices.contains(v2)) {
                 return false
             }
         }
@@ -745,11 +754,11 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
         const cloned = new Set(this.vertices)
         cloned.delete(v)
         const reachableVertices = this.depthFirstSearch(v)
-
+        reachableVertices.comparator = this.comparator
         for (let v2 of cloned) {
-            if (reachableVertices.includes(v2)) {
+            if (reachableVertices.contains(v2)) {
                 const reachableVerticesV2 = this.depthFirstSearch(v2)
-                if (!reachableVerticesV2.includes(v)) {
+                if (!reachableVerticesV2.contains(v)) {
                     return false
                 }
             }
@@ -892,7 +901,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
     }
 
     protected constructShortestPath(from: V, to: V, predecessors: Map<V, V>): Array<V> {
-        const shortestPath: V[] = []
+        const shortestPath: Array<V> = []
 
         let p = predecessors.get(to)!
         if (!p) return shortestPath
@@ -986,7 +995,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
 }
 
 export class Graph extends AGraph<Vertex, Edge> {
-    constructor(props: GraphProperties) {
-        super(props, Vertex, Edge);
+    constructor(props: GraphProperties, comparator: Comparator<Vertex>) {
+        super(props, comparator, Vertex, Edge);
     }
 }

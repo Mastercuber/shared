@@ -1,5 +1,5 @@
 import {beforeAll, beforeEach, describe, expect, it} from "vitest";
-import {FibonacciHeap, numberComparator, Ordering} from "../src";
+import {FibonacciHeap, numberComparator, Ordering, stringComparator} from "../src";
 
 // A bunch of tests of this test file are taken from "ts-fibonacci-heap" which is under the MIT license
 // Copyright (c) 2014 Daniel Imms, http://www.growingwiththeweb.com
@@ -15,6 +15,20 @@ describe("fibonacci heap", () => {
     heap = new FibonacciHeap<number>(comparator)
   })
   beforeEach(() => heap.clear())
+
+  it('should insert strings into heap', () => {
+    const heap = new FibonacciHeap<string>(stringComparator)
+    const A1 = heap.insert("A")
+    const A2 = heap.insert("A")
+    const B = heap.insert("B")
+    const C = heap.insert("C")
+    expect(heap.size).toBe(4)
+    expect(heap.extractMin()).toEqual(A1)
+    expect(heap.extractMin()).toEqual(A2)
+    expect(heap.extractMin()).toEqual(B)
+    expect(heap.extractMin()).toEqual(C)
+    expect(heap.size).toBe(0)
+  });
 
   it('should create an empty heap', () => {
     expect(heap).not.toBeNull

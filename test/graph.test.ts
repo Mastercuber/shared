@@ -1,6 +1,6 @@
 import {beforeEach, describe, expect, it} from "vitest";
-import {AGraph, Edge, FibonacciHeap, Graph, GraphProperties, IVertex, Ordering, Vertex} from "../src";
-import {GraphFactory} from './factories/graph.ts'
+import {AGraph, Comparator, Edge, FibonacciHeap, Graph, GraphProperties, IVertex, Ordering, Vertex} from "../src";
+import {comparator, GraphFactory} from './factories/graph.ts'
 
 describe("Graph Testsuite", () => {
     let graph: Graph
@@ -8,7 +8,7 @@ describe("Graph Testsuite", () => {
     beforeEach(() => {
         graph = new Graph({
             uuid: "1"
-        })
+        }, comparator)
         v1 = new Vertex({
             title: 'v1'
         })
@@ -90,6 +90,7 @@ describe("Graph Testsuite", () => {
     describe("graph algorithms", () => {
         it("k shortest paths", () => {
             const g = GraphFactory.createDirectedWeightedGraphG()
+            g.comparator = comparator
             // @ts-ignore
             const vertices = [...g.vertices]
             const C = vertices.find(v => v.title === 'C')
@@ -99,18 +100,21 @@ describe("Graph Testsuite", () => {
             const sp2 = shortestPaths[1]
             const sp3 = shortestPaths[2]
 
-            expect(shortestPaths).toHaveLength(3)
+            expect(shortestPaths.length).toBe(3)
 
+            expect(sp1.length).toBe(4)
             expect(sp1[0].title).toBe("C")
             expect(sp1[1].title).toBe("E")
             expect(sp1[2].title).toBe("F")
             expect(sp1[3].title).toBe("H")
 
+            expect(sp2.length).toBe(4)
             expect(sp2[0].title).toBe("C")
             expect(sp2[1].title).toBe("E")
             expect(sp2[2].title).toBe("G")
             expect(sp2[3].title).toBe("H")
 
+            expect(sp3.length).toBe(4)
             expect(sp3[0].title).toBe("C")
             expect(sp3[1].title).toBe("D")
             expect(sp3[2].title).toBe("F")
@@ -123,7 +127,7 @@ describe("Graph Testsuite", () => {
             const v1 = c[0]
             const v2 = c[1]
             const sp = g.shortestPath(v1, v2)
-            expect(sp).toHaveLength(3)
+            expect(sp.length).toBe(3)
             expect(sp[0].title).toBe("1")
             expect(sp[1].title).toBe("4")
             expect(sp[2].title).toBe("2")
@@ -143,24 +147,24 @@ describe("Graph Testsuite", () => {
             }))
             const mv = graph.depthFirstSearch(v1)
             const mv2 = graph.breadthFirstSearch(v1)
-            expect(mv[0]).toBe(v1)
-            expect(mv[1]).toBe(v2)
-            expect(mv[2]).toBe(v3)
-            expect(mv2[0]).toBe(v1)
-            expect(mv2[1]).toBe(v2)
-            expect(mv2[2]).toBe(v3)
+            expect(mv.get(0)).toBe(v1)
+            expect(mv.get(1)).toBe(v2)
+            expect(mv.get(2)).toBe(v3)
+            expect(mv2.get(0)).toBe(v1)
+            expect(mv2.get(1)).toBe(v2)
+            expect(mv2.get(2)).toBe(v3)
 
             const mv3 = graph.depthFirstSearch(v2)
             const mv4 = graph.breadthFirstSearch(v2)
-            expect(mv3[0]).toBe(v2)
-            expect(mv3[1]).toBe(v3)
-            expect(mv4[0]).toBe(v2)
-            expect(mv4[1]).toBe(v3)
+            expect(mv3.get(0)).toBe(v2)
+            expect(mv3.get(1)).toBe(v3)
+            expect(mv4.get(0)).toBe(v2)
+            expect(mv4.get(1)).toBe(v3)
 
             const mv5 = graph.depthFirstSearch(v3)
             const mv6 = graph.breadthFirstSearch(v3)
-            expect(mv5[0]).toBe(v3)
-            expect(mv6[0]).toBe(v3)
+            expect(mv5.get(0)).toBe(v3)
+            expect(mv6.get(0)).toBe(v3)
         })
 
         it.skip("infer cycles", () => {
@@ -274,7 +278,7 @@ describe("Graph Testsuite", () => {
     })
 
     it("custom graph and vertex", () => {
-        const g = new Graph2({title: 'g', uuid: '22'})
+        const g = new Graph2({title: 'g', uuid: '22'}, comparator)
         g.addVertex(new Vertex2({title: 'A'}))
         expect(g.vertices).toHaveLength(1)
         expect(g.newGraphProp).toEqual("gprop")
@@ -285,7 +289,7 @@ describe("Graph Testsuite", () => {
     })
 
     it('should return edges in min order', () => {
-        const g = new Graph({})
+        const g = new Graph({}, comparator)
         const A = new Vertex({title: 'A'})
         const B = new Vertex({title: 'B'})
         const C = new Vertex({title: 'C'})
@@ -332,8 +336,8 @@ describe("Graph Testsuite", () => {
 
 class Graph2 extends AGraph<Vertex2, Edge> {
     newGraphProp = 'gprop'
-    constructor(props: GraphProperties) {
-        super(props, Vertex2, Edge);
+    constructor(props: GraphProperties, comparator: Comparator<Vertex2>) {
+        super(props, comparator, Vertex2, Edge);
     }
 }
 
