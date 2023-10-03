@@ -12,7 +12,7 @@ export enum Ordering {
   GT = 1
 }
 
-export type Comparator<E> = (e1: E, e2: E) => Ordering | number
+export type Comparator<E> = (e1: E, e2: E) => Ordering
 
 export type Node<E> = undefined | {
   value: E

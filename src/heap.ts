@@ -1,4 +1,4 @@
-import {ICollection, CyclicDoublyLinkedList, LinkedList, Comparator, Ordering} from "./index";
+import { ICollection, CyclicDoublyLinkedList, LinkedList, Comparator, Ordering, Collection } from './index'
 
 export type HeapNode<E> = {
   value: E
@@ -14,7 +14,7 @@ export type HeapNode<E> = {
 // This is needed for delete to function correctly
 
 
-export interface IFibonacciHeap<E> extends ICollection<HeapNode<E>> {
+export interface IFibonacciHeap<E> extends ICollection<E> {
   rootList: HeapNode<E>
   minNode: HeapNode<E>
   insert(element: E): HeapNode<E>
@@ -34,8 +34,13 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
   comparator: Comparator<E>
   private readonly goldenCut = (1 + Math.sqrt(5)) / 2
 
-  constructor(comparator: Comparator<E>) {
+  constructor(comparator: Comparator<E>, collection?: Collection<E>) {
     this.comparator = comparator
+    if (collection) {
+      for (const e of collection) {
+        this.insert(e)
+      }
+    }
   }
 
   /**
@@ -84,11 +89,11 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
    * @param newValue
    */
   decreaseKey(node: HeapNode<E>, newValue: E): void {
-    if (!node) throw new Error("node to decrease is null!")
+    if (!node) throw new Error('node to decrease is null!')
     if (newValue && node && this.comparator(newValue, node.value) === Ordering.GT) {
-      throw new Error("new value is greater then old one")
+      throw new Error('new value is greater then old one')
     }
-    if ((typeof newValue !== 'number') && !newValue) {
+    if (typeof newValue !== 'number' && !newValue) {
       this.minNode = node
     }
     node.value = newValue
@@ -106,8 +111,8 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
    * O(1)
    */
   minimum(): HeapNode<E> {
-    if (this.isEmpty()) throw new Error("no such element")
-    return this.minNode;
+    if (this.isEmpty()) throw new Error('no such element')
+    return this.minNode
   }
 
   /**
@@ -119,7 +124,7 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
       if (min.child) {
         for (const child of this.extractChildren(min)) {
           this.mergeWithRootList(child)
-          child!.parent = undefined
+          child.parent = undefined
         }
       }
 
@@ -128,16 +133,14 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
       if (this.size === 1) {
         this.minNode = this.rootList = undefined!
       } else {
-        if (this.comparator(min.left.value, min.right.value) === Ordering.LT)
-          this.minNode = min.left
-        else
-          this.minNode = min.right
+        if (this.comparator(min.left.value, min.right.value) === Ordering.LT) this.minNode = min.left
+        else this.minNode = min.right
         this.consolidate()
       }
 
       this.size--
     } else {
-      throw new Error("no such element")
+      throw new Error('no such element')
     }
     return min
   }
@@ -287,7 +290,7 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
     }
 
     const nodes = this.extractNeighbours(this.rootList, true)
-    for (let w of nodes) {
+    for (const w of nodes) {
       let x = w
       let d = x.degree
 
@@ -333,42 +336,41 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
   }
 
 
-  *valuesIterator() {
+  *nodeIterator() {
     if (this.size === 0) return
     const values = new LinkedList<E>()
     while (this.size !== 0) {
-      const e = this.extractMin().value
+      const e = this.extractMin()
       yield e
-      values.add(e)
+      values.add(e.value)
     }
-    for (let value of values) {
+    for (const value of values) {
       this.insert(value)
     }
   }
 
-  [Symbol.iterator](): Iterator<HeapNode<E>> {
+  [Symbol.iterator](): Iterator<E> {
     const heap = this
     const values = new LinkedList<E>()
     return {
       next: () => {
         if (heap.isEmpty()) {
+          for (const value of values) {
+            heap.insert(value)
+          }
           return {
             done: true,
             value: null
           }
         }
+
         const min = heap.extractMin()
         values.add(min.value)
         return {
-          done: this.isEmpty() && (() => {
-            for (let value of values) {
-              heap.insert(value)
-            }
-            return true
-          })(),
-          value: min
+          done: false,
+          value: min.value
         }
       }
-    };
+    }
   }
 }

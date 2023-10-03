@@ -1,21 +1,29 @@
-import {beforeEach, describe, expect, it} from "vitest";
+import {afterEach, beforeEach, describe, expect, it} from 'vitest'
 import {
   Collection,
   CyclicDoublyLinkedList,
+  Dequeue,
   DoublyLinkedList,
+  FibonacciHeap,
   ILinkedList,
   IList,
   LinkedList,
-  List
-} from "../src";
+  LinkedQueue,
+  LinkedStack,
+  List,
+  numberComparator,
+  PriorityQueue,
+  Queue,
+  Stack
+} from '../src'
 
-function linkedListTests(list: ILinkedList<number>, listType: new (collection?: Collection<number>) => IList<number>) {
+function linkedListTests(list: ILinkedList<number>, listType: new (collection?: Collection<number>, reverse?: boolean) => IList<number>) {
   commonListTests(list, listType)
-  describe("common linked list tests", () => {
+  describe('common linked list tests', () => {
     beforeEach(() => {
       list.clear()
     })
-    it("adds first and last elements correctly", () => {
+    it('adds first and last elements correctly', () => {
       expect(list.size).toBe(0)
       list.addFirst(5)
       expect(list.getLast()).toBe(5)
@@ -68,28 +76,29 @@ function linkedListTests(list: ILinkedList<number>, listType: new (collection?: 
       expect(list.get(6)).toBe(6)
       expect(list.getLast()).toBe(6)
     })
-    it("removes first and last items correctly", () => {
+    it('removes first and last elements correctly', () => {
       list.add(1)
       list.add(2)
       list.add(3)
       list.add(4)
       list.add(5)
       expect(list.size).toBe(5)
-      expect(list.removeFirst()).toBeTruthy()
+      expect(list.removeFirst()).toBe(1)
       expect(list.size).toBe(4)
       expect(list.getFirst()).toBe(2)
-      expect(list.removeFirst()).toBeTruthy()
+      expect(list.removeFirst()).toBe(2)
       expect(list.getFirst()).toBe(3)
-      expect(list.removeFirst()).toBeTruthy()
+      expect(list.removeFirst()).toBe(3)
       expect(list.getFirst()).toBe(4)
       expect(list.getLast()).toBe(5)
-      expect(list.removeFirst()).toBeTruthy()
+      expect(list.removeFirst()).toBe(4)
       expect(list.getFirst()).toBe(5)
       expect(list.getLast()).toBe(5)
-      expect(list.removeFirst()).toBeTruthy()
-      expect(list.removeFirst()).toBeFalsy()
-      expect(() => list.getFirst()).toThrowError("no such element")
-      expect(() => list.getLast()).toThrowError("no such element")
+      expect(list.removeFirst()).toBe(5)
+      expect(() => list.removeFirst()).toThrowError("no such element")
+      expect(() => list.removeLast()).toThrowError("no such element")
+      expect(() => list.getFirst()).toThrowError('no such element')
+      expect(() => list.getLast()).toThrowError('no such element')
       expect(list.size).toBe(0)
 
       list.add(1)
@@ -98,131 +107,260 @@ function linkedListTests(list: ILinkedList<number>, listType: new (collection?: 
       list.add(4)
       list.add(5)
       expect(list.size).toBe(5)
-      expect(list.removeLast()).toBeTruthy()
+      expect(list.removeLast()).toBe(5)
       expect(list.getLast()).toBe(4)
-      expect(list.removeLast()).toBeTruthy()
+      expect(list.removeLast()).toBe(4)
       expect(list.getLast()).toBe(3)
-      expect(list.removeLast()).toBeTruthy()
+      expect(list.removeLast()).toBe(3)
       expect(list.getLast()).toBe(2)
-      expect(list.removeLast()).toBeTruthy()
+      expect(list.removeLast()).toBe(2)
       expect(list.getLast()).toBe(1)
       list.add(2)
       expect(list.getLast()).toBe(2)
-      expect(list.removeLast()).toBeTruthy()
-      expect(list.removeLast()).toBeTruthy()
-      expect(list.removeLast()).toBeFalsy()
-      expect(() => list.getFirst()).toThrowError("no such element")
-      expect(() => list.getLast()).toThrowError("no such element")
+      expect(list.removeLast()).toBe(2)
+      expect(list.removeLast()).toBe(1)
+      expect(() => list.removeLast()).toThrowError("no such element")
+      expect(() => list.removeFirst()).toThrowError("no such element")
+      expect(() => list.getFirst()).toThrowError('no such element')
+      expect(() => list.getLast()).toThrowError('no such element')
       expect(list.size).toBe(0)
       list.clear()
 
       list.add(1)
       list.add(2)
       expect(list.size).toBe(2)
-      expect(list.removeLast()).toBeTruthy()
+      expect(list.removeLast()).toBe(2)
       expect(list.size).toBe(1)
-      expect(list.removeLast()).toBeTruthy()
+      expect(list.removeLast()).toBe(1)
       expect(list.size).toBe(0)
-      expect(list.removeLast()).toBeFalsy()
+      expect(() => list.removeLast()).toThrowError("no such element")
       list.clear()
 
       list.add(1)
       list.add(2)
       expect(list.size).toBe(2)
-      expect(list.removeFirst()).toBeTruthy()
+      expect(list.removeFirst()).toBe(1)
       expect(list.size).toBe(1)
-      expect(list.removeFirst()).toBeTruthy()
+      expect(list.removeFirst()).toBe(2)
       expect(list.size).toBe(0)
-      expect(list.removeFirst()).toBeFalsy()
+      expect(() => list.removeFirst()).toThrowError("no such element")
+    })
+    it('should construct new list from collections in reverse order', () => {
+      let _list = new listType([1, 2, 3], true)
+      expect(_list.get(0)).toBe(3)
+      expect(_list.get(1)).toBe(2)
+      expect(_list.get(2)).toBe(1)
+
+      _list = new listType(new Set([1, 2, 3]), true)
+      expect(_list.get(0)).toBe(3)
+      expect(_list.get(1)).toBe(2)
+      expect(_list.get(2)).toBe(1)
+
+      _list = new listType(new Stack([1, 2, 3]), true)
+      expect(_list.get(0)).toBe(1)
+      expect(_list.get(1)).toBe(2)
+      expect(_list.get(2)).toBe(3)
+
+      _list = new listType(new Queue([1, 2, 3]), true)
+      expect(_list.get(0)).toBe(3)
+      expect(_list.get(1)).toBe(2)
+      expect(_list.get(2)).toBe(1)
+    });
+    it('should not add "undefined"', () => {
+      list.addFirst(undefined!)
+      list.addLast(undefined!)
+      expect(list.size).toBe(0)
     })
   })
 }
 
 function commonListTests(list: IList<number>, listType: new (collection?: Collection<number>) => IList<number>) {
-  describe("common list tests", () => {
+  describe('common list tests', () => {
     beforeEach(() => {
       list.clear()
+      list.comparator = null!
     })
-    it('should construct a new List from given collection', () => {
-      let _list = new listType([1,2])
-      expect(_list.size).toBe(2)
-      expect(_list.get(0)).toBe(1)
-      expect(_list.get(1)).toBe(2)
+    describe('construct new List', () => {
+      it('from native Array', () => {
+        const _list = new listType([1, 2])
+        expect(_list.size).toBe(2)
+        expect(_list.get(0)).toBe(1)
+        expect(_list.get(1)).toBe(2)
+      })
+      it('from native Set', () => {
+        const _list = new listType(new Set([-1, 0, 1]))
+        expect(_list.size).toBe(3)
+        expect(_list.get(0)).toBe(-1)
+        expect(_list.get(1)).toBe(0)
+        expect(_list.get(2)).toBe(1)
+      })
+      it('from List of same type as new List', () => {
+        const _list = new listType(new listType([-1, 0, 1]))
+        expect(_list.size).toBe(3)
+        expect(_list.get(0)).toBe(-1)
+        expect(_list.get(1)).toBe(0)
+        expect(_list.get(2)).toBe(1)
+      })
+      it('from List', () => {
+        const _list = new listType(new List([-1, 0, 1]))
+        expect(_list.size).toBe(3)
+        expect(_list.get(0)).toBe(-1)
+        expect(_list.get(1)).toBe(0)
+        expect(_list.get(2)).toBe(1)
+      })
+      it('from LinkedList', () => {
+        list.add(-1)
+        list.add(0)
+        list.add(1)
+        const _list = new listType(new LinkedList(list))
+        expect(_list.size).toBe(3)
+        expect(_list.get(0)).toBe(-1)
+        expect(_list.get(1)).toBe(0)
+        expect(_list.get(2)).toBe(1)
+      })
+      it('from DoublyLinkedList', () => {
+        list.add(-1)
+        list.add(0)
+        list.add(1)
+        const _list = new listType(new DoublyLinkedList(list))
+        expect(_list.size).toBe(3)
+        expect(_list.get(0)).toBe(-1)
+        expect(_list.get(1)).toBe(0)
+        expect(_list.get(2)).toBe(1)
+      })
+      it('from CyclicDoublyLinkedList', () => {
+        list.add(-1)
+        list.add(0)
+        list.add(1)
+        const _list = new listType(new CyclicDoublyLinkedList(list))
+        expect(_list.size).toBe(3)
+        expect(_list.get(0)).toBe(-1)
+        expect(_list.get(1)).toBe(0)
+        expect(_list.get(2)).toBe(1)
+      })
+      it('from Stack', () => {
+        const stack = new Stack<number>()
+        stack.push(1)
+        stack.push(0)
+        stack.push(-1)
+        const _list = new listType(stack)
+        expect(_list.size).toBe(3)
+        expect(_list.get(0)).toBe(-1)
+        expect(_list.get(1)).toBe(0)
+        expect(_list.get(2)).toBe(1)
+      })
+      it('from LinkedStack', () => {
+        const stack = new LinkedStack<number>()
+        stack.push(1)
+        stack.push(0)
+        stack.push(-1)
+        const _list = new listType(stack)
+        expect(_list.size).toBe(3)
+        expect(_list.get(0)).toBe(-1)
+        expect(_list.get(1)).toBe(0)
+        expect(_list.get(2)).toBe(1)
+      })
+      it('from Queue', () => {
+        const queue = new Queue<number>()
+        queue.enqueue(-1)
+        queue.enqueue(0)
+        queue.enqueue(1)
+        const _list = new listType(queue)
+        expect(_list.size).toBe(3)
+        expect(_list.get(0)).toBe(-1)
+        expect(_list.get(1)).toBe(0)
+        expect(_list.get(2)).toBe(1)
+      })
+      it('from LinkedQueue', () => {
+        const queue = new LinkedQueue<number>()
+        queue.enqueue(-1)
+        queue.enqueue(0)
+        queue.enqueue(1)
+        const _list = new listType(queue)
+        expect(_list.size).toBe(3)
+        expect(_list.get(0)).toBe(-1)
+        expect(_list.get(1)).toBe(0)
+        expect(_list.get(2)).toBe(1)
+      })
+      it('from PriorityQueue', () => {
+        const queue = new PriorityQueue<number>(numberComparator)
+        queue.enqueue(-1)
+        queue.enqueue(0)
+        queue.enqueue(1)
+        const _list = new listType(queue)
+        expect(_list.size).toBe(3)
+        expect(_list.get(0)).toBe(-1)
+        expect(_list.get(1)).toBe(0)
+        expect(_list.get(2)).toBe(1)
+      })
+      it('from Dequeue', () => {
+        const queue = new Dequeue<number>()
+        queue.enqueue(-1)
+        queue.enqueue(0)
+        queue.enqueue(1)
+        const _list = new listType(queue)
+        expect(_list.size).toBe(3)
+        expect(_list.get(0)).toBe(-1)
+        expect(_list.get(1)).toBe(0)
+        expect(_list.get(2)).toBe(1)
 
-      _list = new listType(new Set([-1,0,1]))
-      expect(_list.size).toBe(3)
-      expect(_list.get(0)).toBe(-1)
-      expect(_list.get(1)).toBe(0)
-      expect(_list.get(2)).toBe(1)
-
-      _list = new listType(new List(_list))
-      expect(_list.size).toBe(3)
-      expect(_list.get(0)).toBe(-1)
-      expect(_list.get(1)).toBe(0)
-      expect(_list.get(2)).toBe(1)
-
-      _list = new listType(new LinkedList(_list))
-      expect(_list.size).toBe(3)
-      expect(_list.get(0)).toBe(-1)
-      expect(_list.get(1)).toBe(0)
-      expect(_list.get(2)).toBe(1)
-
-      _list = new listType(new DoublyLinkedList(_list))
-      expect(_list.size).toBe(3)
-      expect(_list.get(0)).toBe(-1)
-      expect(_list.get(1)).toBe(0)
-      expect(_list.get(2)).toBe(1)
-
-      _list = new listType(new CyclicDoublyLinkedList(_list))
-      expect(_list.size).toBe(3)
-      expect(_list.get(0)).toBe(-1)
-      expect(_list.get(1)).toBe(0)
-      expect(_list.get(2)).toBe(1)
-    });
-    it('should be possible to add "null" values to the list', () => {
-      list.add(null!)
-      expect(list.size).toBe(1)
-      expect(list.get(0)).toBeNull()
-      expect(list.remove(0)).toBeTruthy()
-      expect(list.size).toBe(0)
-
-      list.add(null!)
-      list.add(null!)
-      expect(list.size).toBe(2)
-      expect(list.get(0)).toBeNull()
-      expect(list.get(1)).toBeNull()
-      expect(list.remove(0)).toBeTruthy()
-      expect(list.remove(0)).toBeTruthy()
-      expect(list.size).toBe(0)
-
-      list.add(null!)
-      list.add(null!)
-      list.add(null!)
-      expect(list.size).toBe(3)
-      expect(list.get(0)).toBeNull()
-      expect(list.get(1)).toBeNull()
-      expect(list.get(2)).toBeNull()
-      expect(list.remove(0)).toBeTruthy()
-      expect(list.remove(0)).toBeTruthy()
-      expect(list.remove(0)).toBeTruthy()
-      expect(list.size).toBe(0)
-    });
-    it('should not be possible to add "undefined" values to the queue', () => {
-      list.add(undefined!)
-      expect(list.size).toBe(0)
-    });
-    describe("add items", () => {
-      it('should add "null" items', () => {
+        const queue2 = new Dequeue<number>()
+        queue2.push(1)
+        queue2.push(0)
+        queue2.push(-1)
+        const _list2 = new listType(queue2)
+        expect(_list2.size).toBe(3)
+        expect(_list2.get(0)).toBe(-1)
+        expect(_list2.get(1)).toBe(0)
+        expect(_list2.get(2)).toBe(1)
+      })
+      it('from FibonacciHeap', () => {
+        const heap = new FibonacciHeap<number>(numberComparator)
+        heap.insert(0)
+        heap.insert(1)
+        heap.insert(-1)
+        const _list2 = new listType(heap)
+        expect(_list2.size).toBe(3)
+        expect(_list2.get(0)).toBe(-1)
+        expect(_list2.get(1)).toBe(0)
+        expect(_list2.get(2)).toBe(1)
+      })
+    })
+    describe('add elements', () => {
+      it('should add "null" elements', () => {
         list.add(null!)
         list.add(undefined!)
         expect(list.size).toBe(1)
         expect(list.get(0)).toBeNull()
-      });
+        expect(list.remove(0)).toBeNull()
+        expect(list.size).toBe(0)
+
+        list.add(null!)
+        list.add(null!)
+        expect(list.size).toBe(2)
+        expect(list.get(0)).toBeNull()
+        expect(list.get(1)).toBeNull()
+        expect(list.remove(0)).toBeNull()
+        expect(list.remove(0)).toBeNull()
+        expect(list.size).toBe(0)
+
+        list.add(null!)
+        list.add(null!)
+        list.add(null!)
+        expect(list.size).toBe(3)
+        expect(list.get(0)).toBeNull()
+        expect(list.get(1)).toBeNull()
+        expect(list.get(2)).toBeNull()
+        expect(list.remove(0)).toBeNull()
+        expect(list.remove(0)).toBeNull()
+        expect(list.remove(0)).toBeNull()
+        expect(list.size).toBe(0)
+      })
       it('should not add "undefined"', () => {
         list.add(undefined!)
         expect(list.size).toBe(0)
-      });
-      it("adds items (3 elements)", () => {
+      })
+      it('adds elements (3)', () => {
         list.add(-100)
         list.add(-10)
         list.add(-1)
@@ -242,7 +380,7 @@ function commonListTests(list: IList<number>, listType: new (collection?: Collec
         expect(list.get(2)).toBe(100)
         expect(list.size).toBe(3)
       })
-      it('adds items (6 elements)', () => {
+      it('adds elements (6)', () => {
         expect(list.isEmpty()).toBeTruthy()
         expect(list.get(0)).toBeUndefined()
 
@@ -260,8 +398,8 @@ function commonListTests(list: IList<number>, listType: new (collection?: Collec
         expect(list.get(4)).toBe(3)
         expect(list.get(5)).toBe(4)
         expect(list.size).toBe(6)
-      });
-      it('adds items (alternating list)', () => {
+      })
+      it('adds elements (alternating)', () => {
         expect(list.isEmpty()).toBeTruthy()
         expect(list.get(0)).toBeUndefined()
 
@@ -293,10 +431,380 @@ function commonListTests(list: IList<number>, listType: new (collection?: Collec
         expect(list.get(11)).toBe(-6)
         expect(list.get(12)).toBe(6)
         expect(list.size).toBe(13)
-      });
+      })
+      it('should add all elements of a collection to the list', () => {
+        const l = new List<number>()
+        l.add(1)
+        l.add(2)
+        const ll = new LinkedList<number>()
+        ll.add(3)
+        ll.add(4)
+        const dll = new DoublyLinkedList<number>()
+        dll.add(5)
+        dll.add(6)
+        const cdll = new CyclicDoublyLinkedList<number>()
+        cdll.add(7)
+        cdll.add(8)
+
+        expect(list.isEmpty()).toBeTruthy()
+        list.addAll(l)
+        expect(list.size).toBe(2)
+        list.addAll(ll)
+        expect(list.size).toBe(4)
+        list.addAll(dll)
+        expect(list.size).toBe(6)
+        list.addAll(cdll)
+        expect(list.size).toBe(8)
+
+        expect(list.get(0)).toBe(1)
+        expect(list.get(1)).toBe(2)
+        expect(list.get(2)).toBe(3)
+        expect(list.get(3)).toBe(4)
+        expect(list.get(4)).toBe(5)
+        expect(list.get(5)).toBe(6)
+        expect(list.get(6)).toBe(7)
+        expect(list.get(7)).toBe(8)
+      })
     })
-    describe("get items", () => {
-      it('should get items', () => {
+    describe('get elements', () => {
+      describe('slice', () => {
+        beforeEach(() => {
+          list.add(1)
+          list.add(2)
+          list.add(3)
+          list.add(4)
+          list.add(5)
+          list.add(6)
+        })
+        afterEach(() => {
+          expect(list.size).toBe(6)
+          list.clear()
+        })
+        // n = 6
+        // Y := y mod n
+        // (x element of [|Y|] | x,y element of Z and x kongruent Y)
+        // this means, that x is in equivalence class [|Y|] when x and y are integer and x kongruent y mod n
+        describe('6 residue classes for n = 6: [0], [1], [2], [3], [4], [5]', () => {
+          describe('should slice (start = 0, end = [0,5])', () => {
+            it('should slice (start = 0, end = 0)', () => {
+              const slice = list.slice(0, 0)
+              expect(slice.size).toBe(1)
+              expect(slice.get(0)).toBe(1)
+            });
+            it('should slice (start = 0, end = 1)', () => {
+              const slice = list.slice(0, 1)
+              expect(slice.size).toBe(2)
+              expect(slice.get(0)).toBe(1)
+              expect(slice.get(1)).toBe(2)
+            });
+            it('should slice (start = 0, end = 2)', () => {
+              const slice = list.slice(0, 2)
+              expect(slice.size).toBe(3)
+              expect(slice.get(0)).toBe(1)
+              expect(slice.get(1)).toBe(2)
+              expect(slice.get(2)).toBe(3)
+            });
+            it('should slice (start = 0, end = 3)', () => {
+              const slice = list.slice(0, 3)
+              expect(slice.size).toBe(4)
+              expect(slice.get(0)).toBe(1)
+              expect(slice.get(1)).toBe(2)
+              expect(slice.get(2)).toBe(3)
+              expect(slice.get(3)).toBe(4)
+            });
+            it('should slice (start = 0, end = 4)', () => {
+              const slice = list.slice(0, 4)
+              expect(slice.size).toBe(5)
+              expect(slice.get(0)).toBe(1)
+              expect(slice.get(1)).toBe(2)
+              expect(slice.get(2)).toBe(3)
+              expect(slice.get(3)).toBe(4)
+              expect(slice.get(4)).toBe(5)
+            });
+            it('should slice (start = 0, end = 5)', () => {
+              const slice = list.slice(0, 5)
+              expect(slice.size).toBe(6)
+              expect(slice.get(0)).toBe(1)
+              expect(slice.get(1)).toBe(2)
+              expect(slice.get(2)).toBe(3)
+              expect(slice.get(3)).toBe(4)
+              expect(slice.get(4)).toBe(5)
+              expect(slice.get(5)).toBe(6)
+            });
+          })
+          describe('should slice (start = 1, end = [0,5])', () => {
+            it('should slice (start = 1, end = 0)', () => {
+              const slice = list.slice(1, 0)
+              expect(slice.size).toBe(6)
+              expect(slice.get(0)).toBe(2)
+              expect(slice.get(1)).toBe(3)
+              expect(slice.get(2)).toBe(4)
+              expect(slice.get(3)).toBe(5)
+              expect(slice.get(4)).toBe(6)
+              expect(slice.get(5)).toBe(1)
+            });
+            it('should slice (start = 1, end = 1)', () => {
+              const slice = list.slice(1, 1)
+              expect(slice.size).toBe(1)
+              expect(slice.get(0)).toBe(2)
+            });
+            it('should slice (start = 1, end = 2)', () => {
+              const slice = list.slice(1, 2)
+              expect(slice.size).toBe(2)
+              expect(slice.get(0)).toBe(2)
+              expect(slice.get(1)).toBe(3)
+            });
+            it('should slice (start = 1, end = 3)', () => {
+              const slice = list.slice(1, 3)
+              expect(slice.size).toBe(3)
+              expect(slice.get(0)).toBe(2)
+              expect(slice.get(1)).toBe(3)
+              expect(slice.get(2)).toBe(4)
+            });
+            it('should slice (start = 1, end = 4)', () => {
+              const slice = list.slice(1, 4)
+              expect(slice.size).toBe(4)
+              expect(slice.get(0)).toBe(2)
+              expect(slice.get(1)).toBe(3)
+              expect(slice.get(2)).toBe(4)
+              expect(slice.get(3)).toBe(5)
+            });
+            it('should slice (start = 1, end = 5)', () => {
+              const slice = list.slice(1, 5)
+              expect(slice.size).toBe(5)
+              expect(slice.get(0)).toBe(2)
+              expect(slice.get(1)).toBe(3)
+              expect(slice.get(2)).toBe(4)
+              expect(slice.get(3)).toBe(5)
+              expect(slice.get(4)).toBe(6)
+            });
+          })
+          describe('should slice (start = 2, end = [0,5])', () => {
+            it('should slice (start = 2, end = 0)', () => {
+              const slice = list.slice(2, 0)
+              expect(slice.size).toBe(5)
+              expect(slice.get(0)).toBe(3)
+              expect(slice.get(1)).toBe(4)
+              expect(slice.get(2)).toBe(5)
+              expect(slice.get(3)).toBe(6)
+              expect(slice.get(4)).toBe(1)
+            });
+            it('should slice (start = 2, end = 1)', () => {
+              const slice = list.slice(2, 1)
+              expect(slice.size).toBe(6)
+              expect(slice.get(0)).toBe(3)
+              expect(slice.get(1)).toBe(4)
+              expect(slice.get(2)).toBe(5)
+              expect(slice.get(3)).toBe(6)
+              expect(slice.get(4)).toBe(1)
+              expect(slice.get(5)).toBe(2)
+            });
+            it('should slice (start = 2, end = 2)', () => {
+              const slice = list.slice(2, 2)
+              expect(slice.size).toBe(1)
+              expect(slice.get(0)).toBe(3)
+            });
+            it('should slice (start = 2, end = 3)', () => {
+              const slice = list.slice(2, 3)
+              expect(slice.size).toBe(2)
+              expect(slice.get(0)).toBe(3)
+              expect(slice.get(1)).toBe(4)
+            });
+            it('should slice (start = 2, end = 4)', () => {
+              const slice = list.slice(2, 4)
+              expect(slice.size).toBe(3)
+              expect(slice.get(0)).toBe(3)
+              expect(slice.get(1)).toBe(4)
+              expect(slice.get(2)).toBe(5)
+            });
+            it('should slice (start = 2, end = 5)', () => {
+              const slice = list.slice(2, 5)
+              expect(slice.size).toBe(4)
+              expect(slice.get(0)).toBe(3)
+              expect(slice.get(1)).toBe(4)
+              expect(slice.get(2)).toBe(5)
+              expect(slice.get(3)).toBe(6)
+            });
+          })
+          describe('should slice (start = 3, end = [0,5])', () => {
+            it('should slice (start = 3, end = 0)', () => {
+              const slice = list.slice(3, 0)
+              expect(slice.size).toBe(4)
+              expect(slice.get(0)).toBe(4)
+              expect(slice.get(1)).toBe(5)
+              expect(slice.get(2)).toBe(6)
+              expect(slice.get(3)).toBe(1)
+            });
+            it('should slice (start = 3, end = 1)', () => {
+              const slice = list.slice(3, 1)
+              expect(slice.size).toBe(5)
+              expect(slice.get(0)).toBe(4)
+              expect(slice.get(1)).toBe(5)
+              expect(slice.get(2)).toBe(6)
+              expect(slice.get(3)).toBe(1)
+              expect(slice.get(4)).toBe(2)
+            });
+            it('should slice (start = 3, end = 2)', () => {
+              const slice = list.slice(3, 2)
+              expect(slice.size).toBe(6)
+              expect(slice.get(0)).toBe(4)
+              expect(slice.get(1)).toBe(5)
+              expect(slice.get(2)).toBe(6)
+              expect(slice.get(3)).toBe(1)
+              expect(slice.get(4)).toBe(2)
+              expect(slice.get(5)).toBe(3)
+            });
+            it('should slice (start = 3, end = 3)', () => {
+              const slice = list.slice(3, 3)
+              expect(slice.size).toBe(1)
+              expect(slice.get(0)).toBe(4)
+            });
+            it('should slice (start = 3, end = 4)', () => {
+              const slice = list.slice(3, 4)
+              expect(slice.size).toBe(2)
+              expect(slice.get(0)).toBe(4)
+              expect(slice.get(1)).toBe(5)
+            });
+            it('should slice (start = 3, end = 5)', () => {
+              const slice = list.slice(3, 5)
+              expect(slice.size).toBe(3)
+              expect(slice.get(0)).toBe(4)
+              expect(slice.get(1)).toBe(5)
+              expect(slice.get(2)).toBe(6)
+            });
+          })
+          describe('should slice (start = 4, end = [0,5])', () => {
+            it('should slice (start = 4, end = 0)', () => {
+              const slice = list.slice(4, 0)
+              expect(slice.size).toBe(3)
+              expect(slice.get(0)).toBe(5)
+              expect(slice.get(1)).toBe(6)
+              expect(slice.get(2)).toBe(1)
+            });
+            it('should slice (start = 4, end = 1)', () => {
+              const slice = list.slice(4, 1)
+              expect(slice.size).toBe(4)
+              expect(slice.get(0)).toBe(5)
+              expect(slice.get(1)).toBe(6)
+              expect(slice.get(2)).toBe(1)
+              expect(slice.get(3)).toBe(2)
+            });
+            it('should slice (start = 4, end = 2)', () => {
+              const slice = list.slice(4, 2)
+              expect(slice.size).toBe(5)
+              expect(slice.get(0)).toBe(5)
+              expect(slice.get(1)).toBe(6)
+              expect(slice.get(2)).toBe(1)
+              expect(slice.get(3)).toBe(2)
+              expect(slice.get(4)).toBe(3)
+            });
+            it('should slice (start = 4, end = 3)', () => {
+              const slice = list.slice(4, 3)
+              expect(slice.size).toBe(6)
+              expect(slice.get(0)).toBe(5)
+              expect(slice.get(1)).toBe(6)
+              expect(slice.get(2)).toBe(1)
+              expect(slice.get(3)).toBe(2)
+              expect(slice.get(4)).toBe(3)
+              expect(slice.get(5)).toBe(4)
+            });
+            it('should slice (start = 4, end = 4)', () => {
+              const slice = list.slice(4, 4)
+              expect(slice.size).toBe(1)
+              expect(slice.get(0)).toBe(5)
+            });
+            it('should slice (start = 4, end = 5)', () => {
+              const slice = list.slice(4, 5)
+              expect(slice.size).toBe(2)
+              expect(slice.get(0)).toBe(5)
+              expect(slice.get(1)).toBe(6)
+            });
+          })
+          describe('should slice (start = 5, end = [0,5])', () => {
+            it('should slice (start = 5, end = 0)', () => {
+              const slice = list.slice(5, 0)
+              expect(slice.size).toBe(2)
+              expect(slice.get(0)).toBe(6)
+              expect(slice.get(1)).toBe(1)
+            });
+            it('should slice (start = 5, end = 1)', () => {
+              const slice = list.slice(5, 1)
+              expect(slice.size).toBe(3)
+              expect(slice.get(0)).toBe(6)
+              expect(slice.get(1)).toBe(1)
+              expect(slice.get(2)).toBe(2)
+            });
+            it('should slice (start = 5, end = 2)', () => {
+              const slice = list.slice(5, 2)
+              expect(slice.size).toBe(4)
+              expect(slice.get(0)).toBe(6)
+              expect(slice.get(1)).toBe(1)
+              expect(slice.get(2)).toBe(2)
+              expect(slice.get(3)).toBe(3)
+            });
+            it('should slice (start = 5, end = 3)', () => {
+              const slice = list.slice(5, 3)
+              expect(slice.size).toBe(5)
+              expect(slice.get(0)).toBe(6)
+              expect(slice.get(1)).toBe(1)
+              expect(slice.get(2)).toBe(2)
+              expect(slice.get(3)).toBe(3)
+              expect(slice.get(4)).toBe(4)
+            });
+            it('should slice (start = 5, end = 4)', () => {
+              const slice = list.slice(5, 4)
+              expect(slice.size).toBe(6)
+              expect(slice.get(0)).toBe(6)
+              expect(slice.get(1)).toBe(1)
+              expect(slice.get(2)).toBe(2)
+              expect(slice.get(3)).toBe(3)
+              expect(slice.get(4)).toBe(4)
+              expect(slice.get(5)).toBe(5)
+            });
+            it('should slice (start = 5, end = 5)', () => {
+              const slice = list.slice(5, 5)
+              expect(slice.size).toBe(1)
+              expect(slice.get(0)).toBe(6)
+            });
+          })
+        });
+      });
+      describe('splice (slice and remove)', () => {
+        it('should return empty list with wrong arguments', () => {
+          expect(list.splice(0, -1).size).toBe(0)
+          expect(list.splice(0, -10).size).toBe(0)
+          expect(list.splice(0, -100).size).toBe(0)
+
+          expect(list.splice(0, 0).size).toBe(0)
+          expect(list.splice(-1, 0).size).toBe(0)
+          expect(list.splice(-1, -1).size).toBe(0)
+        });
+        it('should get and remove a slice of the list', () => {
+          list.add(1)
+          list.add(2)
+          list.add(3)
+          list.add(4)
+          list.add(5)
+          list.add(6)
+          expect(list.size).toBe(6)
+          let slice = list.splice(0, 0)
+          expect(slice.size).toBe(0)
+          slice = list.splice(0, -1)
+          expect(slice.size).toBe(0)
+          slice = list.splice(0, -10)
+          expect(slice.size).toBe(0)
+
+          slice = list.splice(0, 1)
+          expect(slice.size).toBe(1)
+          expect(slice.get(0)).toBe(1)
+
+          slice = list.splice(0, 2)
+          expect(slice.size).toBe(2)
+          expect(slice.get(0)).toBe(2)
+          expect(slice.get(1)).toBe(3)
+        });
+      });
+      it('should get elements', () => {
         list.add(1)
         list.add(2)
         list.add(3)
@@ -319,7 +827,7 @@ function commonListTests(list: IList<number>, listType: new (collection?: Collec
         expect(list.get(0)).toBe(-1)
         expect(list.get(1)).toBe(-2)
         expect(list.get(2)).toBe(-3)
-      });
+      })
       it('should get "null" values', () => {
         list.add(null!)
         list.add(null!)
@@ -332,24 +840,24 @@ function commonListTests(list: IList<number>, listType: new (collection?: Collec
         expect(list.get(2)).toBe(2)
         expect(list.get(3)).toBeNull()
         expect(list.get(4)).toBeNull()
-      });
+      })
     })
-    describe("set items", () => {
+    describe('set elements', () => {
       it('should set "null" values', () => {
         list.add(10)
         list.add(-10)
         expect(list.set(0, null)).toBeTruthy()
         expect(list.get(0)).toBeNull()
         expect(list.size).toBe(2)
-      });
+      })
       it('should not set "undefined" values', () => {
         list.add(0)
         list.add(-1)
         expect(list.set(1, undefined!)).toBeFalsy()
         expect(list.size).toBe(2)
         expect(list.get(1)).toBe(-1)
-      });
-      it('should set items', () => {
+      })
+      it('should set elements', () => {
         list.add(-2)
         list.add(-1)
         list.add(0)
@@ -363,15 +871,15 @@ function commonListTests(list: IList<number>, listType: new (collection?: Collec
         expect(list.get(2)).toBe(10)
         expect(list.get(1)).toBe(1)
         expect(list.get(0)).toBe(-4)
-      });
+      })
       it('should return false on unknown index', () => {
         expect(list.set(-1, null)).toBeFalsy()
         expect(list.set(0, null)).toBeFalsy()
         expect(list.set(1, null)).toBeFalsy()
-      });
+      })
     })
-    describe("remove items", () => {
-      it("should remove items", () => {
+    describe('remove elements', () => {
+      it('should remove elements', () => {
         list.add(1)
         expect(list.size).toBe(1)
         expect(list.remove(0)).toBeTruthy()
@@ -382,32 +890,32 @@ function commonListTests(list: IList<number>, listType: new (collection?: Collec
         expect(list.size).toBe(2)
         expect(list.remove(0)).toBeTruthy()
         expect(list.remove(0)).toBeTruthy()
-        expect(list.remove(0)).toBeFalsy()
+        expect(() => list.remove(0)).toThrowError("no such element")
         expect(list.size).toBe(0)
 
         list.add(1)
         list.add(2)
         expect(list.size).toBe(2)
         expect(list.get(1)).toBe(2)
-        expect(list.remove(1)).toBeTruthy()
+        expect(list.remove(1)).toBe(2)
         expect(list.get(0)).toBe(1)
         list.add(2)
         expect(list.get(0)).toBe(1)
         expect(list.get(1)).toBe(2)
-        expect(list.remove(1)).toBeTruthy()
+        expect(list.remove(1)).toBe(2)
         expect(list.get(0)).toBe(1)
         expect(list.size).toBe(1)
-        expect(list.remove(0)).toBeTruthy()
+        expect(list.remove(0)).toBe(1)
         expect(list.get(0)).toBeUndefined()
 
         list.add(1)
         list.add(2)
         list.add(3)
         expect(list.size).toBe(3)
-        expect(list.remove(2)).toBeTruthy()
+        expect(list.remove(2)).toBe(3)
         expect(list.get(0)).toBe(1)
         expect(list.get(list.size - 1)).toBe(2)
-        expect(list.remove(0)).toBeTruthy()
+        expect(list.remove(0)).toBe(1)
         expect(list.size).toBe(1)
         list.clear()
 
@@ -418,16 +926,16 @@ function commonListTests(list: IList<number>, listType: new (collection?: Collec
         expect(list.size).toBe(4)
         expect(list.get(0)).toBe(1)
         expect(list.get(list.size - 1)).toBe(4)
-        expect(list.remove(2))
+        expect(list.remove(2)).toBe(3)
         expect(list.get(0)).toBe(1)
         expect(list.get(list.size - 1)).toBe(4)
-        expect(list.remove(1))
+        expect(list.remove(1)).toBe(2)
         expect(list.get(0)).toBe(1)
         expect(list.get(list.size - 1)).toBe(4)
         expect(list.size).toBe(2)
       })
     })
-    it("should have correct size", () => {
+    it('should have correct size', () => {
       expect(list.isEmpty()).toBeTruthy()
       expect(list.size).toBe(0)
       list.add(1)
@@ -444,7 +952,7 @@ function commonListTests(list: IList<number>, listType: new (collection?: Collec
       expect(list.size).toBe(1)
       list.remove(0)
       expect(list.size).toBe(0)
-      expect(list.remove(0)).toBeFalsy()
+      expect(() => list.remove(0)).toThrowError("no such element")
 
       list.add(-1)
       list.add(0)
@@ -460,7 +968,7 @@ function commonListTests(list: IList<number>, listType: new (collection?: Collec
       expect(list.size).toBe(0)
       expect(list.get(0)).toBeUndefined()
     })
-    it("should clear the list", () => {
+    it('should clear the list', () => {
       expect(list.size).toBe(0)
       expect(list.get(0)).toBeUndefined()
 
@@ -473,11 +981,117 @@ function commonListTests(list: IList<number>, listType: new (collection?: Collec
       expect(list.isEmpty()).toBeTruthy()
       expect(list.get(0)).toBeUndefined()
     })
+    it('should sort the list', () => {
+      function fillList() {
+        list.add(1)
+        list.add(-1)
+        list.add(0)
+        list.add(-2)
+        list.add(2)
+      }
+
+      function assertValues() {
+        expect(list.get(0)).toBe(1)
+        expect(list.get(1)).toBe(-1)
+        expect(list.get(2)).toBe(0)
+        expect(list.get(3)).toBe(-2)
+        expect(list.get(4)).toBe(2)
+      }
+
+      function assertSortedValues() {
+        expect(list.get(0)).toBe(-2)
+        expect(list.get(1)).toBe(-1)
+        expect(list.get(2)).toBe(0)
+        expect(list.get(3)).toBe(1)
+        expect(list.get(4)).toBe(2)
+      }
+
+      fillList()
+      assertValues()
+      list.comparator = numberComparator
+      list.sort()
+      assertSortedValues()
+      list.clear()
+
+      fillList()
+      assertValues()
+      list.comparator = null!
+      list.sort(numberComparator)
+      assertSortedValues()
+    })
+    it('should find indices for list elements', () => {
+      list.add(1)
+      list.add(-1)
+      list.add(0)
+      list.add(2)
+      list.add(-2)
+      list.comparator = numberComparator
+
+      expect(list.indexOf(1)).toBe(0)
+      expect(list.indexOf(-1)).toBe(1)
+      expect(list.indexOf(0)).toBe(2)
+      expect(list.indexOf(2)).toBe(3)
+      expect(list.indexOf(-2)).toBe(4)
+      expect(list.indexOf(Number.MIN_VALUE)).toBe(-1)
+      expect(list.indexOf(Number.MAX_VALUE)).toBe(-1)
+
+      expect(list.indexOf(1)).toBe(0)
+      list.add(1)
+      expect(list.indexOf(1)).toBe(0)
+      list.add(1)
+      expect(list.indexOf(1)).toBe(0)
+      list.add(1)
+      expect(list.indexOf(1)).toBe(0)
+    })
+    describe('equality', () => {
+      it('should unequal another list', () => {
+        list.add(1)
+        list.add(2)
+        list.add(3)
+
+        list.comparator = numberComparator
+        const otherListUnequal = new listType([1,2,2])
+        expect(list.equals(otherListUnequal)).toBeFalsy()
+      });
+      it('should equals another list', () => {
+        list.add(1)
+        list.add(2)
+        list.add(3)
+
+        list.comparator = numberComparator
+        let otherList = new listType([1,2,3])
+        expect(list.equals(otherList)).toBeTruthy()
+        list.clear()
+
+        list.add(0)
+        list.add(-10)
+        list.add(10)
+        list.add(-2)
+        list.add(2)
+        list.add(0)
+
+        otherList = new listType([0, -10, 10, -2, 2, 0])
+        expect(list.equals(otherList)).toBeTruthy()
+        otherList.add(2)
+        expect(list.equals(otherList)).toBeFalsy()
+      });
+    });
+    it('should contains elements', () => {
+      list.add(0)
+      list.add(1)
+      list.add(-1)
+      list.comparator = numberComparator
+      expect(list.contains(1)).toBeTruthy()
+      expect(list.contains(-1)).toBeTruthy()
+      expect(list.contains(0)).toBeTruthy()
+      expect(list.contains(2)).toBeFalsy()
+      expect(list.contains(-2)).toBeFalsy()
+    });
   })
 }
 
 function iteratorTests(list: IList<number>) {
-  describe("iterator tests", () => {
+  describe('iterator tests', () => {
     beforeEach(() => list.clear())
     it('iterates through list like a queue (FIFO)', () => {
       list.add(1)
@@ -485,14 +1099,14 @@ function iteratorTests(list: IList<number>) {
       list.add(3)
 
       let results = [1, 2, 3]
-      for (let number of list) {
+      for (const number of list) {
         expect(number).toBe(results.shift())
       }
       expect(list.size).toBe(3)
       expect(results).toHaveLength(0)
 
       results = [1, 2, 3]
-      for (let number of list) {
+      for (const number of list) {
         expect(number).toBe(results.shift())
       }
       expect(list.size).toBe(3)
@@ -506,19 +1120,19 @@ function iteratorTests(list: IList<number>) {
 
       expect(list.size).toBe(4)
       results = [30, -30, 10, 40]
-      for (let number of list) {
+      for (const number of list) {
         expect(number).toBe(results.shift())
       }
       expect(list.size).toBe(4)
       expect(results).toHaveLength(0)
-    });
+    })
     it('iterates through list like a stack (LIFO) with a reverse iterator', () => {
       list.add(-1)
       list.add(-2)
       list.add(-3)
       let results = [-1, -2, -3]
       expect(list.size).toBe(3)
-      for (let number of list.reverseIterator()) {
+      for (const number of list.reverseIterator()) {
         expect(number).toBe(results.pop())
       }
       expect(list.size).toBe(3)
@@ -532,34 +1146,33 @@ function iteratorTests(list: IList<number>) {
 
       results = [30, -30, 10, 40]
       expect(list.size).toBe(4)
-      for (let number of list.reverseIterator()) {
+      for (const number of list.reverseIterator()) {
         expect(number).toBe(results.pop())
       }
       expect(list.size).toBe(4)
       expect(results).toHaveLength(0)
-    });
+    })
   })
 }
 
-describe("lists", () => {
-  describe("list backed by native array", () => {
-    const list = new List<number>()
-    commonListTests(list, List<number>)
-    iteratorTests(list)
-  })
-  describe("linked list", () => {
-    const list = new LinkedList<number>()
-    linkedListTests(list, LinkedList<number>)
-    iteratorTests(list)
-  })
-  describe("doubly linked list", () => {
-    const list = new DoublyLinkedList<number>()
-    linkedListTests(list, DoublyLinkedList<number>)
-    iteratorTests(list)
-  })
-  describe("cyclic linked list", () => {
-    const list = new CyclicDoublyLinkedList<number>()
-    linkedListTests(list, CyclicDoublyLinkedList<number>)
-    iteratorTests(list)
-  })
+
+describe('list backed by native array', () => {
+  const list = new List<number>()
+  commonListTests(list, List<number>)
+  iteratorTests(list)
+})
+describe('linked list', () => {
+  const list = new LinkedList<number>()
+  linkedListTests(list, LinkedList<number>)
+  iteratorTests(list)
+})
+describe('doubly linked list', () => {
+  const list = new DoublyLinkedList<number>()
+  linkedListTests(list, DoublyLinkedList<number>)
+  iteratorTests(list)
+})
+describe('cyclic linked list', () => {
+  const list = new CyclicDoublyLinkedList<number>()
+  linkedListTests(list, CyclicDoublyLinkedList<number>)
+  iteratorTests(list)
 })

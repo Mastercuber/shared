@@ -1,13 +1,13 @@
 export class Point {
-    x: number;
+  x: number
 
-    y: number;
+  y: number
 
-    z: number;
+  z: number
 
-    constructor(x = 0, y = 0, z = 0) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
+  constructor(x = 0, y = 0, z = 0) {
+    this.x = x
+    this.y = y
+    this.z = z
+  }
 }

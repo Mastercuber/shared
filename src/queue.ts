@@ -1,4 +1,4 @@
-import {ICollection, Collection, Comparator, FibonacciHeap, IStack, Node, Ordering} from "./index";
+import { ICollection, Collection, Comparator, FibonacciHeap, IStack, Node, Ordering } from './index'
 
 export interface IQueue<E> extends ICollection<E> {
   enqueue(e: E): void
@@ -29,7 +29,7 @@ export class Queue<E> implements IQueue<E> {
 
   dequeue(): E {
     const head = this.arr.pop()
-    if (head === undefined) throw new Error("no such element")
+    if (head === undefined) throw new Error('no such element')
     this.size--
     return head
   }
@@ -42,12 +42,12 @@ export class Queue<E> implements IQueue<E> {
   }
 
   isEmpty(): boolean {
-    return this.size === 0;
+    return this.size === 0
   }
 
   head(): E {
-    const head = this.arr[this.size - 1];
-    if (head === undefined) throw new Error("no such element")
+    const head = this.arr[this.size - 1]
+    if (head === undefined) throw new Error('no such element')
     return head
   }
 
@@ -57,15 +57,13 @@ export class Queue<E> implements IQueue<E> {
     return {
       next: () => {
         let top
-        try {
-          top = queue.arr[index--]
-        } catch (e) {}
+        if (index > -2) top = queue.arr[index--]
         return {
           done: index === -2,
-          value: top!
-        }
+          value: top
+        } as IteratorResult<E>
       }
-    };
+    }
   }
 }
 
@@ -93,10 +91,8 @@ export class LinkedQueue<E> implements IQueue<E> {
       value: e,
       next: undefined
     }
-    if (this._head)
-      oldTail!.next = this.tail
-    else
-      this._head = this.tail
+    if (this._head) oldTail!.next = this.tail
+    else this._head = this.tail
     this.size++
   }
 
@@ -105,11 +101,10 @@ export class LinkedQueue<E> implements IQueue<E> {
    */
   dequeue() {
     const head = this._head
-    if (!this._head) throw new Error("no such element")
+    if (!this._head) throw new Error('no such element')
     this._head = head!.next
     this.size--
-    if (this.isEmpty())
-      this.tail = undefined
+    if (this.isEmpty()) this.tail = undefined
     return head!.value
   }
 
@@ -125,7 +120,7 @@ export class LinkedQueue<E> implements IQueue<E> {
    */
   head() {
     if (this._head) return this._head.value
-    throw new Error("no such element")
+    throw new Error('no such element')
   }
 
   /**
@@ -150,20 +145,20 @@ export class LinkedQueue<E> implements IQueue<E> {
           value: _head?.value!
         }
       }
-    };
+    }
   }
 }
 
 export class PriorityQueue<E> implements IQueue<E> {
-  size = 0;
+  size = 0
   comparator: Comparator<E>
   heap: FibonacciHeap<E>
 
   constructor(comparator: Comparator<E>, collection?: Collection<E>) {
-    this.comparator = comparator;
+    this.comparator = comparator
     this.heap = new FibonacciHeap<E>(comparator)
     if (collection) {
-      for (let e of collection) {
+      for (const e of collection) {
         this.heap.insert(e)
         this.size++
       }
@@ -184,12 +179,12 @@ export class PriorityQueue<E> implements IQueue<E> {
   }
 
   head(): E {
-    if (this.size === 0) throw new Error("no such element")
+    if (this.size === 0) throw new Error('no such element')
     return this.heap.minimum().value
   }
 
   isEmpty(): boolean {
-    return this.size === 0;
+    return this.size === 0
   }
 
   clear(): void {
@@ -198,7 +193,7 @@ export class PriorityQueue<E> implements IQueue<E> {
   }
 
   [Symbol.iterator](): Iterator<E> {
-    return this.heap.valuesIterator()
+    return this.heap[Symbol.iterator]()
   }
 }
 
@@ -223,9 +218,7 @@ export class Dequeue<E> implements IDequeue<E> {
   enqueue(e: E): void {
     if (e === undefined) return
     if (!this._head) {
-      this._head = {
-        value: e
-      }
+      this._head = { value: e }
     } else if (!this.tail) {
       this.tail = {
         value: e,
@@ -247,14 +240,12 @@ export class Dequeue<E> implements IDequeue<E> {
    * O(1)
    */
   dequeue(): E {
-    if (this.size === 0) throw new Error("no such element")
+    if (this.size === 0) throw new Error('no such element')
     const head = this._head
     this._head = head!.next
-    if (this._head)
-      this._head.prev = undefined
+    if (this._head) this._head.prev = undefined
     this.size--
-    if (this.isEmpty())
-      this.tail = undefined
+    if (this.isEmpty()) this.tail = undefined
     return head!.value
   }
 
@@ -265,9 +256,7 @@ export class Dequeue<E> implements IDequeue<E> {
   push(e: E): void {
     if (e !== undefined) {
       if (!this._head) {
-        this._head = {
-          value: e
-        }
+        this._head = { value: e }
       } else if (!this.tail) {
         this.tail = this._head
         this.tail.next = undefined
@@ -292,7 +281,7 @@ export class Dequeue<E> implements IDequeue<E> {
    * O(1)
    */
   pop(): E {
-    if (this.size === 0) throw new Error("no such element")
+    if (this.size === 0) throw new Error('no such element')
     let currentTail = this.tail
     if (!currentTail) {
       currentTail = this._head
@@ -304,8 +293,7 @@ export class Dequeue<E> implements IDequeue<E> {
     }
 
     this.tail = currentTail!.prev
-    if (this.tail)
-      this.tail.next = undefined
+    if (this.tail) this.tail.next = undefined
     this.size--
 
     return currentTail!.value
@@ -317,7 +305,7 @@ export class Dequeue<E> implements IDequeue<E> {
   top(): E {
     if (this.tail) return this.tail.value
     if (this._head) return this._head.value
-    throw new Error("no such element")
+    throw new Error('no such element')
   }
 
   /**
@@ -325,14 +313,14 @@ export class Dequeue<E> implements IDequeue<E> {
    */
   head(): E {
     if (this._head) return this._head.value
-    throw new Error("no such element")
+    throw new Error('no such element')
   }
 
   /**
    * O(1)
    */
   isEmpty(): boolean {
-    return this.size === 0;
+    return this.size === 0
   }
 
   /**
@@ -351,7 +339,7 @@ export class Dequeue<E> implements IDequeue<E> {
     for (const _e of this) {
       if (this.comparator(e, _e) === Ordering.EQ) return true
     }
-    return false;
+    return false
   }
 
   /**
@@ -385,6 +373,6 @@ export class Dequeue<E> implements IDequeue<E> {
           value: _head?.value!
         }
       }
-    };
+    }
   }
 }
