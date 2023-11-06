@@ -1,19 +1,20 @@
 import { Collection, Comparator, heapSort, ICollection, ISortable, Node, Ordering } from './index'
 
 export interface IList<E> extends ICollection<E>, ISortable<E> {
+  comparator: Comparator<E>
   add(e: E): void
-  addAll(c: ICollection<E>): void
+  addAll(c: Collection<E>): void
   get(index: number): E
   set(index: number, e: E | null): boolean
   slice(startIndex: number, endIndex: number): IList<E>
+  slice2(startIndex: number, endIndex: number): IList<E>
   splice(startIndex: number, deleteCount: number): IList<E>
   /*map<V>(e: E): IList<V>*/
   /*filter(predicate: (e: E) => boolean): IList<E>*/
   remove(index: number): E
-  contains(e: E): boolean
+  includes(e: E): boolean
   equals(l: IList<E>): boolean
   indexOf(e: E): number
-  comparator: Comparator<E>
   reverseIterator(): Generator<E>
 }
 export interface ILinkedList<E> extends IList<E> {
@@ -26,6 +27,76 @@ export interface ILinkedList<E> extends IList<E> {
   getLast(): E
   removeFirst(): E
   removeLast(): E
+}
+
+function calculateStartAndEnd<E>(this: IList<E>, startIndex: number, endIndex: number) {
+  let start, end
+  if (startIndex < 0)
+    start = this.size + (startIndex % this.size)
+  else
+    start = startIndex % this.size
+  if (endIndex < 0)
+    end = this.size + (endIndex % this.size)
+  else
+    end = endIndex % this.size
+  return {start, end};
+}
+
+function _splice<E>(this: IList<E>, startIndex: number, deleteCount: number, slice: IList<E>): IList<E> {
+  if (deleteCount === 0) return slice
+  const deleteC = deleteCount % this.size
+  const size = this.size
+  let start = startIndex < 0 ?
+    this.size + (startIndex % this.size === 0 ? -this.size : startIndex % this.size)
+    : startIndex % this.size
+
+  if (deleteCount < 0) {
+    let toIndex = Math.abs(deleteCount)
+    if (deleteCount === -this.size || (deleteCount < -this.size && deleteC === 0)) {
+      toIndex = size
+    }
+
+    // slice and remove to the left
+    for (let i = 0, j = start; i < toIndex; i++, j--) {
+      if (j < 0) {
+        slice.add(this.remove(this.size - 1))
+        j = this.size
+      } else {
+        slice.add(this.remove(j))
+      }
+    }
+    this.size -= slice.size
+    slice.comparator = this.comparator
+    return slice
+  }
+
+  let toIndex = Math.abs(deleteC) + start
+  if (deleteCount === this.size || (deleteCount > this.size && deleteC === 0)) {
+    toIndex = size + start
+  }
+
+  // slice and remove to the right
+  for (let i = start; i < toIndex; i++) {
+    slice.add(this.remove(start % this.size))
+    if (this.size < start) {
+      start--
+    }
+  }
+  return slice
+}
+
+function _slice<E>(this: ILinkedList<E>, startIndex: number, endIndex: number, slice: ILinkedList<E>) {
+  // @ts-ignore
+  let {start, end} = calculateStartAndEnd.call(this, startIndex, endIndex);
+  // @ts-ignore
+  const count = calculateCount.call(this, start, end, true)
+  let startNode = this.getNode(start)
+  for (let i = 0; i < count; i++) {
+    slice.add(startNode?.value!)
+    startNode = startNode?.next || this.first
+    start++
+  }
+  return slice
 }
 
 export class List<E> implements IList<E> {
@@ -47,7 +118,7 @@ export class List<E> implements IList<E> {
       this.size++
     }
   }
-  addAll(c: ICollection<E>) {
+  addAll(c: Collection<E>) {
     for (const e of c) {
       this.add(e)
     }
@@ -69,25 +140,52 @@ export class List<E> implements IList<E> {
    */
   slice(startIndex: number, endIndex: number): List<E> {
     const slice = new List<E>()
+    // @ts-ignore
+    let {start, end} = calculateStartAndEnd.call(this, startIndex, endIndex);
+
+    // @ts-ignore
+    const count = calculateCount.call(this, start, end, true)
+    for (let i = 0; i < count; i++) {
+      slice.add(this.get(start % this.size))
+      start++
+    }
+
+    return slice
+  }
+
+  /**
+   * <p>With this variant of slice, the end index can be used as a direction value.</p>
+   * <p>When the end index is negative, then it will be sliced to the left.</p>
+   *
+   * @param startIndex
+   * @param endIndex
+   */
+  slice2(startIndex: number, endIndex: number): List<E> {
+    const slice = new List<E>()
     if (startIndex < 0) {
-      let start = (this.size + (startIndex % this.size === 0 ? -this.size : startIndex % this.size))
-      if (endIndex < 0) {
-        // slice to the left
-        const end = (this.size + (endIndex % this.size === 0 ? -this.size : endIndex % this.size))
-        do {
-          slice.add(this.get(start))
-          --start
-        } while (start > end)
-      } else {
-        // slice to the right
-        const end = endIndex % this.size
-        // @ts-ignore
-        const count = calculateCount.call(this, start, end, true)
-        for (let i = 0; i < count; i++) {
-          slice.add(this.get(start % this.size))
-          start++
+    let start = (this.size + (startIndex % this.size === 0 ? -this.size : startIndex % this.size))
+    if (endIndex < 0) {
+      // slice to the left
+      const end = (this.size + (endIndex % this.size === 0 ? -this.size : endIndex % this.size))
+      // @ts-ignore
+      const count = calculateCount.call(this, start, end)
+      for (let i = 0; i < count; i++) {
+        slice.add(this.get(start))
+        start--
+        if (start < 0) {
+          start = this.size - 1
         }
       }
+    } else {
+      // slice to the right
+      const end = endIndex % this.size
+      // @ts-ignore
+      const count = calculateCount.call(this, start, end, true)
+      for (let i = 0; i < count; i++) {
+        slice.add(this.get(start % this.size))
+        start++
+      }
+    }
     } else {
       let start = startIndex % this.size
       if (endIndex < 0) {
@@ -117,15 +215,16 @@ export class List<E> implements IList<E> {
     return slice
   }
 
-  splice(startIndex: number, deleteCount: number): IList<E> {
-    const list = new List<E>()
-    if (deleteCount <= 0) return list
-
-    for (let i = startIndex; i < startIndex + deleteCount; i++) {
-      list.add(this.remove(startIndex))
-    }
-
-    return list
+  /**
+   * <p>A negative delete count will result in slicing to the left</p>
+   * <p>A negative start count will be mapped to <code>this.size - startIndex</code></p>
+   * <p>f.e. (size = 6) -1 -> 5, -2 -> 4, ...</p>
+   * @param startIndex
+   * @param deleteCount
+   */
+  splice(startIndex: number, deleteCount: number): List<E> {
+    // @ts-ignore
+    return _splice.call(this, startIndex, deleteCount, new List<E>())
   }
 
   clear(): void {
@@ -150,11 +249,8 @@ export class List<E> implements IList<E> {
    * For this method to work, a comparator must be set
    * @param e
    */
-  contains(e: E): boolean {
-    for (const _e of this) {
-      if (this.comparator(e, _e) === Ordering.EQ) return true
-    }
-    return false
+  includes(e: E): boolean {
+    return this.indexOf(e) > -1
   }
 
   /**
@@ -311,16 +407,27 @@ export class LinkedList<E> implements ILinkedList<E> {
   }
 
   slice(startIndex: number, endIndex: number): LinkedList<E> {
+    // @ts-ignore
+    return _slice.call(this, startIndex, endIndex, new LinkedList<E>());
+  }
+
+  slice2(startIndex: number, endIndex: number): LinkedList<E> {
     const slice = new LinkedList<E>()
     if (startIndex < 0) {
       let start = (this.size + (startIndex % this.size === 0 ? -this.size : startIndex % this.size))
       if (endIndex < 0) {
         // slice to the left
         const end = (this.size + (endIndex % this.size === 0 ? -this.size : endIndex % this.size))
-        do {
-          slice.add(this.get(start))
-          --start
-        } while (start > end)
+        // @ts-ignore
+        const count = calculateCount.call(this, start, end)
+        for (let i = 0; i < count; i++) {
+          if (start < 0) {
+            slice.add(this.get(this.size + start))
+          } else {
+            slice.add(this.get(start))
+          }
+          start--
+        }
       } else {
         // slice to the right
         const end = endIndex % this.size
@@ -364,15 +471,9 @@ export class LinkedList<E> implements ILinkedList<E> {
     return slice
   }
 
-  splice(startIndex: number, deleteCount: number): IList<E> {
-    const list = new LinkedList<E>()
-    if (deleteCount <= 0) return list
-
-    for (let i = startIndex; i < startIndex + deleteCount; i++) {
-      list.add(this.remove(startIndex))
-    }
-
-    return list
+  splice(startIndex: number, deleteCount: number): LinkedList<E> {
+    // @ts-ignore
+    return _splice.call(this, startIndex, deleteCount, new LinkedList<E>());
   }
 
   /**
@@ -409,54 +510,62 @@ export class LinkedList<E> implements ILinkedList<E> {
       throw new Error("no such element")
 
     let toRemove
+    let value
     switch (index) {
       case 0:
         return this.removeFirst()
       case this.size - 1:
         return this.removeLast()
       case 1:
-        toRemove = this.getNode(index)
+        toRemove = this.getNode(1)
         this.first!.next = toRemove!.next
-        this.first!.next!.prev = this.first
+        value = toRemove!.value
+        toRemove!.next = toRemove!.value = undefined! // GC
         break
       default:
         const prevNode = this.getNode(index - 1)
         toRemove = prevNode?.next
-        prevNode!.next!.next!.prev = prevNode
         prevNode!.next = prevNode?.next?.next
+        value = toRemove!.value
+        toRemove!.next = toRemove!.value = undefined! // GC
         break
     }
     this.size--
-    return toRemove?.value!
+    return value
   }
 
   /**
    * O(1)
    */
   removeFirst(): E {
+    let value
     switch (this.size) {
       case 0:
         throw new Error('no such element')
       case 1:
         const _first1 = this.first
-        this.first = undefined
-        this.size--
-        return _first1?.value!
+        this.first = undefined // GC
+        value = _first1!.value
+        _first1!.next = _first1!.value = undefined! // GC
+        break
       case 2:
         const _first2 = this.first
         this.first = this.last
-        this.last = undefined
-        this.size--
-        return _first2?.value!
+        this.last = undefined // GC
+        value = _first2!.value
+        _first2!.next = _first2!.value = undefined! // GC
+        break
       default:
         const _first3 = this.first
         this.first = {
-          value: this.first!.next!.value,
-          next: this.first!.next!.next
+          value: _first3!.next!.value,
+          next: _first3!.next!.next
         }
-        this.size--
-        return _first3?.value!
+        value = _first3!.value
+        _first3!.next = _first3!.value = undefined! // GC
     }
+    this.size--
+    return value
   }
 
   /**
@@ -464,26 +573,32 @@ export class LinkedList<E> implements ILinkedList<E> {
    * Ω(1)
    */
   removeLast(): E {
+    let value
     switch (this.size) {
       case 0:
         throw new Error("no such element")
       case 1:
         const _last1 = this.first
         this.first = undefined
-        this.size--
-        return _last1?.value!
+        value = _last1!.value
+        _last1!.value = _last1!.next = undefined! // GC
+        break
       case 2:
         const _last2 = this.last
         this.first!.next = this.last = undefined
-        this.size--
-        return _last2?.value!
+        value = _last2!.value
+        _last2!.value = _last2!.next = undefined! // GC
+        break
       default:
         const _last3 = this.last
         this.last = this.getNode(this.size - 2)
         this.last!.next = undefined
-        this.size--
-        return _last3?.value!
+        value = _last3!.value
+        _last3!.value = _last3!.next = undefined! // GC
     }
+
+    this.size--
+    return value
   }
 
   /**
@@ -504,11 +619,8 @@ export class LinkedList<E> implements ILinkedList<E> {
    * For this method to work, a comparator must be set
    * @param e
    */
-  contains(e: E): boolean {
-    for (const _e of this) {
-      if (this.comparator(e, _e) === Ordering.EQ) return true
-    }
-    return false
+  includes(e: E): boolean {
+    return this.indexOf(e) > -1
   }
 
   /**
@@ -537,7 +649,7 @@ export class LinkedList<E> implements ILinkedList<E> {
     if (cmp) {
       this.comparator = cmp
     }
-    const sorted = heapSort(this)
+    const sorted = heapSort(this, this.comparator)
     this.clear()
     for (const sortedElement of sorted) {
       this.add(sortedElement)
@@ -601,7 +713,7 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
     this.addLast(e)
   }
 
-  addAll(c: ICollection<E>) {
+  addAll(c: Collection<E>) {
     for (const e of c) {
       this.add(e)
     }
@@ -688,18 +800,24 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
   }
 
   slice(startIndex: number, endIndex: number): DoublyLinkedList<E> {
+    // @ts-ignore
+    return _slice.call(this, startIndex, endIndex, new DoublyLinkedList<E>());
+  }
+
+  slice2(startIndex: number, endIndex: number): DoublyLinkedList<E> {
     const slice = new DoublyLinkedList<E>()
     if (startIndex < 0) {
       let start = (this.size + (startIndex % this.size === 0 ? -this.size : startIndex % this.size))
       if (endIndex < 0) {
         // slice to the left
         const end = (this.size + (endIndex % this.size === 0 ? -this.size : endIndex % this.size))
+        // @ts-ignore
+        const count = calculateCount.call(this, start, end)
         let startNode = this.getNode(start)
-        do {
+        for (let i = 0; i < count; i++) {
           slice.add(startNode?.value!)
           startNode = startNode?.prev || this.last
-          --start
-        } while (start > end)
+        }
       } else {
         // slice to the right
         const end = endIndex % this.size
@@ -741,15 +859,9 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
     return slice
   }
 
-  splice(startIndex: number, deleteCount: number): IList<E> {
-    const list = new DoublyLinkedList<E>()
-    if (deleteCount <= 0) return list
-
-    for (let i = startIndex; i < startIndex + deleteCount; i++) {
-      list.add(this.remove(startIndex))
-    }
-
-    return list
+  splice(startIndex: number, deleteCount: number): DoublyLinkedList<E> {
+    // @ts-ignore
+    return _splice.call(this, startIndex, deleteCount, new DoublyLinkedList<E>())
   }
 
   /**
@@ -783,7 +895,7 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
    */
   remove(index: number): E {
     if (index >= this.size || index < 0) throw new Error("no such element")
-
+    let value
     switch (index) {
       case 0:
         return this.removeFirst()
@@ -793,37 +905,43 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
         const toRemove = this.getNode(index)
         this.first!.next = toRemove!.next
         this.first!.next!.prev = this.first
-        this.size--
-        return toRemove?.value!
+        value = toRemove!.value
+        toRemove!.prev = toRemove!.next = toRemove!.value = undefined! // GC
+        break
       default:
         const toRemove2 = this.getNode(index)
         toRemove2!.prev!.next = toRemove2!.next
         toRemove2!.next!.prev = toRemove2!.prev
-        toRemove2!.next = toRemove2!.prev = undefined // GC
-        this.size--
-        return toRemove2?.value!
+        value = toRemove2!.value
+        toRemove2!.next = toRemove2!.prev = toRemove2!.value = undefined! // GC
     }
+
+    this.size--
+    return value
   }
 
   /**
    * O(1)
    */
   removeFirst(): E {
+    let value
     switch (this.size) {
       case 0:
         throw new Error('no such element')
       case 1:
         const _first1 = this.first
         this.first = undefined
-        this.size--
-        return _first1?.value!
+        value = _first1!.value
+        _first1!.value = _first1!.next = _first1!.prev = undefined! // GC
+        break
       case 2:
         const _first2 = this.first
         this.first = this.last
         this.first!.next = this.first!.prev = undefined
         this.last = undefined
-        this.size--
-        return _first2?.value!
+        value = _first2!.value
+        _first2!.value = _first2!.next = _first2!.prev = undefined! // GC
+        break
       default:
         const _first3 = this.first
         this.first = {
@@ -831,35 +949,37 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
           next: this.first!.next!.next
         }
         this.first.next!.prev = this.first
-        this.size--
-        return _first3?.value!
+        value = _first3!.value
+        _first3!.value = _first3!.next = _first3!.prev = undefined! // GC
     }
+    this.size--
+    return value
   }
 
   /**
    * O(1)
    */
   removeLast(): E {
+    let value
     switch (this.size) {
       case 0:
         throw new Error("no such element")
       case 1:
-        const _last1 = this.first
-        this.first = undefined
-        this.size--
-        return _last1?.value!
+        value = this.first!.value
+        this.first = this.first!.value = undefined! // GC
+        break
       case 2:
-        const _last2 = this.last
-        this.first!.next = this.last = this.last!.prev = undefined
-        this.size--
-        return _last2?.value!
+        value = this.last!.value
+        this.first!.next = this.last = this.last!.prev = undefined // GC
+        break
       default:
-        const _last3 = this.last
+        value = this.last!.value
         this.last = this.getNode(this.size - 2)
-        this.last!.next = undefined
-        this.size--
-        return _last3?.value!
+        this.last!.next = this.last!.next!.prev = undefined // GC
     }
+
+    this.size--
+    return value
   }
 
   /**
@@ -890,11 +1010,8 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
    * For this method to work, a comparator must be set
    * @param e
    */
-  contains(e: E): boolean {
-    for (const _e of this) {
-      if (this.comparator(e, _e) === Ordering.EQ) return true
-    }
-    return false
+  includes(e: E): boolean {
+    return this.indexOf(e) > -1
   }
 
   /**
@@ -923,7 +1040,7 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
     if (cmp) {
       this.comparator = cmp
     }
-    const sorted = heapSort(this)
+    const sorted = heapSort(this, this.comparator)
     this.clear()
     for (const sortedElement of sorted) {
       this.add(sortedElement)
@@ -988,7 +1105,7 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
     this.addLast(e)
   }
 
-  addAll(c: ICollection<E>) {
+  addAll(c: Collection<E>) {
     for (const e of c) {
       this.add(e)
     }
@@ -1087,18 +1204,24 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
   }
 
   slice(startIndex: number, endIndex: number): CyclicDoublyLinkedList<E> {
+    // @ts-ignore
+    return _slice.call(this, startIndex, endIndex, new CyclicDoublyLinkedList<E>());
+  }
+
+  slice2(startIndex: number, endIndex: number): CyclicDoublyLinkedList<E> {
     const slice = new CyclicDoublyLinkedList<E>()
     if (startIndex < 0) {
       let start = (this.size + (startIndex % this.size === 0 ? -this.size : startIndex % this.size))
       if (endIndex < 0) {
         // slice to the left
         const end = (this.size + (endIndex % this.size === 0 ? -this.size : endIndex % this.size))
+        // @ts-ignore
+        const count = calculateCount.call(this, start, end)
         let startNode = this.getNode(start)
-        do {
+        for (let i = 0; i < count; i++) {
           slice.add(startNode?.value!)
           startNode = startNode?.prev
-          --start
-        } while (start > end)
+        }
       } else {
         // slice to the right
         const end = endIndex % this.size
@@ -1108,7 +1231,6 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
         for (let i = 0; i < count; i++) {
           slice.add(startNode?.value!)
           startNode = startNode?.next
-          start++
         }
       }
     } else {
@@ -1122,7 +1244,6 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
         for (let i = 0; i < count; i++) {
           slice.add(startNode?.value!)
           startNode = startNode?.prev
-          start--
         }
       } else {
         const end = endIndex % this.size
@@ -1133,22 +1254,15 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
         for (let i = 0; i < count; i++) {
           slice.add(startNode?.value!)
           startNode = startNode?.next
-          start++
         }
       }
     }
     return slice
   }
 
-  splice(startIndex: number, deleteCount: number): IList<E> {
-    const list = new CyclicDoublyLinkedList<E>()
-    if (deleteCount <= 0) return list
-
-    for (let i = startIndex; i < startIndex + deleteCount; i++) {
-      list.add(this.remove(startIndex))
-    }
-
-    return list
+  splice(startIndex: number, deleteCount: number): CyclicDoublyLinkedList<E> {
+    // @ts-ignore
+    return _splice.call(this, startIndex, deleteCount, new CyclicDoublyLinkedList<E>())
   }
 
   /**
@@ -1183,6 +1297,7 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
   remove(index: number): E {
     if (index >= this.size || index < 0) throw new Error("no such element")
 
+    let value
     switch (index) {
       case 0:
         return this.removeFirst()
@@ -1192,51 +1307,57 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
         const toRemove = this.getNode(index)
         this.first!.next = toRemove!.next
         this.first!.next!.prev = this.first
-        toRemove!.next = toRemove!.prev = undefined // GC
-        this.size--
-        return toRemove?.value!
+        value = toRemove!.value
+        toRemove!.next = toRemove!.prev = toRemove!.value = undefined! // GC
+        break
       default:
         const toRemove2 = this.getNode(index)
         toRemove2!.prev!.next = toRemove2!.next
         toRemove2!.next!.prev = toRemove2!.prev
-        toRemove2!.next = toRemove2!.prev = undefined // GC
-        this.size--
-        return toRemove2?.value!
+        value =  toRemove2!.value
+        toRemove2!.next = toRemove2!.prev = toRemove2!.value = undefined! // GC
     }
+    this.size--
+    return value
   }
 
   /**
    * O(1)
    */
   removeFirst(): E {
+    let value
     switch (this.size) {
       case 0:
         throw new Error("no such element")
       case 1:
         const _first1 = this.first
-        this.first!.next = this.first!.prev = undefined // GC
-        this.first = undefined
-        this.size--
-        return _first1?.value!
+        this.first = undefined // GC
+        value = _first1!.value
+        _first1!.value = _first1!.next = _first1!.prev = undefined! // GC
+        break
       case 2:
         const _first2 = this.first
-        this.last!.next = this.last!.prev = undefined
+        this.last!.next = this.last!.prev = undefined // GC
         this.first = this.last
-        this.last = undefined
+        this.last = undefined // GC
         this.first!.next = this.first!.prev = this.first
-        this.size--
-        return _first2?.value!
+        value = _first2!.value
+        _first2!.value = _first2!.next = _first2!.prev = undefined! // GC
+        break
       default:
         const _first3 = this.first
         this.first = {
-          value: this.first!.next!.value,
-          next: this.first!.next!.next,
-          prev: this.first!.next!.prev
+          value: _first3!.next!.value,
+          next: _first3!.next!.next,
+          prev: _first3!.next!.prev
         }
         this.first.next!.prev = this.first
-        this.size--
-        return _first3?.value!
+        value = _first3!.value
+        _first3!.prev = _first3!.next = _first3!.value = undefined! // GC
     }
+
+    this.size--
+    return value
   }
 
   /**
@@ -1244,30 +1365,32 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
    * Ω(1)
    */
   removeLast(): E {
+    let value
     switch (this.size) {
       case 0:
         throw new Error("no such element")
       case 1:
-        const _last1 = this.first
-        this.first!.next = this.first!.prev = undefined // GC
-        this.first = undefined
-        this.size--
-        return _last1?.value!
+        value = this.first!.value
+        this.first!.value = this.first!.next = this.first!.prev = undefined! // GC
+        this.first  = undefined// GC
+        break
       case 2:
-        const _last2 = this.last
-        this.last!.prev = this.last!.next = undefined // GC
-        this.last = undefined
+        value = this.last!.value
+        this.last!.prev = this.last!.next = this.last!.value = undefined! // GC
+        this.last = undefined // GC
         this.first!.prev = this.first
         this.first!.next = this.first
-        this.size--
-        return _last2?.value!
+        break
       default:
         const _last3 = this.last
+        value = _last3!.value
         this.last = this.getNode(this.size - 2)
         this.last!.next = this.first
-        this.size--
-        return _last3?.value!
+        _last3!.value = _last3!.next = _last3!.prev = undefined! // GC
     }
+
+    this.size--
+    return value
   }
 
   /**
@@ -1298,11 +1421,8 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
    * For this method to work, a comparator must be set
    * @param e
    */
-  contains(e: E): boolean {
-    for (const _e of this) {
-      if (this.comparator(e, _e) === Ordering.EQ) return true
-    }
-    return false
+  includes(e: E): boolean {
+    return this.indexOf(e) > -1
   }
 
   /**
@@ -1331,7 +1451,7 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
     if (cmp) {
       this.comparator = cmp
     }
-    const sorted = heapSort(this)
+    const sorted = heapSort(this, this.comparator)
     this.clear()
     for (const sortedElement of sorted) {
       this.add(sortedElement)
@@ -1394,5 +1514,5 @@ function calculateCount<E>(this: IList<E>, start: number, end: number, right = f
   if (start < end) {
     return this.size - (end - start) + 1
   }
-  return this.size - Math.abs(end - start)
+  return start - end + 1
 }

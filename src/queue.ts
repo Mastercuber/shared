@@ -104,8 +104,13 @@ export class LinkedQueue<E> implements IQueue<E> {
     if (!this._head) throw new Error('no such element')
     this._head = head!.next
     this.size--
-    if (this.isEmpty()) this.tail = undefined
-    return head!.value
+    const value = head!.value
+    if (this.isEmpty()) {
+      this.tail = this.tail!.value = this.tail!.next = this.tail!.prev = undefined! // GC
+    }
+
+    head!.value = head!.prev = head!.next = undefined! // GC
+    return value
   }
 
   /**
@@ -175,7 +180,9 @@ export class PriorityQueue<E> implements IQueue<E> {
   dequeue(): E {
     const minNode = this.heap.extractMin()
     this.size--
-    return minNode.value
+    const value = minNode.value
+    minNode.value = minNode.parent = minNode.child = minNode.left = minNode.right = undefined! // GC
+    return value
   }
 
   head(): E {

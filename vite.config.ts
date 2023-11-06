@@ -14,6 +14,9 @@ export default defineConfig({
             '@': resolve(__dirname, 'src')
         }
     },
+    test: {
+        experimentalVmThreads: true,
+    },
     mode: 'production',
     build: {
         target: 'ES6',

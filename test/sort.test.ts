@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { DoublyLinkedList, heapSort, LinkedList, numberComparator, quicksort } from '../src'
+
 describe('sorting algorithm tests', () => {
   describe('quicksort', () => {
     it('should sort a number doubly linked list', () => {
       const doublyLinkedList = new DoublyLinkedList<number>()
+      doublyLinkedList.comparator = numberComparator
       doublyLinkedList.add(1)
       doublyLinkedList.add(3)
       doublyLinkedList.add(5)
@@ -69,7 +71,7 @@ describe('sorting algorithm tests', () => {
       list.add(2)
       list.add(4)
       list.comparator = numberComparator
-      const heap = heapSort(list)
+      const heap = heapSort(list, list.comparator)
       expect(heap.size).toBe(6)
       expect(heap.extractMin().value).toBe(-1)
       expect(heap.extractMin().value).toBe(1)

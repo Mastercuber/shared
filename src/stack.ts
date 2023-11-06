@@ -110,7 +110,9 @@ export class LinkedStack<E> implements IStack<E> {
     if (node === undefined) throw new Error('no such element')
     this._top = node.prev
     this.size--
-    return node.value
+    const value = node.value
+    node.value = node.next = node.prev = undefined! // GC
+    return value
   }
 
   /**

@@ -1,14 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { AGraph,
-  Comparator,
-  Edge,
-  FibonacciHeap,
-  Graph,
-  GraphProperties,
-  IVertex,
-  Ordering,
-  Point,
-  Vertex } from '../src'
+import { AGraph, Comparator, Edge, FibonacciHeap, Graph, GraphProperties, IVertex, Ordering, Vertex } from '../src'
 import { comparator, GraphFactory } from './factories/graph.ts'
 
 describe('Graph Testsuite', () => {
@@ -19,13 +10,6 @@ describe('Graph Testsuite', () => {
     v1 = new Vertex({ title: 'v1' })
     v2 = new Vertex({ title: 'v2' })
     v3 = new Vertex({ title: 'v3' })
-  })
-  it('should create a point', () => {
-    const point = new Point(1, 2, 3)
-    expect(point).not.toBeNull
-    expect(point.x).toBe(1)
-    expect(point.y).toBe(2)
-    expect(point.z).toBe(3)
   })
   describe('edges', () => {
     it('add an edge to the graph', () => {

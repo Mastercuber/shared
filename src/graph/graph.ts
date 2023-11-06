@@ -266,7 +266,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
         if (spurPath.size > 0) {
           rootPath.addAll(spurPath.slice(1, spurPath.size - 1))
         }
-        if (rootPath.size > 1 && !B.contains(rootPath)) {
+        if (rootPath.size > 1 && !B.includes(rootPath)) {
           B.add(rootPath)
         }
 
@@ -384,7 +384,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
           result.get(i).add(cloned.get(j))
           this.vertices.delete(cloned.get(j))
 
-                    cloned.get(j).outgoingEdges!.forEach(e => toRemove.add(e as E))
+          cloned.get(j).outgoingEdges!.forEach(e => toRemove.add(e as E))
         }
       }
       for (const e of toRemove) {
@@ -612,7 +612,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
           cache.set(b, dfsw)
         }
 
-        if (dfsw.contains(a) && dfsv.contains(b)) {
+        if (dfsw.includes(a) && dfsv.includes(b)) {
           let first: IGraph<V, E> | null = null
           for (const component of components) {
             if (component.vertices?.has(a)) first = component
@@ -759,7 +759,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
     const reachableVertices = this.depthFirstSearch(v)
 
     for (const v2 of cloned) {
-      if (!reachableVertices.contains(v2)) {
+      if (!reachableVertices.includes(v2)) {
         return false
       }
     }
@@ -777,9 +777,9 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
     const reachableVertices = this.depthFirstSearch(v)
     reachableVertices.comparator = this.comparator
     for (const v2 of cloned) {
-      if (reachableVertices.contains(v2)) {
+      if (reachableVertices.includes(v2)) {
         const reachableVerticesV2 = this.depthFirstSearch(v2)
-        if (!reachableVerticesV2.contains(v)) {
+        if (!reachableVerticesV2.includes(v)) {
           return false
         }
       }
