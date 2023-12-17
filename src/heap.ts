@@ -263,7 +263,6 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
     node.marked = false
   }
 
-  // sieht gut aus
   private mergeWithRootList(node: HeapNode<E>): void {
     node.right = this.rootList
     node.left = this.rootList.left
@@ -272,7 +271,6 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
     this.rootList.left = node
   }
 
-  // sieht gut aus
   private removeFromRootList(node: HeapNode<E>): void {
     if (node.parent) return
     if (this.comparator(node.value, this.rootList.value) === Ordering.EQ) {
@@ -335,7 +333,9 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
     return Math.log(x) / Math.log(base)
   }
 
-
+  /**
+   * O(log(size)*size + size*3)
+   */
   *nodeIterator() {
     if (this.size === 0) return
     const values = new LinkedList<E>()
@@ -349,6 +349,9 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
     }
   }
 
+  /**
+   * O(heap.size*3 + log(heap.size))
+   */
   [Symbol.iterator](): Iterator<E> {
     const heap = this
     const values = new LinkedList<E>()

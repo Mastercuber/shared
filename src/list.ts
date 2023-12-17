@@ -9,8 +9,8 @@ export interface IList<E> extends ICollection<E>, ISortable<E> {
   slice(startIndex: number, endIndex: number): IList<E>
   slice2(startIndex: number, endIndex: number): IList<E>
   splice(startIndex: number, deleteCount: number): IList<E>
-  /*map<V>(e: E): IList<V>*/
-  /*filter(predicate: (e: E) => boolean): IList<E>*/
+  map<V>(fn: (e: E) => V): IList<V>
+  filter(predicate: (e: E) => boolean): IList<E>
   remove(index: number): E
   includes(e: E): boolean
   equals(l: IList<E>): boolean
@@ -27,76 +27,6 @@ export interface ILinkedList<E> extends IList<E> {
   getLast(): E
   removeFirst(): E
   removeLast(): E
-}
-
-function calculateStartAndEnd<E>(this: IList<E>, startIndex: number, endIndex: number) {
-  let start, end
-  if (startIndex < 0)
-    start = this.size + (startIndex % this.size)
-  else
-    start = startIndex % this.size
-  if (endIndex < 0)
-    end = this.size + (endIndex % this.size)
-  else
-    end = endIndex % this.size
-  return {start, end};
-}
-
-function _splice<E>(this: IList<E>, startIndex: number, deleteCount: number, slice: IList<E>): IList<E> {
-  if (deleteCount === 0) return slice
-  const deleteC = deleteCount % this.size
-  const size = this.size
-  let start = startIndex < 0 ?
-    this.size + (startIndex % this.size === 0 ? -this.size : startIndex % this.size)
-    : startIndex % this.size
-
-  if (deleteCount < 0) {
-    let toIndex = Math.abs(deleteCount)
-    if (deleteCount === -this.size || (deleteCount < -this.size && deleteC === 0)) {
-      toIndex = size
-    }
-
-    // slice and remove to the left
-    for (let i = 0, j = start; i < toIndex; i++, j--) {
-      if (j < 0) {
-        slice.add(this.remove(this.size - 1))
-        j = this.size
-      } else {
-        slice.add(this.remove(j))
-      }
-    }
-    this.size -= slice.size
-    slice.comparator = this.comparator
-    return slice
-  }
-
-  let toIndex = Math.abs(deleteC) + start
-  if (deleteCount === this.size || (deleteCount > this.size && deleteC === 0)) {
-    toIndex = size + start
-  }
-
-  // slice and remove to the right
-  for (let i = start; i < toIndex; i++) {
-    slice.add(this.remove(start % this.size))
-    if (this.size < start) {
-      start--
-    }
-  }
-  return slice
-}
-
-function _slice<E>(this: ILinkedList<E>, startIndex: number, endIndex: number, slice: ILinkedList<E>) {
-  // @ts-ignore
-  let {start, end} = calculateStartAndEnd.call(this, startIndex, endIndex);
-  // @ts-ignore
-  const count = calculateCount.call(this, start, end, true)
-  let startNode = this.getNode(start)
-  for (let i = 0; i < count; i++) {
-    slice.add(startNode?.value!)
-    startNode = startNode?.next || this.first
-    start++
-  }
-  return slice
 }
 
 export class List<E> implements IList<E> {
@@ -227,13 +157,30 @@ export class List<E> implements IList<E> {
     return _splice.call(this, startIndex, deleteCount, new List<E>())
   }
 
-  clear(): void {
-    this.arr.splice(0, this.arr.length)
-    this.size = 0
+  map<V>(fn: (e: E) => V): List<V> {
+    const list = new List<V>()
+    for (const e of this) {
+      list.add(fn(e))
+    }
+    return list
+  }
+
+  filter(predicate: (e: E) => boolean): List<E> {
+    const list = new List<E>()
+    for (const e of this) {
+      if (predicate(e)) {
+        list.add(e)
+      }
+    }
+    return list
   }
 
   isEmpty(): boolean {
     return this.size === 0
+  }
+  clear(): void {
+    this.arr.splice(0, this.arr.length)
+    this.size = 0
   }
 
   remove(index: number): E {
@@ -474,6 +421,24 @@ export class LinkedList<E> implements ILinkedList<E> {
   splice(startIndex: number, deleteCount: number): LinkedList<E> {
     // @ts-ignore
     return _splice.call(this, startIndex, deleteCount, new LinkedList<E>());
+  }
+
+  map<V>(fn: (e: E) => V): LinkedList<V> {
+    const list = new LinkedList<V>()
+    for (const e of this) {
+      list.add(fn(e))
+    }
+    return list
+  }
+
+  filter(predicate: (e: E) => boolean): LinkedList<E> {
+    const list = new LinkedList<E>()
+    for (const e of this) {
+      if (predicate(e)) {
+        list.add(e)
+      }
+    }
+    return list
   }
 
   /**
@@ -862,6 +827,24 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
   splice(startIndex: number, deleteCount: number): DoublyLinkedList<E> {
     // @ts-ignore
     return _splice.call(this, startIndex, deleteCount, new DoublyLinkedList<E>())
+  }
+
+  map<V>(fn: (e: E) => V): DoublyLinkedList<V> {
+    const list = new DoublyLinkedList<V>()
+    for (const e of this) {
+      list.add(fn(e))
+    }
+    return list
+  }
+
+  filter(predicate: (e: E) => boolean): DoublyLinkedList<E> {
+    const list = new DoublyLinkedList<E>()
+    for (const e of this) {
+      if (predicate(e)) {
+        list.add(e)
+      }
+    }
+    return list
   }
 
   /**
@@ -1265,6 +1248,24 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
     return _splice.call(this, startIndex, deleteCount, new CyclicDoublyLinkedList<E>())
   }
 
+  map<V>(fn: (e: E) => V): CyclicDoublyLinkedList<V> {
+    const list = new CyclicDoublyLinkedList<V>()
+    for (const e of this) {
+      list.add(fn(e))
+    }
+    return list
+  }
+
+  filter(predicate: (e: E) => boolean): CyclicDoublyLinkedList<E> {
+    const list = new CyclicDoublyLinkedList<E>()
+    for (const e of this) {
+      if (predicate(e)) {
+        list.add(e)
+      }
+    }
+    return list
+  }
+
   /**
    * O(1)
    */
@@ -1515,4 +1516,74 @@ function calculateCount<E>(this: IList<E>, start: number, end: number, right = f
     return this.size - (end - start) + 1
   }
   return start - end + 1
+}
+
+function calculateStartAndEnd<E>(this: IList<E>, startIndex: number, endIndex: number) {
+  let start, end
+  if (startIndex < 0)
+    start = this.size + (startIndex % this.size)
+  else
+    start = startIndex % this.size
+  if (endIndex < 0)
+    end = this.size + (endIndex % this.size)
+  else
+    end = endIndex % this.size
+  return {start, end};
+}
+
+function _splice<E>(this: IList<E>, startIndex: number, deleteCount: number, slice: IList<E>): IList<E> {
+  if (deleteCount === 0) return slice
+  const deleteC = deleteCount % this.size
+  const size = this.size
+  let start = startIndex < 0 ?
+    this.size + (startIndex % this.size === 0 ? -this.size : startIndex % this.size)
+    : startIndex % this.size
+
+  if (deleteCount < 0) {
+    let toIndex = Math.abs(deleteCount)
+    if (deleteCount === -this.size || (deleteCount < -this.size && deleteC === 0)) {
+      toIndex = size
+    }
+
+    // slice and remove to the left
+    for (let i = 0, j = start; i < toIndex; i++, j--) {
+      if (j < 0) {
+        slice.add(this.remove(this.size - 1))
+        j = this.size
+      } else {
+        slice.add(this.remove(j))
+      }
+    }
+    this.size -= slice.size
+    slice.comparator = this.comparator
+    return slice
+  }
+
+  let toIndex = Math.abs(deleteC) + start
+  if (deleteCount === this.size || (deleteCount > this.size && deleteC === 0)) {
+    toIndex = size + start
+  }
+
+  // slice and remove to the right
+  for (let i = start; i < toIndex; i++) {
+    slice.add(this.remove(start % this.size))
+    if (this.size < start) {
+      start--
+    }
+  }
+  return slice
+}
+
+function _slice<E>(this: ILinkedList<E>, startIndex: number, endIndex: number, slice: ILinkedList<E>) {
+  // @ts-ignore
+  let {start, end} = calculateStartAndEnd.call(this, startIndex, endIndex);
+  // @ts-ignore
+  const count = calculateCount.call(this, start, end, true)
+  let startNode = this.getNode(start)
+  for (let i = 0; i < count; i++) {
+    slice.add(startNode?.value!)
+    startNode = startNode?.next || this.first
+    start++
+  }
+  return slice
 }

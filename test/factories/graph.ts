@@ -2,7 +2,8 @@
 import { Graph, Vertex } from '@/'
 import { Comparator, Ordering } from '../../src'
 
-export const comparator: Comparator<Vertex> = (v1, v2) => (v1.uuid === v2.uuid ? Ordering.EQ : v1.outdeg() < v2.outdeg() ? Ordering.LT : Ordering.GT)
+export const comparator: Comparator<Vertex> = (v1, v2) =>
+  (v1.uuid === v2.uuid ? Ordering.EQ : v1.outdeg() < v2.outdeg() ? Ordering.LT : Ordering.GT)
 
 export class GraphFactory {
   static createDirectedGraphA() {

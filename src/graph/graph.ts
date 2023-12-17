@@ -1,6 +1,6 @@
 import { Edge, IEdge } from './edge.ts'
 import { IVertex, Vertex } from './vertex.ts'
-import { Comparator, DoublyLinkedList, IStack, LinkedStack, Ordering, PriorityQueue } from '../'
+import { Comparator, DoublyLinkedList, IStack, LinkedStack, Ordering, Point, PriorityQueue } from '../'
 
 export type GraphProperties = {
     uuid?: string;
@@ -18,7 +18,7 @@ export type GraphProperties = {
 }
 export interface IGraph<V extends IVertex, E extends IEdge> extends GraphProperties {
     infer(): void;
-    depthFirstSearch(startVertex: V, L: IStack<V>): DoublyLinkedList<V>;
+    depthFirstSearch(startVertex: V, L?: IStack<V>): DoublyLinkedList<V>;
     breadthFirstSearch(startVertex: V): DoublyLinkedList<V>;
     shortestPath(from: V, to: V): DoublyLinkedList<V>;
     kShortestPaths(from: V, to: V, k: number): DoublyLinkedList<DoublyLinkedList<V>>;
@@ -46,10 +46,11 @@ export interface IGraph<V extends IVertex, E extends IEdge> extends GraphPropert
     isDense(): boolean;
     isSparse(): boolean;
 
-    createEdge(from: V, to: V, title: string, directed: boolean, weight: number): E
+    createEdge(from: V, to: V, title?: string, directed?: boolean, weight?: number): E
     addEdge(e: E): boolean;
     removeEdge(e: E): boolean;
 
+    createVertex(title?: string, point?: Point, object?: any): V
     addVertex(v: V): boolean;
     removeVertex(v: V): boolean;
 
@@ -828,6 +829,19 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
     }
 
     return sizeBefore != arr.length
+  }
+
+  createVertex(title = 'new vertex', point = undefined, object = {}): V {
+    const vertex = new this.vertexType()
+    vertex.title = title
+    if (point) {
+      vertex.point = point
+    }
+    if (object !== undefined) {
+      vertex.object = object
+    }
+
+    return vertex
   }
 
   addVertex(v: V): boolean {

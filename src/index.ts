@@ -2,8 +2,6 @@ export interface ICollection<E> extends Iterable<E> {
   size: number
   isEmpty(): boolean
   clear(): void
-  /*current: Node<E>*/
-  /*  has(e: E): boolean*/
 }
 export type Collection<E> = ICollection<E> | Array<E> | Set<E>
 export enum Ordering {
