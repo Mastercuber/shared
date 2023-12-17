@@ -1,0 +1,211 @@
+This is a package containing multiple **datastructures** and some **algorithms** written in typescript.
+
+The test coverage is about [100%](test/) and benchmarks for list, queue and stack tests are provided (but more or less meaningful since the execution times change when reordering the test suites).
+
+A bulk of algorithms have asymptotic behavior described with the upper bound and the lower bound. 
+# Graph
+To use the Graph provided by this package some [GraphProperties](src/graph/graph.ts) can be passed to the [Graph](src/graph/graph.ts) constructor and a *comparator* **must** be passed. The comparator is needed for some algorithms to function properly and **must** return all [Ordering's](src/index.ts) (-1 for LessThan, 0 for EQual and 1 for GreaterThan).
+
+If a custom Graph with custom Vertex and Edge classes is needed, the Graph can extend [AGraph](src/graph/graph.ts) like so:
+```typescript
+class CustomVertex extends Vertex {
+  additionalVertexProp = 'prop'
+}
+
+class CustomEdge extends Edge {
+  additionalEdgeProp = 'prop'
+}
+
+class Graph extends AGraph<CustomVertex, CustomEdge> {
+  constructor(props: GraphProperties, comparator: Comparator<CustomVertex>) {
+    super(props, comparator, CustomVertex, CustomEdge)
+  }
+}
+```
+
+## Graph Properties
+* `density(): number`
+  * [Density](https://en.wikipedia.org/wiki/Dense_graph) of the graph
+* `order(): number`
+  * 
+* `size(): number`
+* `isCyclic(): boolean`
+* `isAcyclic(): boolean`
+* `isTree(): boolean`
+* `isDirected(): boolean`
+* `isConnected(): boolean`
+* `isConnectedFrom(v: V): boolean`
+* `isStronglyConnectedFrom(v: V): boolean`
+* `isMixed(): boolean`
+* `isDense(): boolean`
+* `isSparse(): boolean`
+
+## Algorithms
+* `depthFirstSearch(startVertex: V)`
+* `breadthFirstSearch(startVertex: V)`
+* `shortestPath(from: V, to: V)`
+* `kShortestPaths(from: V, to: V, k: number)`
+* `minimalSpanningTree()`
+* `topologicalSorting()`
+* `parallelTopologicalSorting()`
+* `connectedComponents()`
+* `strongConnectedComponents()`
+* `checkForCycles()`
+* `checkForNegativeCycles()`
+* `inferCycles()`
+
+## Utility functions
+* `createEdge(from: V, to: V, title?: string, directed?: boolean, weight?: number): E`
+* `addEdge(e: E): boolean`
+* `removeEdge(e: E): boolean`
+
+
+* `createVertex(title?: string, point?: Point, object?: any): V`
+* `addVertex(v: V): boolean`
+* `removeVertex(v: V): boolean`
+
+
+* `c(from: V, to: V): number`
+
+# Lists
+All lists implement the interface `IList`:
+```typescript
+export interface IList<E> extends ICollection<E>, ISortable<E> {
+  comparator: Comparator<E>
+  add(e: E): void
+  addAll(c: Collection<E>): void
+  get(index: number): E
+  set(index: number, e: E | null): boolean
+  slice(startIndex: number, endIndex: number): IList<E>
+  slice2(startIndex: number, endIndex: number): IList<E>
+  splice(startIndex: number, deleteCount: number): IList<E>
+  map<V>(fn: (e: E) => V): IList<V>
+  filter(predicate: (e: E) => boolean): IList<E>
+  remove(index: number): E
+  includes(e: E): boolean
+  equals(l: IList<E>): boolean
+  indexOf(e: E): number
+  reverseIterator(): Generator<E>
+}
+```
+The interface `ICollection` adds the following to the lists:
+```typescript
+export interface ICollection<E> extends Iterable<E> {
+  size: number
+  isEmpty(): boolean
+  clear(): void
+}
+```
+and further, `Iterable` adds:
+```typescript
+interface Iterable<T> {
+    [Symbol.iterator](): Iterator<T>;
+}
+```
+and `ISortable` adds:
+```typescript
+export interface ISortable<V> {
+  sort(cmp?: Comparator<V>): void
+}
+```
+There are 2 sorting algorithmen's provided with the implementation. One quicksort, and one heapsort variante using a fibonacci heap.
+
+## List
+List implementation using the **native array** as data structure _to have a reference_ when [**benchmarking**](test/benchmarks/list.bench.ts) some list methods.
+
+## LinkedLists
+Additionally, to the interfaces in `IList`, LinkedLists also implement the following properties and functions:
+```typescript
+export interface ILinkedList<E> extends IList<E> {
+  first: Node<E>
+  last: Node<E>
+  getNode(index: number): Node<E>
+  addFirst(e: E): void
+  addLast(e: E): void
+  getFirst(): E
+  getLast(): E
+  removeFirst(): E
+  removeLast(): E
+}
+```
+### LinkedList
+A linked list consists of nodes, each with a **pointer to the next node**.
+
+### DoublyLinkedList
+Linked lists hava one pointer to the next node, but that's it. No other pointers. Doubly linked lists have these second **pointer to the previous element**.
+
+### CyclicLinkedList
+Doubly linked lists have 2 pointers: the first to the next, and the second to the previous element. But these kind of list is ending at the first and last elements. The doubly linked list kind of lists has **no previous pointer** at the _first element_ and **no next pointer** at the _last element_.
+
+With this cyclic linked lists there is a new kind of list with exactly these 2 pointers. So a cyclic linked list is named this way, since the **first element** now _points to the last_ and the **last** to the _first element_, so the list is now **cyclic**. 
+
+# Queues
+Queues are implementing the interface `IQueue` and extends `ICollection`:
+```typescript
+export interface IQueue<E> extends ICollection<E> {
+  enqueue(e: E): void
+  dequeue(): E
+  head(): E
+}
+```
+## Queue
+Queues have a head (f.e. the first one in the queue) and a tail (where the new ones will enqueue).
+
+Like the list, also the queue have an implementation using a native array as backing data structure for **[benchmarking](test/benchmarks/queue.bench.ts)**.
+
+## LinkedQueue
+A linked queue has like a linked list 2 pointers with **different names**. With queues the pointers are _head_ and _tail_, instead of _first_ and _last_.
+
+## PriorityQueue
+The priority queue uses the [fibonacci heap](src/heap.ts) implementation to store the elements.
+
+## Dequeue
+A Dequeue merge a Stack and a Queue, so both type of functions are usable (`enqueue`, `dequeue`, `push`, `pop`, `head`, `top`)
+
+# Stacks
+Stacks have the following interface:
+```typescript
+export interface IStack<E> extends ICollection<E> {
+  push(e: E): void
+  pop(): E
+  top(): E
+  contains(e: E): boolean
+  comparator: Comparator<E>
+}
+```
+## Stack
+Linke the list and queue, also the stack has a reference implementation with native arrays for **[benchmarking](test/benchmarks/stack.bench.ts)**.
+
+## Linked Stack
+The linked stack is an implementation with 1 pointer to the top of the stack. Each node knows the previous one in the stack. 
+
+# Heap
+This package provides tested fibonacci heap implementation. If you find a use case with problems, please tell.
+
+The fibonacci heap has the following interface:
+```typescript
+export interface IFibonacciHeap<E> extends ICollection<E> {
+  rootList: HeapNode<E>
+  minNode: HeapNode<E>
+  insert(element: E): HeapNode<E>
+  delete(node: HeapNode<E>): HeapNode<E>
+  decreaseKey(node: HeapNode<E>, newValue: E): void
+  minimum(): HeapNode<E>
+  extractMin(): HeapNode<E>
+  union(heap: IFibonacciHeap<E>): void
+  extractNeighbours(node: HeapNode<E>, includeSelf?: boolean): CyclicDoublyLinkedList<HeapNode<E>>
+  extractChildren(node: HeapNode<E>): CyclicDoublyLinkedList<HeapNode<E>>
+}
+```
+and a heap node looks like:
+```typescript
+export type HeapNode<E> = {
+  value: E
+  degree: number
+  marked: boolean
+  left: HeapNode<E>
+  right: HeapNode<E>
+  parent?: HeapNode<E>
+  child?: HeapNode<E>
+}
+```
