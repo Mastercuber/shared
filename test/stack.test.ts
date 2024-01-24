@@ -1,6 +1,5 @@
 import {beforeEach, describe, expect, it} from 'vitest'
 import {
-  Collection,
   CyclicDoublyLinkedList,
   Dequeue,
   DoublyLinkedList,
@@ -15,7 +14,7 @@ import {
   Stack
 } from '../src'
 
-function stackTests(stack: IStack<number>, stackType: new (collection: Collection<number>) => IStack<number>) {
+function stackTests(stack: IStack<number>, stackType: new (elements: Iterable<number>) => IStack<number>) {
   describe('common tests', () => {
     beforeEach(() => {
       stack.clear()

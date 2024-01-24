@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { Collection,
+import {
   Comparator,
   CyclicDoublyLinkedList,
   Dequeue,
@@ -16,7 +16,7 @@ import { Collection,
   Stack,
   List } from '../src'
 
-type QueueType = (new (collection: Collection<number>) => IQueue<number>) | (new (comparator: Comparator<number>, collection?: Collection<number>) => IQueue<number>)
+type QueueType = (new (elements: Iterable<number>) => IQueue<number>) | (new (comparator: Comparator<number>, elements?: Iterable<number>) => IQueue<number>)
 function queueTests(queue: IQueue<number>, queueType: QueueType, priorityQueueTests = false) {
   describe('common queue tests', () => {
     beforeEach(() => {

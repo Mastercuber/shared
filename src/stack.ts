@@ -1,20 +1,23 @@
-import { Collection, Comparator, ICollection, Node, Ordering } from './index'
+import { Comparator, Node, Ordering } from './index'
 
-export interface IStack<E> extends ICollection<E> {
+export interface IStack<E> extends Iterable<E> {
+  size: number
+  comparator: Comparator<E>
   push(e: E): void
   pop(): E
   top(): E
   contains(e: E): boolean
-  comparator: Comparator<E>
+  isEmpty(): boolean
+  clear(): void
 }
 
 export class Stack<E> implements IStack<E> {
   private arr: E[] = []
   size = 0
   comparator: Comparator<E> = null!
-  constructor(collection?: Collection<E>) {
-    if (collection) {
-      for(const el of collection) {
+  constructor(elements?: Iterable<E>) {
+    if (elements) {
+      for(const el of elements) {
         this.push(el)
       }
     }
@@ -80,9 +83,9 @@ export class LinkedStack<E> implements IStack<E> {
   private _top: Node<E>
   size = 0
   comparator: Comparator<E> = null!
-  constructor(collection?: Collection<E>) {
-    if (collection) {
-      for(const el of collection) {
+  constructor(elements?: Iterable<E>) {
+    if (elements) {
+      for(const el of elements) {
         this.push(el)
       }
     }

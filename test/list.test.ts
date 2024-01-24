@@ -1,6 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it} from 'vitest'
 import {
-  Collection,
   CyclicDoublyLinkedList,
   Dequeue,
   DoublyLinkedList,
@@ -17,7 +16,7 @@ import {
   Stack
 } from '../src'
 
-function linkedListTests(list: ILinkedList<number>, listType: new (collection?: Collection<number>, reverse?: boolean) => IList<number>) {
+function linkedListTests(list: ILinkedList<number>, listType: new (elements?: Iterable<number>, reverse?: boolean) => IList<number>) {
   commonListTests(list, listType)
   describe('common linked list tests', () => {
     beforeEach(() => {
@@ -174,7 +173,7 @@ function linkedListTests(list: ILinkedList<number>, listType: new (collection?: 
   })
 }
 
-function commonListTests(list: IList<number>, listType: new (collection?: Collection<number>) => IList<number>) {
+function commonListTests(list: IList<number>, listType: new (elements?: Iterable<number>) => IList<number>) {
   describe('common list tests', () => {
     beforeEach(() => {
       list.clear()
@@ -2254,6 +2253,30 @@ function commonListTests(list: IList<number>, listType: new (collection?: Collec
       expect(list.includes(2)).toBeFalsy()
       expect(list.includes(-2)).toBeFalsy()
     });
+    describe('some', () => {
+      it('contains no element equal to 1', () => {
+        list.add(0)
+        expect(list.some(n => n === 1)).toBeFalsy()
+      })
+      it('contains at least one element equal to 1', () => {
+        list.add(0)
+        list.add(1)
+        expect(list.some(n => n === 1)).toBeTruthy()
+      })
+    })
+    describe('every', () => {
+      it('every element matches the predicate', () => {
+        list.add(0)
+        expect(list.every(_ => true)).toBeTruthy()
+      })
+      it("at least one element doesn't match the predicate", () => {
+        list.add(0)
+        expect(list.every(_ => false)).toBeFalsy()
+      })
+      it('list size: 0; an empty list resolves to true (predicate: all true)', () => {
+        expect(list.every(_ => true)).toBeTruthy()
+      })
+    })
   })
 }
 

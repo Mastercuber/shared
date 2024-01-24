@@ -1,4 +1,4 @@
-import { ICollection, CyclicDoublyLinkedList, LinkedList, Comparator, Ordering, Collection } from './index'
+import { CyclicDoublyLinkedList, LinkedList, Comparator, Ordering } from './index'
 
 export type HeapNode<E> = {
   value: E
@@ -14,9 +14,12 @@ export type HeapNode<E> = {
 // This is needed for delete to function correctly
 
 
-export interface IFibonacciHeap<E> extends ICollection<E> {
+export interface IFibonacciHeap<E> extends Iterable<E> {
+  size: number
   rootList: HeapNode<E>
   minNode: HeapNode<E>
+  isEmpty(): boolean
+  clear(): void
   insert(element: E): HeapNode<E>
   delete(node: HeapNode<E>): HeapNode<E>
   decreaseKey(node: HeapNode<E>, newValue: E): void
@@ -34,10 +37,10 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
   comparator: Comparator<E>
   private readonly goldenCut = (1 + Math.sqrt(5)) / 2
 
-  constructor(comparator: Comparator<E>, collection?: Collection<E>) {
+  constructor(comparator: Comparator<E>, elements?: Iterable<E>) {
     this.comparator = comparator
-    if (collection) {
-      for (const e of collection) {
+    if (elements) {
+      for (const e of elements) {
         this.insert(e)
       }
     }

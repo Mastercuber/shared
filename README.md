@@ -73,7 +73,7 @@ All lists implement the interface `IList`:
 export interface IList<E> extends ICollection<E>, ISortable<E> {
   comparator: Comparator<E>
   add(e: E): void
-  addAll(c: Collection<E>): void
+  addAll(c: Iterable<E>): void
   get(index: number): E
   set(index: number, e: E | null): boolean
   slice(startIndex: number, endIndex: number): IList<E>

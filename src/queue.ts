@@ -1,9 +1,12 @@
-import { ICollection, Collection, Comparator, FibonacciHeap, IStack, Node, Ordering } from './index'
+import { Comparator, FibonacciHeap, IStack, Node, Ordering } from './index'
 
-export interface IQueue<E> extends ICollection<E> {
+export interface IQueue<E> extends Iterable<E> {
+  size: number
   enqueue(e: E): void
   dequeue(): E
   head(): E
+  isEmpty(): boolean
+  clear(): void
 }
 
 export interface IDequeue<E> extends IQueue<E>, IStack<E> {
@@ -14,9 +17,9 @@ export class Queue<E> implements IQueue<E> {
   private arr: E[] = []
   size = 0
 
-  constructor(collection?: Collection<E>) {
-    if (collection) {
-      for(const el of collection) {
+  constructor(elements?: Iterable<E>) {
+    if (elements) {
+      for(const el of elements) {
         this.enqueue(el)
       }
     }
@@ -72,9 +75,9 @@ export class LinkedQueue<E> implements IQueue<E> {
   private tail: Node<E>
   size = 0
 
-  constructor(collection?: Collection<E>) {
-    if (collection) {
-      for(const el of collection) {
+  constructor(elements?: Iterable<E>) {
+    if (elements) {
+      for(const el of elements) {
         this.enqueue(el)
       }
     }
@@ -159,11 +162,11 @@ export class PriorityQueue<E> implements IQueue<E> {
   comparator: Comparator<E>
   heap: FibonacciHeap<E>
 
-  constructor(comparator: Comparator<E>, collection?: Collection<E>) {
+  constructor(comparator: Comparator<E>, elements?: Iterable<E>) {
     this.comparator = comparator
     this.heap = new FibonacciHeap<E>(comparator)
-    if (collection) {
-      for (const e of collection) {
+    if (elements) {
+      for (const e of elements) {
         this.heap.insert(e)
         this.size++
       }
@@ -210,9 +213,9 @@ export class Dequeue<E> implements IDequeue<E> {
   private tail: Node<E>
   comparator: Comparator<E> = null!
 
-  constructor(collection?: Collection<E>) {
-    if (collection) {
-      for(const el of collection) {
+  constructor(elements?: Iterable<E>) {
+    if (elements) {
+      for(const el of elements) {
         this.enqueue(el)
       }
     }

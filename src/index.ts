@@ -1,9 +1,3 @@
-export interface ICollection<E> extends Iterable<E> {
-  size: number
-  isEmpty(): boolean
-  clear(): void
-}
-export type Collection<E> = ICollection<E> | Array<E> | Set<E>
 export enum Ordering {
   LT = -1,
   EQ = 0,

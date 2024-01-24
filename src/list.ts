@@ -1,20 +1,28 @@
-import { Collection, Comparator, heapSort, ICollection, ISortable, Node, Ordering } from './index'
-
-export interface IList<E> extends ICollection<E>, ISortable<E> {
-  comparator: Comparator<E>
-  add(e: E): void
-  addAll(c: Collection<E>): void
-  get(index: number): E
-  set(index: number, e: E | null): boolean
+import { Comparator, heapSort, ISortable, Node, Ordering } from './index'
+export interface IListFunctions<E> {
+  map<V>(fn: (e: E) => V): IList<V>
+  reduce<V>(fn: (accumulator: V, element: E) => V, initialValue?: V): V
+  filter(predicate: (e: E) => boolean): IList<E>
+  every(predicate: (e: E) => boolean): boolean
+  some(predicate: (e: E) => boolean): boolean
   slice(startIndex: number, endIndex: number): IList<E>
   slice2(startIndex: number, endIndex: number): IList<E>
   splice(startIndex: number, deleteCount: number): IList<E>
-  map<V>(fn: (e: E) => V): IList<V>
-  filter(predicate: (e: E) => boolean): IList<E>
+}
+
+export interface IList<E> extends ISortable<E>, Iterable<E>, IListFunctions<E> {
+  comparator: Comparator<E>
+  size: number
+  isEmpty(): boolean
+  clear(): void
+  add(e: E): void
+  addAll(c: Iterable<E>): void
+  get(index: number): E
+  set(index: number, e: E | null): boolean
   remove(index: number): E
-  includes(e: E): boolean
   equals(l: IList<E>): boolean
   indexOf(e: E): number
+  includes(e: E): boolean
   reverseIterator(): Generator<E>
 }
 export interface ILinkedList<E> extends IList<E> {
@@ -34,9 +42,9 @@ export class List<E> implements IList<E> {
   size = 0
   comparator: Comparator<E> = null!
 
-  constructor(collection?: Collection<E>) {
-    if (collection) {
-      for (const el of collection) {
+  constructor(elements?: Iterable<E>) {
+    if (elements) {
+      for (const el of elements) {
         this.add(el)
       }
     }
@@ -48,7 +56,7 @@ export class List<E> implements IList<E> {
       this.size++
     }
   }
-  addAll(c: Collection<E>) {
+  addAll(c: Iterable<E>) {
     for (const e of c) {
       this.add(e)
     }
@@ -165,6 +173,10 @@ export class List<E> implements IList<E> {
     return list
   }
 
+  reduce<V>(fn: (accumulator: V, element: E) => V, initialValue?: V): V {
+    return this.arr.reduce(fn, initialValue || {} as V)
+  }
+
   filter(predicate: (e: E) => boolean): List<E> {
     const list = new List<E>()
     for (const e of this) {
@@ -173,6 +185,29 @@ export class List<E> implements IList<E> {
       }
     }
     return list
+  }
+
+  every(predicate: (e: E) => boolean): boolean {
+    let all = true
+    for (let e of this.arr) {
+      if (!predicate(e)) {
+        all = false
+        break
+      }
+    }
+
+    return all
+  }
+
+  some(predicate: (e: E) => boolean): boolean {
+    let someMatches = false
+    for (let e of this.arr) {
+      if (predicate(e)) {
+        someMatches = true
+        break
+      }
+    }
+    return someMatches
   }
 
   isEmpty(): boolean {
@@ -263,9 +298,9 @@ export class LinkedList<E> implements ILinkedList<E> {
   size: number = 0
   comparator: Comparator<E> = null!
 
-  constructor(collection?: Collection<E>, reverse = false) {
-    if (collection) {
-      for (const el of collection) {
+  constructor(elements?: Iterable<E>, reverse = false) {
+    if (elements) {
+      for (const el of elements) {
         if (reverse) this.addFirst(el)
         else this.add(el)
       }
@@ -280,7 +315,7 @@ export class LinkedList<E> implements ILinkedList<E> {
     this.addLast(e)
   }
 
-  addAll(c: Collection<E>) {
+  addAll(c: Iterable<E>) {
     for (const e of c) {
       this.add(e)
     }
@@ -431,6 +466,14 @@ export class LinkedList<E> implements ILinkedList<E> {
     return list
   }
 
+  reduce<V>(fn: (accumulator: V, element: E) => V, initialValue?: V): V {
+    let result = initialValue || {} as V
+    for (const e of this) {
+      result = fn(result, e)
+    }
+    return result
+  }
+
   filter(predicate: (e: E) => boolean): LinkedList<E> {
     const list = new LinkedList<E>()
     for (const e of this) {
@@ -439,6 +482,29 @@ export class LinkedList<E> implements ILinkedList<E> {
       }
     }
     return list
+  }
+
+  every(predicate: (e: E) => boolean): boolean {
+    let all = true
+    for (let el of this) {
+      if (!predicate(el)) {
+        all = false
+        break
+      }
+    }
+
+    return all
+  }
+
+  some(predicate: (e: E) => boolean): boolean {
+    let someMatches = false
+    for (let e of this) {
+      if (predicate(e)) {
+        someMatches = true
+        break
+      }
+    }
+    return someMatches
   }
 
   /**
@@ -661,9 +727,9 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
   size = 0
   comparator: Comparator<E> = null!
 
-  constructor(collection?: Collection<E>, reverse = false) {
-    if (collection) {
-      for (const el of collection) {
+  constructor(elements?: Iterable<E>, reverse = false) {
+    if (elements) {
+      for (const el of elements) {
         if (reverse) this.addFirst(el)
         else this.add(el)
       }
@@ -678,7 +744,7 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
     this.addLast(e)
   }
 
-  addAll(c: Collection<E>) {
+  addAll(c: Iterable<E>) {
     for (const e of c) {
       this.add(e)
     }
@@ -837,6 +903,14 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
     return list
   }
 
+  reduce<V>(fn: (accumulator: V, element: E) => V, initialValue?: V): V {
+    let result = initialValue || {} as V
+    for (const e of this) {
+      result = fn(result, e)
+    }
+    return result
+  }
+
   filter(predicate: (e: E) => boolean): DoublyLinkedList<E> {
     const list = new DoublyLinkedList<E>()
     for (const e of this) {
@@ -845,6 +919,29 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
       }
     }
     return list
+  }
+
+  every(predicate: (e: E) => boolean): boolean {
+    let all = true
+    for (let el of this) {
+      if (!predicate(el)) {
+        all = false
+        break
+      }
+    }
+
+    return all
+  }
+
+  some(predicate: (e: E) => boolean): boolean {
+    let someMatches = false
+    for (let e of this) {
+      if (predicate(e)) {
+        someMatches = true
+        break
+      }
+    }
+    return someMatches
   }
 
   /**
@@ -1071,9 +1168,9 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
   size = 0
   comparator: Comparator<E> = null!
 
-  constructor(collection?: Collection<E>, reverse = false) {
-    if (collection) {
-      for (const el of collection) {
+  constructor(elements?: Iterable<E>, reverse = false) {
+    if (elements) {
+      for (const el of elements) {
         if (reverse) this.addFirst(el)
         else this.add(el)
       }
@@ -1088,7 +1185,7 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
     this.addLast(e)
   }
 
-  addAll(c: Collection<E>) {
+  addAll(c: Iterable<E>) {
     for (const e of c) {
       this.add(e)
     }
@@ -1256,6 +1353,14 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
     return list
   }
 
+  reduce<V>(fn: (accumulator: V, element: E) => V, initialValue?: V): V {
+    let result = initialValue || {} as V
+    for (const e of this) {
+      result = fn(result, e)
+    }
+    return result
+  }
+
   filter(predicate: (e: E) => boolean): CyclicDoublyLinkedList<E> {
     const list = new CyclicDoublyLinkedList<E>()
     for (const e of this) {
@@ -1264,6 +1369,29 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
       }
     }
     return list
+  }
+
+  every(predicate: (e: E) => boolean): boolean {
+    let all = true
+    for (let el of this) {
+      if (!predicate(el)) {
+        all = false
+        break
+      }
+    }
+
+    return all
+  }
+
+  some(predicate: (e: E) => boolean): boolean {
+    let someMatches = false
+    for (let e of this) {
+      if (predicate(e)) {
+        someMatches = true
+        break
+      }
+    }
+    return someMatches
   }
 
   /**
