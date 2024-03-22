@@ -86,25 +86,23 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
   constructor(
     options: GraphProperties = <GraphProperties>{},
     _comparator: Comparator<V>,
-        private vertexType: new(options?: any) => V,
-        private edgeType: new(options?: any) => E,
+    private vertexType: new(options?: any) => V,
+    private edgeType: new(options?: any) => E,
   ) {
     this.comparator = _comparator
     options = {
-      ...{
-        uuid: crypto.randomUUID(),
-        title: 'new graph',
-        vertices: new Set(),
-        edges: new Set(),
-        connectedComponentsCount: 0,
-        strongConnectedComponentsCount: 0,
-        hasCycles: false,
-        cycleCount: 0,
-        hasNegativeCycles: false,
-        isConnected: false,
-        isMixes: false,
-        isDirected: false
-      },
+      uuid: crypto.randomUUID(),
+      title: 'new graph',
+      vertices: new Set(),
+      edges: new Set(),
+      connectedComponentsCount: 0,
+      strongConnectedComponentsCount: 0,
+      hasCycles: false,
+      cycleCount: 0,
+      hasNegativeCycles: false,
+      isConnected: false,
+      isMixes: false,
+      isDirected: false,
       ...options
     }
     this.uuid = options.uuid as string
@@ -1037,7 +1035,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
 }
 
 export class Graph extends AGraph<Vertex, Edge> {
-  constructor(props: GraphProperties, comparator: Comparator<Vertex>) {
+  constructor(props: GraphProperties = {}, comparator: Comparator<Vertex> = (v1, v2) => (v1.uuid === v2.uuid ? Ordering.EQ : v1.outdeg() < v2.outdeg() ? Ordering.LT : Ordering.GT)) {
     super(props, comparator, Vertex, Edge)
   }
 }
