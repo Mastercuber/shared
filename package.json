@@ -1,9 +1,11 @@
 {
   "name": "@avensio/shared",
-  "version": "0.5.2",
+  "version": "0.5.3",
+  "private": false,
   "main": "./dist/shared.cjs.js",
   "module": "./dist/shared.es.js",
   "types": "./dist/shared.es.d.ts",
+  "author": "armin",
   "scripts": {
     "dev": "vitest --logHeapUsage --coverage",
     "bench": "vitest bench test/benchmarks/",
@@ -15,14 +17,38 @@
   "publishConfig": {
     "registry": "https://repo.avensio.de/repository/npm-hosted/"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mastercuber/shared.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Mastercuber/shared/issues"
+  },
   "keywords": [
     "stack",
+    "linkedstack",
     "list",
+    "linkedlist",
+    "doublylinkedlist",
+    "cycliclinkedlist",
     "queue",
+    "linkedqueue",
+    "priorityqueue",
+    "dequeue",
     "heap",
+    "fibonacciheap",
+    "quicksort",
+    "heapsort",
     "graph",
     "datastructures",
-    "algorithms"
+    "algorithms",
+    "depthfirstsearch",
+    "breadthfirstsearch",
+    "topologicsorting",
+    "topologicalsorting",
+    "connectedcomponents",
+    "minimalspanningtree",
+    "cycles"
   ],
   "files": [
     "dist"
