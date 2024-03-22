@@ -38,6 +38,7 @@ export interface IGraph<V extends IVertex, E extends IEdge> extends GraphPropert
     isCyclic(): boolean;
     isAcyclic(): boolean;
     isTree(): boolean;
+    isForest(): boolean;
     isDirected(): boolean;
     isConnected(): boolean;
     isConnectedFrom(v: V): boolean;
@@ -698,7 +699,18 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
       if (v.incomingEdges!.size > 1) return false
     }
 
-    return true
+    return this.isAcyclic()
+  }
+
+  isForest(): boolean {
+    if (!this.directed) return this.connected && !this.hasCycles
+
+    const roots = [...this.vertices].filter(v => v.incomingEdges!.size === 0)
+
+    if (roots.length > 0)
+      return this.isAcyclic()
+
+    return false
   }
 
   isDirected(): boolean {
