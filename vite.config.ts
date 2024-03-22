@@ -23,7 +23,7 @@ export default defineConfig({
         lib: {
             entry: resolve(__dirname, 'src', 'index.ts'),
             name: 'shared',
-            formats: ['es', 'cjs'],
+            formats: ['es', 'cjs', 'iife'],
             fileName: (format) => `shared.${format}.js`
         },
         minify: 'esbuild'

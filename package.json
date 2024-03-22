@@ -1,9 +1,10 @@
 {
   "name": "@avensio/shared",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "private": false,
   "main": "./dist/shared.cjs.js",
   "module": "./dist/shared.es.js",
+  "browser": "./dist/shared.iife.js",
   "types": "./dist/shared.es.d.ts",
   "author": "armin",
   "scripts": {
@@ -11,6 +12,7 @@
     "bench": "vitest bench test/benchmarks/",
     "lint": "eslint src/",
     "build": "vite build",
+    "postbuild": "sed -e 's/({});/(this);/g' -i ./dist/shared.iife.js",
     "test": "vitest --coverage",
     "preview": "vite preview"
   },
