@@ -1,4 +1,28 @@
-This is a package containing multiple **datastructures** and some **graph algorithms** written in typescript.
+This is a package containing multiple **datastructures** and some **graph algorithms** written in typescript with no dependencies and usable with commonjs, esm and in the browser.
+
+Here is an example of using the package directly in the browser:
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>npm Paket einbinden</title>
+    <script src="https://unpkg.com/@avensio/shared"></script>
+  </head>
+  <body>
+    <script>
+      const a = new Vertex('A')
+      const b = new Vertex('B')
+      const g = new Graph()
+      g.addVertex(a)
+      g.addVertex(b)
+      g.addEdge(new Edge(a, b))
+      console.debug(g)
+    </script>
+  </body>
+</html>
+```
+otherwise install it with `npm`/`pnpm`: `npm install @avensio/shared`.
 
 The test coverage is about [90%](test/) and benchmarks for list, queue and stack tests are included.
 
