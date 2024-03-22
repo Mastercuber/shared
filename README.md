@@ -1,6 +1,6 @@
 [[_TOC_]]
 
-This is a package containing multiple **datastructures** (Graph, List, LinkedList, DoublyLinkedList, CyclicLinkedList, Queue, LinkedQueue, PriorityQueue, Dequeue, Stack, LinkedStack, FibonacciHeap) and some **algorithms** (depthFirstSearch, breadthFirstSearch, topologicalSorting, parallelTopologicalSorting, connectedComponents, strongConnectedComponents, ...) written in typescript.
+This is a package containing multiple **datastructures** and some **graph algorithms** written in typescript.
 
 The test coverage is about [90%](test/) and benchmarks for list, queue and stack tests are included.
 
