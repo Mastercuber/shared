@@ -1,7 +1,6 @@
 {
   "name": "@avensio/shared",
-  "version": "0.5.0",
-  "type": "module",
+  "version": "0.5.2",
   "main": "./dist/shared.cjs.js",
   "module": "./dist/shared.es.js",
   "types": "./dist/shared.es.d.ts",
