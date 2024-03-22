@@ -1,6 +1,6 @@
 {
   "name": "@avensio/shared",
-  "version": "0.5.3",
+  "version": "0.5.5",
   "private": false,
   "main": "./dist/shared.cjs.js",
   "module": "./dist/shared.es.js",
@@ -15,7 +15,8 @@
     "preview": "vite preview"
   },
   "publishConfig": {
-    "registry": "https://repo.avensio.de/repository/npm-hosted/"
+    "registry": "https://repo.avensio.de/repository/npm-hosted/",
+    "access": "public"
   },
   "repository": {
     "type": "git",

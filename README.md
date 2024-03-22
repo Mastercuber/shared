@@ -1,4 +1,24 @@
-[[_TOC_]]
+1. [Graph](#graph)
+1.1 [GraphProperties](#graph-properties)
+1.2 [Algorithms](#algorithms)
+1.3 [Utility Functions](#utility-functions)
+2. [Lists](#lists)
+2.1 [List](#list)
+2.2 [LinkedList](#linkedlist)
+2.2.1 [DoublyLinkedList](#doublylinkedlist)
+2.2.2 [CyclicLinkedList](#cycliclinkedlist)
+3. [Queues](#queues)
+3.1 [Queue](#queue)
+3.2 [LinkedQueue](#linkedqueue)
+3.3 [PriorityQueue](#priorityqueue)
+3.4 [Dequeue](#dequeue)
+4. [Stacks](#stacks)
+4.1 [Stack](#stack)
+4.2 [LinkedStack](#linkedstack)
+5. [Heap](#heap)
+6. [Sorting](#sorting)
+6.1 [Quicksort](#quicksort)
+6.2 [Heapsort](#heapsort)
 
 This is a package containing multiple **datastructures** and some **graph algorithms** written in typescript.
 
@@ -134,7 +154,7 @@ const list = new List<number>()
 const list = new List<number>([1,2,3])
 ```
 
-## LinkedLists
+## LinkedList
 A linked list consists of nodes, each with a **pointer to the next node**.
 
 Additionally, to the interfaces in `IList`, LinkedLists also implement the following properties and functions:
@@ -226,7 +246,7 @@ Linke the list and queue, also the stack has a reference implementation with nat
 const stack = new Stack<number>()
 ```
 
-## Linked Stack
+## LinkedStack
 The linked stack is an implementation with 1 pointer to the top of the stack. Each node knows the previous one in the stack.
 
 ```typescript
