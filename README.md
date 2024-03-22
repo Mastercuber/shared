@@ -266,7 +266,7 @@ export type HeapNode<E> = {
 }
 ```
 
-# Sort
+# Sorting
 One of the quickest ways of sorting a collection is the quicksort. Additionally to this sorting algorithm a heapsort variant is provided by this package, using a FibonacciHeap for sorting.
 
 ## Quicksort
