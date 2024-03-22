@@ -1,10 +1,22 @@
-This is a package containing multiple **datastructures** and some **algorithms** written in typescript.
+This is a package containing multiple **datastructures** (Graph, List, LinkedList, DoublyLinkedList, CyclicLinkedList, Queue, LinkedQueue, PriorityQueue, Dequeue, Stack, LinkedStack, FibonacciHeap) and some **algorithms** (depthFirstSearch, breadthFirstSearch, topologicalSorting, parallelTopologicalSorting, connectedComponents, strongConnectedComponents, ...) written in typescript.
 
-The test coverage is about [100%](test/) and benchmarks for list, queue and stack tests are provided (but more or less meaningful since the execution times change when reordering the test suites).
+The test coverage is about [100%](test/) and benchmarks for list, queue and stack tests are included.
 
-A bulk of algorithms have asymptotic behavior described with the upper bound and the lower bound. 
+A bulk of algorithms have asymptotic behavior described with the upper bound and the lower bound.
+
+All datastructures can be passed an `Iterable` as constructor argument to initialize with.
+
 # Graph
-To use the Graph provided by this package some [GraphProperties](src/graph/graph.ts) can be passed to the [Graph](src/graph/graph.ts) constructor and a *comparator* **must** be passed. The comparator is needed for some algorithms to function properly and **must** return all [Ordering's](src/index.ts) (-1 for LessThan, 0 for EQual and 1 for GreaterThan).
+To use the Graph provided by this package some [GraphProperties](src/graph/graph.ts) can be passed to the [Graph](src/graph/graph.ts) constructor as firs argument and as second a *comparator* can be passed.
+
+The comparator is needed for some algorithms to function properly and **must** return all [Ordering's](src/index.ts) (-1 for LessThan, 0 for EQual and 1 for GreaterThan).
+
+A minimal example of using the graph is as follows:
+```typescript
+import { Graph } from '@avensio/shared'
+
+const graph = new Graph()
+```
 
 If a custom Graph with custom Vertex and Edge classes is needed, the Graph can extend [AGraph](src/graph/graph.ts) like so:
 ```typescript
@@ -17,21 +29,27 @@ class CustomEdge extends Edge {
 }
 
 class Graph extends AGraph<CustomVertex, CustomEdge> {
-  constructor(props: GraphProperties, comparator: Comparator<CustomVertex>) {
-    super(props, comparator, CustomVertex, CustomEdge)
+  constructor(props: GraphProperties = {}, comparator?: Comparator<CustomVertex>)) {
+    const _cmp = (v1: IVertex, v2: IVertex) => (v1.uuid === v2.uuid ?
+      Ordering.EQ
+      : v1.outdeg() < v2.outdeg() ?
+        Ordering.LT
+        : Ordering.GT)
+    super(props, (comparator || _cmp), CustomVertex, CustomEdge)
   }
 }
 ```
+A custom comparator can be provided for CustomVertex or a default one (`_cmp`) could be used.
 
 ## Graph Properties
 * `density(): number`
   * [Density](https://en.wikipedia.org/wiki/Dense_graph) of the graph
 * `order(): number`
-  * 
 * `size(): number`
 * `isCyclic(): boolean`
 * `isAcyclic(): boolean`
 * `isTree(): boolean`
+* `isForest(): boolean`
 * `isDirected(): boolean`
 * `isConnected(): boolean`
 * `isConnectedFrom(v: V): boolean`
@@ -113,7 +131,14 @@ There are 2 sorting algorithmen's provided with the implementation. One quicksor
 ## List
 List implementation using the **native array** as data structure _to have a reference_ when [**benchmarking**](test/benchmarks/list.bench.ts) some list methods.
 
+```typescript
+const list = new List<number>()
+const list = new List<number>([1,2,3])
+```
+
 ## LinkedLists
+A linked list consists of nodes, each with a **pointer to the next node**.
+
 Additionally, to the interfaces in `IList`, LinkedLists also implement the following properties and functions:
 ```typescript
 export interface ILinkedList<E> extends IList<E> {
@@ -127,17 +152,25 @@ export interface ILinkedList<E> extends IList<E> {
   removeFirst(): E
   removeLast(): E
 }
+
+const list = new LinkedList<number>()
 ```
-### LinkedList
-A linked list consists of nodes, each with a **pointer to the next node**.
 
 ### DoublyLinkedList
 Linked lists hava one pointer to the next node, but that's it. No other pointers. Doubly linked lists have these second **pointer to the previous element**.
+
+```typescript
+const list = new DoublyLinkedList<number>()
+```
 
 ### CyclicLinkedList
 Doubly linked lists have 2 pointers: the first to the next, and the second to the previous element. But these kind of list is ending at the first and last elements. The doubly linked list kind of lists has **no previous pointer** at the _first element_ and **no next pointer** at the _last element_.
 
 With this cyclic linked lists there is a new kind of list with exactly these 2 pointers. So a cyclic linked list is named this way, since the **first element** now _points to the last_ and the **last** to the _first element_, so the list is now **cyclic**. 
+
+```typescript
+const list = new CyclicLinkedList<number>()
+```
 
 # Queues
 Queues are implementing the interface `IQueue` and extends `ICollection`:
@@ -153,14 +186,29 @@ Queues have a head (f.e. the first one in the queue) and a tail (where the new o
 
 Like the list, also the queue have an implementation using a native array as backing data structure for **[benchmarking](test/benchmarks/queue.bench.ts)**.
 
+```typescript
+const queue = new Queue<number>()
+```
+
 ## LinkedQueue
 A linked queue has like a linked list 2 pointers with **different names**. With queues the pointers are _head_ and _tail_, instead of _first_ and _last_.
+
+```typescript
+const queue = new LinkedQueue<number>()
+```
 
 ## PriorityQueue
 The priority queue uses the [fibonacci heap](src/heap.ts) implementation to store the elements.
 
+```typescript
+const queue = new PriorityQueue<number>()
+```
 ## Dequeue
 A Dequeue merge a Stack and a Queue, so both type of functions are usable (`enqueue`, `dequeue`, `push`, `pop`, `head`, `top`)
+
+```typescript
+const dequeue = new Dequeue<number>()
+```
 
 # Stacks
 Stacks have the following interface:
@@ -176,8 +224,16 @@ export interface IStack<E> extends ICollection<E> {
 ## Stack
 Linke the list and queue, also the stack has a reference implementation with native arrays for **[benchmarking](test/benchmarks/stack.bench.ts)**.
 
+```typescript
+const stack = new Stack<number>()
+```
+
 ## Linked Stack
-The linked stack is an implementation with 1 pointer to the top of the stack. Each node knows the previous one in the stack. 
+The linked stack is an implementation with 1 pointer to the top of the stack. Each node knows the previous one in the stack.
+
+```typescript
+const stack = new LinkedStack<number>()
+```
 
 # Heap
 This package provides tested fibonacci heap implementation. If you find a use case with problems, please tell.
@@ -196,6 +252,8 @@ export interface IFibonacciHeap<E> extends ICollection<E> {
   extractNeighbours(node: HeapNode<E>, includeSelf?: boolean): CyclicDoublyLinkedList<HeapNode<E>>
   extractChildren(node: HeapNode<E>): CyclicDoublyLinkedList<HeapNode<E>>
 }
+
+const heap = new FibonacciHeap<number>()
 ```
 and a heap node looks like:
 ```typescript
