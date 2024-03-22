@@ -1,3 +1,11 @@
+This is a package containing multiple **datastructures** and some **graph algorithms** written in typescript.
+
+The test coverage is about [90%](test/) and benchmarks for list, queue and stack tests are included.
+
+A bulk of algorithms have asymptotic behavior described with the upper bound and the lower bound.
+
+All datastructures (except Graph, Vertex, Edge) can be passed an `Iterable` as constructor argument to initialize with.
+
 1. [Graph](#graph)  
 1.1 [GraphProperties](#graph-properties)  
 1.2 [Algorithms](#algorithms)  
@@ -19,14 +27,6 @@
 6. [Sorting](#sorting)   
 6.1 [Quicksort](#quicksort)  
 6.2 [Heapsort](#heapsort)  
-
-This is a package containing multiple **datastructures** and some **graph algorithms** written in typescript.
-
-The test coverage is about [90%](test/) and benchmarks for list, queue and stack tests are included.
-
-A bulk of algorithms have asymptotic behavior described with the upper bound and the lower bound.
-
-All datastructures (except Graph, Vertex, Edge) can be passed an `Iterable` as constructor argument to initialize with.
 
 # Graph
 To use the Graph provided by this package some [GraphProperties](src/graph/graph.ts#L5) can be passed to the [Graph](src/graph/graph.ts#L1050) constructor as first argument, as second a *comparator* can be passed.
