@@ -24,8 +24,7 @@ export function stringComparator(s1: string, s2: string) {
   return Ordering.GT
 }
 
-// @TODO optimize for Garbage Collection
-// @TODO correct all time complexities
+
 export * from './stack'
 export * from './queue'
 export * from './list'
