@@ -1,10 +1,12 @@
+[[_TOC_]]
+
 This is a package containing multiple **datastructures** (Graph, List, LinkedList, DoublyLinkedList, CyclicLinkedList, Queue, LinkedQueue, PriorityQueue, Dequeue, Stack, LinkedStack, FibonacciHeap) and some **algorithms** (depthFirstSearch, breadthFirstSearch, topologicalSorting, parallelTopologicalSorting, connectedComponents, strongConnectedComponents, ...) written in typescript.
 
-The test coverage is about [100%](test/) and benchmarks for list, queue and stack tests are included.
+The test coverage is about [90%](test/) and benchmarks for list, queue and stack tests are included.
 
 A bulk of algorithms have asymptotic behavior described with the upper bound and the lower bound.
 
-All datastructures can be passed an `Iterable` as constructor argument to initialize with.
+All datastructures (except Graph, Vertex, Edge) can be passed an `Iterable` as constructor argument to initialize with.
 
 # Graph
 To use the Graph provided by this package some [GraphProperties](src/graph/graph.ts) can be passed to the [Graph](src/graph/graph.ts) constructor as firs argument and as second a *comparator* can be passed.
