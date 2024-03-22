@@ -78,13 +78,9 @@ A custom comparator can be provided for CustomVertex or a default one (`_cmp`) c
 * `createEdge(from: V, to: V, title?: string, directed?: boolean, weight?: number): E`
 * `addEdge(e: E): boolean`
 * `removeEdge(e: E): boolean`
-
-
 * `createVertex(title?: string, point?: Point, object?: any): V`
 * `addVertex(v: V): boolean`
 * `removeVertex(v: V): boolean`
-
-
 * `c(from: V, to: V): number`
 
 # Lists
@@ -238,7 +234,7 @@ const stack = new LinkedStack<number>()
 ```
 
 # Heap
-This package provides tested fibonacci heap implementation. If you find a use case with problems, please tell.
+This package provides tested fibonacci heap implementation.
 
 The fibonacci heap has the following interface:
 ```typescript

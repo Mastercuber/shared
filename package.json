@@ -15,9 +15,19 @@
   "publishConfig": {
     "registry": "https://repo.avensio.de/repository/npm-hosted/"
   },
+  "keywords": [
+    "stack",
+    "list",
+    "queue",
+    "heap",
+    "graph",
+    "datastructures",
+    "algorithms"
+  ],
   "files": [
     "dist"
   ],
+  "license": "MIT",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "@typescript-eslint/parser": "^6.7.3",
