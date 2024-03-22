@@ -9,9 +9,9 @@ A bulk of algorithms have asymptotic behavior described with the upper bound and
 All datastructures (except Graph, Vertex, Edge) can be passed an `Iterable` as constructor argument to initialize with.
 
 # Graph
-To use the Graph provided by this package some [GraphProperties](src/graph/graph.ts) can be passed to the [Graph](src/graph/graph.ts) constructor as firs argument and as second a *comparator* can be passed.
+To use the Graph provided by this package some [GraphProperties](src/graph/graph.ts#L5) can be passed to the [Graph](src/graph/graph.ts#L1050) constructor as first argument, as second a *comparator* can be passed.
 
-The comparator is needed for some algorithms to function properly and **must** return all [Ordering's](src/index.ts) (-1 for LessThan, 0 for EQual and 1 for GreaterThan).
+The comparator is needed for some algorithms to function properly and **must** return all [Ordering's](src/index.ts#L1) (-1 for LessThan, 0 for EQual and 1 for GreaterThan).
 
 A minimal example of using the graph is as follows:
 ```typescript
@@ -20,7 +20,7 @@ import { Graph } from '@avensio/shared'
 const graph = new Graph()
 ```
 
-If a custom Graph with custom Vertex and Edge classes is needed, the Graph can extend [AGraph](src/graph/graph.ts) like so:
+If a custom Graph with custom Vertex and Edge classes is needed, the Graph can extend [AGraph](src/graph/graph.ts#L72) like so:
 ```typescript
 class CustomVertex extends Vertex {
   additionalVertexProp = 'prop'
