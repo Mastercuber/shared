@@ -265,3 +265,18 @@ export type HeapNode<E> = {
   child?: HeapNode<E>
 }
 ```
+
+# Sort
+One of the quickest ways of sorting a collection is the quicksort. Additionally to this sorting algorithm a heapsort variant is provided by this package, using a FibonacciHeap for sorting.
+
+## Quicksort
+The quicksort has the following function signature:
+```typescript
+quicksort<V>(A: IList<V>, comparator: Comparator<V>): IList<V>
+```
+
+## Heapsort
+Sorting a list using a FibonnaciHeap has the following function signature:
+```typescript
+heapSort<V>(A: IList<V>, comparator: Comparator<V>): FibonnaciHeap<V>
+```
