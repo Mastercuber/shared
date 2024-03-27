@@ -837,6 +837,12 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
       arr.splice(index, 1)
       this.edges = new Set(arr)
     }
+    if (e.from) {
+      e.from.outgoingEdges.delete(e.from)
+    }
+    if (e.to) {
+      e.to.incomingEdges.delete(e.to)
+    }
 
     return sizeBefore != arr.length
   }
