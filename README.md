@@ -6,7 +6,7 @@ Here is an example of using the package directly in the browser:
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>npm Paket einbinden</title>
+    <title>include npm package</title>
     <script src="https://unpkg.com/@avensio/shared"></script>
   </head>
   <body>
@@ -26,7 +26,7 @@ otherwise install it with `npm`/`pnpm`: `npm install @avensio/shared`.
 
 The test coverage is about [90%](test/) and benchmarks for list, queue and stack tests are included.
 
-A bulk of algorithms have asymptotic behavior described with the upper bound and the lower bound.
+A bulk of algorithms have asymptotic behavior described with the upper and the lower bound (time complexity).
 
 All datastructures (except Graph, Vertex, Edge) can be passed an `Iterable` as constructor argument to initialize with.
 
@@ -264,7 +264,7 @@ export interface IStack<E> extends ICollection<E> {
 }
 ```
 ## Stack
-Linke the list and queue, also the stack has a reference implementation with native arrays for **[benchmarking](test/benchmarks/stack.bench.ts)**.
+Like the list and queue, also the stack has a reference implementation with native arrays for **[benchmarking](test/benchmarks/stack.bench.ts)**.
 
 ```typescript
 const stack = new Stack<number>()
@@ -278,7 +278,7 @@ const stack = new LinkedStack<number>()
 ```
 
 # Heap
-This package provides tested fibonacci heap implementation.
+This package provides a tested fibonacci heap implementation.
 
 The fibonacci heap has the following interface:
 ```typescript
