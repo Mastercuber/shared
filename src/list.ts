@@ -189,7 +189,7 @@ export class List<E> implements IList<E> {
 
   every(predicate: (e: E) => boolean): boolean {
     let all = true
-    for (let e of this.arr) {
+    for (const e of this.arr) {
       if (!predicate(e)) {
         all = false
         break
@@ -201,7 +201,7 @@ export class List<E> implements IList<E> {
 
   some(predicate: (e: E) => boolean): boolean {
     let someMatches = false
-    for (let e of this.arr) {
+    for (const e of this.arr) {
       if (predicate(e)) {
         someMatches = true
         break
@@ -486,7 +486,7 @@ export class LinkedList<E> implements ILinkedList<E> {
 
   every(predicate: (e: E) => boolean): boolean {
     let all = true
-    for (let el of this) {
+    for (const el of this) {
       if (!predicate(el)) {
         all = false
         break
@@ -498,7 +498,7 @@ export class LinkedList<E> implements ILinkedList<E> {
 
   some(predicate: (e: E) => boolean): boolean {
     let someMatches = false
-    for (let e of this) {
+    for (const e of this) {
       if (predicate(e)) {
         someMatches = true
         break
@@ -549,16 +549,16 @@ export class LinkedList<E> implements ILinkedList<E> {
         return this.removeLast()
       case 1:
         toRemove = this.getNode(1)
-        this.first!.next = toRemove!.next
-        value = toRemove!.value
-        toRemove!.next = toRemove!.value = undefined! // GC
+        this.first!.next = toRemove.next
+        value = toRemove.value
+        toRemove.next = toRemove.value = undefined! // GC
         break
       default:
         const prevNode = this.getNode(index - 1)
         toRemove = prevNode?.next
         prevNode!.next = prevNode?.next?.next
-        value = toRemove!.value
-        toRemove!.next = toRemove!.value = undefined! // GC
+        value = toRemove.value
+        toRemove.next = toRemove.value = undefined! // GC
         break
     }
     this.size--
@@ -923,7 +923,7 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
 
   every(predicate: (e: E) => boolean): boolean {
     let all = true
-    for (let el of this) {
+    for (const el of this) {
       if (!predicate(el)) {
         all = false
         break
@@ -935,7 +935,7 @@ export class DoublyLinkedList<E> implements ILinkedList<E> {
 
   some(predicate: (e: E) => boolean): boolean {
     let someMatches = false
-    for (let e of this) {
+    for (const e of this) {
       if (predicate(e)) {
         someMatches = true
         break
@@ -1291,7 +1291,7 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
   slice2(startIndex: number, endIndex: number): CyclicDoublyLinkedList<E> {
     const slice = new CyclicDoublyLinkedList<E>()
     if (startIndex < 0) {
-      let start = (this.size + (startIndex % this.size === 0 ? -this.size : startIndex % this.size))
+      const start = (this.size + (startIndex % this.size === 0 ? -this.size : startIndex % this.size))
       if (endIndex < 0) {
         // slice to the left
         const end = (this.size + (endIndex % this.size === 0 ? -this.size : endIndex % this.size))
@@ -1314,7 +1314,7 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
         }
       }
     } else {
-      let start = startIndex % this.size
+      const start = startIndex % this.size
       if (endIndex < 0) {
         // slice to the left
         const end = this.size + (endIndex % this.size)
@@ -1373,7 +1373,7 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
 
   every(predicate: (e: E) => boolean): boolean {
     let all = true
-    for (let el of this) {
+    for (const el of this) {
       if (!predicate(el)) {
         all = false
         break
@@ -1385,7 +1385,7 @@ export class CyclicDoublyLinkedList<E> implements ILinkedList<E> {
 
   some(predicate: (e: E) => boolean): boolean {
     let someMatches = false
-    for (let e of this) {
+    for (const e of this) {
       if (predicate(e)) {
         someMatches = true
         break

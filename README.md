@@ -1,4 +1,4 @@
-This is a package containing multiple **datastructures** and some **graph algorithms** written in typescript with no dependencies and usable with commonjs, esm and in the browser.
+This is a package containing multiple **datastructures** and some **graph algorithms** written in typescript with no dependencies usable with commonjs, esm and in the browser. Also some other handy utility function are contained in this package.
 
 Here is an example of using the package directly in the browser:
 ```html
