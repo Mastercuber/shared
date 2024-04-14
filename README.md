@@ -1,12 +1,12 @@
 This is a package containing multiple **datastructures** and some **graph algorithms** written in typescript with no dependencies usable with commonjs, esm and in the browser. Also some other handy utility function are contained in this package.
 
-Here is an example of using the package directly in the browser:
+Here are two examples of using the package directly in the browser:
 ```html
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>include npm package</title>
+    <title>include npm package as IIFE</title>
     <script src="https://unpkg.com/@avensio/shared"></script>
   </head>
   <body>
@@ -22,7 +22,24 @@ Here is an example of using the package directly in the browser:
   </body>
 </html>
 ```
-otherwise install it with `npm`/`pnpm`: `npm install @avensio/shared`.
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>include npm package as ES-module</title>
+  </head>
+  <body>
+    <script type="module">
+      import { Vertex, Edge, Graph } from 'https://unpkg.com/@avensio/shared@0.6.5/dist/shared.es.js'
+    </script>
+  </body>
+</html>
+```
+otherwise install it with `npm`/`pnpm`: `npm install @avensio/shared` and use the classes by importing them:
+```html
+import { Vertex, Edge, Graph} from '@avensio/shared'
+```
 
 The test coverage is about [90%](test/) and benchmarks for list, queue and stack tests are included.
 
