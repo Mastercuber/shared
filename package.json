@@ -1,6 +1,6 @@
 {
   "name": "@avensio/shared",
-  "version": "0.6.6",
+  "version": "0.7.1",
   "private": false,
   "main": "./dist/shared.cjs.js",
   "module": "./dist/shared.es.js",
@@ -17,7 +17,7 @@
     "preview": "vite preview"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/",
+    "registry": "https://registry.npmjs.org",
     "access": "public"
   },
   "repository": {

@@ -31,7 +31,7 @@ Here are two examples of using the package directly in the browser:
   </head>
   <body>
     <script type="module">
-      import { Vertex, Edge, Graph } from 'https://unpkg.com/@avensio/shared@0.6.5/dist/shared.es.js'
+      import { Vertex, Edge, Graph } from 'https://unpkg.com/@avensio/shared@latest/dist/shared.es.js'
     </script>
   </body>
 </html>
