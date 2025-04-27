@@ -42,7 +42,7 @@ export interface IGraph<V extends IVertex, E extends IEdge> extends GraphPropert
     isDirected(): boolean;
     isConnected(): boolean;
     isConnectedFrom(v: V): boolean;
-    isStronglyConnectedFrom(v: V): boolean;
+    isStronglyConnected(): boolean;
     isMixed(): boolean;
     isDense(): boolean;
     isSparse(): boolean;
@@ -401,7 +401,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
       this.hasCycles = [...this.vertices].filter(v => this.containsCyclesFrom(v)).length > 0
 
       if (this.hasCycles) this.inferCycles()
-    } else {
+    } else if (!this.directed && !this.mixed) {
       const p = this.strongConnectedComponentCount()
       const m = this.edges.size
 
@@ -664,7 +664,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
     const order = this.order()
     const density = 2.0 * this.size() / (order * (order - 1))
     if (this.directed) {
-      return 1 / 2.0 * density
+      return density / 2
     }
     return density
 
@@ -761,10 +761,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
     return true
   }
 
-  isConnectedFrom(v: V): boolean {
-    if (!this.directed) {
-      throw new Error('graph must be directed')
-    }
+  private isConnectedFrom(v: V): boolean {
     const cloned = new Set(this.vertices)
     cloned.delete(v)
     const reachableVertices = this.depthFirstSearch(v)
@@ -778,7 +775,12 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
     return true
   }
 
-  isStronglyConnectedFrom(v: V): boolean {
+  isStronglyConnected(): boolean {
+    return this.vertices[Symbol.iterator]()
+      .every(v => this.isStronglyConnectedFrom(v))
+  }
+
+  private isStronglyConnectedFrom(v: V): boolean {
     if (!this.directed) {
       throw new Error('graph must be directed')
     }
@@ -804,12 +806,12 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
     return this.mixed
   }
 
-  isDense(): boolean {
-    return this.density() <= 0.5
+  isDense(threshold = 0.5): boolean {
+    return this.density() >= threshold
   }
 
-  isSparse(): boolean {
-    return this.density() > 0.5
+  isSparse(threshold = 0.5): boolean {
+    return this.density() < threshold
   }
 
   createEdge(from: V, to: V, title = 'new edge', directed = true, weight = 0): E {

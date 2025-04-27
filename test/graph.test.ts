@@ -77,6 +77,25 @@ describe('Graph Testsuite', () => {
       const g4 = GraphFactory.createDirectedGraphB()
       expect(g4.isConnected()).false
     })
+    it('dense graph (default threshold 0.5)', () => {
+      const g1 = GraphFactory.createDenseGraph()
+      expect(g1.isDense()).toBe(true)
+      expect(g1.density()).toBe(1)
+      expect(g1.isSparse()).toBe(false)
+    });
+
+    it('graph with density 0', () => {
+      const g1 = GraphFactory.createGraphWithNoEdges()
+      expect(g1.isDense()).toBe(false)
+      expect(g1.density()).toBe(0)
+      expect(g1.isSparse()).toBe(true)
+    });
+
+    it('sparse graph (default threshold 0.5)', () => {
+      const g1 = GraphFactory.createDirectedWeightedGraphG()
+      expect(g1.isSparse()).toBe(true)
+      expect(g1.density()).toBe(0.3)
+    });
   })
 
   describe('graph algorithms', () => {

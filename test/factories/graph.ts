@@ -88,6 +88,41 @@ export class GraphFactory {
     return graph
   }
 
+  static createGraphWithNoEdges() {
+    const A = new Vertex({ title: 'A' })
+    const B = new Vertex({ title: 'B' })
+    const C = new Vertex({ title: 'C' })
+
+    const graph = new Graph({
+      vertices: new Set([A, B, C]),
+      title: 'dense graph'
+    }, comparator)
+
+    graph.infer()
+    return graph
+  }
+
+  static createDenseGraph() {
+    const A = new Vertex({ title: 'A' })
+    const B = new Vertex({ title: 'B' })
+    const C = new Vertex({ title: 'C' })
+
+    const graph = new Graph({
+      vertices: new Set([A, B, C]),
+      title: 'dense graph'
+    }, comparator)
+
+    graph.createEdge(A, B, 'A -> B')
+    graph.createEdge(A, C, 'A -> C')
+    graph.createEdge(B, C, 'B -> C')
+    graph.createEdge(B, A, 'B -> A')
+    graph.createEdge(C, A, 'C -> A')
+    graph.createEdge(C, B, 'C -> B')
+
+    graph.infer()
+    return graph
+  }
+
   static createDirectedWeightedGraphG() {
     const C = new Vertex({ title: 'C' })
     const D = new Vertex({ title: 'D' })
