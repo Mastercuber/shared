@@ -147,52 +147,88 @@ A custom comparator can be provided for CustomVertex or a default one (`_cmp`) c
 
 
 ## Algorithms
+
 * `depthFirstSearch(startVertex: V)`
+  * Performs a **depth-first traversal** starting from `startVertex`. Explores as far as possible along each branch before backtracking.
+
 * `breadthFirstSearch(startVertex: V)`
+  * Performs a **breadth-first traversal** starting from `startVertex`. Visits all neighboring vertices before moving to the next level.
+
 * `shortestPath(from: V, to: V)`
+  * Computes the **shortest path** between `from` and `to` using a modified More-Bellman-Ford's algorithm. Returns the path as a list of vertices.
+
 * `kShortestPaths(from: V, to: V, k: number)`
+  * Finds the **k shortest simple paths** between `from` and `to` using a variation of Yen's algorithm. Returns a list of paths sorted by total cost.
+
 * `minimalSpanningTree()`
+  * Constructs a **minimal spanning tree** of the graph using Kruskal's algorithm (if undirected) or returns a minimum branching (if directed).
+
 * `topologicalSorting()`
+  * Performs a **topological sort** on the graph. Assumes the graph is a Directed Acyclic Graph (DAG) and returns an ordering of vertices.
+
 * `parallelTopologicalSorting()`
+  * Computes a **layered topological sort**, grouping vertices into levels based on dependencies. Useful for parallel execution scheduling.
+
 * `connectedComponents()`
+  * Identifies all **connected components** of the graph (for undirected graphs) and returns them as a list of graphs.
+
 * `strongConnectedComponents()`
+  * Finds all **strongly connected components** in a directed graph.
+
 * `checkForCycles()`
+  * Checks if the graph contains **any cycles** (works for both directed and undirected graphs).
+
 * `checkForNegativeCycles()`
+  * Checks if the graph contains **negative weight cycles** (applicable for weighted directed graphs; uses Bellman-Ford approach).
+
 * `inferCycles()`
+  * Identifies and returns **all detected cycles** within the graph. May return multiple cycles if the graph is highly interconnected.
+
 
 ## Utility functions
-* `createEdge(from: V, to: V, title?: string, directed?: boolean, weight?: number): E`
-* `addEdge(e: E): boolean`
-* `removeEdge(e: E): boolean`
-* `createVertex(title?: string, point?: Point, object?: any): V`
-* `addVertex(v: V): boolean`
-* `removeVertex(v: V): boolean`
-* `c(from: V, to: V): number`
+
+* `createEdge(from: V, to: V, title?: string, directed?: boolean, weight?: number): E`  
+  Creates a new edge between two vertices, optionally specifying a title, direction, and weight.
+
+* `addEdge(e: E): boolean`  
+  Adds an edge to the graph if it does not already exist; returns `true` if successful, `false` if the edge is already contained.
+
+* `removeEdge(e: E): boolean`  
+  Removes an edge from the graph; returns `true` if the edge was found and removed, `false` otherwise.
+
+* `createVertex(title?: string, point?: Point, object?: any): V`  
+  Creates a new vertex with an optional title, a position (`Point`), and any additional associated data (`object`).
+
+* `addVertex(v: V): boolean`  
+  Adds a vertex to the graph if it does not already exist; returns `true` if successful, `false` if the vertex is already contained.
+
+* `removeVertex(v: V): boolean`  
+  Removes a vertex (and all connected edges) from the graph; returns `true` if the vertex was found and removed, `false` otherwise.
+
+* `c(from: V, to: V): number`  
+  Returns the cost (i.e., weight) of traveling from one vertex to another.  
+  If no direct edge exists, typically returns `Infinity` or a sentinel value.
 
 # Lists
 All lists implement the interface `IList`:
+
 ```typescript
-export interface IList<E> extends ICollection<E>, ISortable<E> {
+interface IList<E> extends ICollection<E>, IListFunctions<E> {
   comparator: Comparator<E>
-  add(e: E): void
   addAll(c: Iterable<E>): void
   get(index: number): E
   set(index: number, e: E | null): boolean
-  slice(startIndex: number, endIndex: number): IList<E>
-  slice2(startIndex: number, endIndex: number): IList<E>
-  splice(startIndex: number, deleteCount: number): IList<E>
-  map<V>(fn: (e: E) => V): IList<V>
-  filter(predicate: (e: E) => boolean): IList<E>
   remove(index: number): E
-  includes(e: E): boolean
   equals(l: IList<E>): boolean
   indexOf(e: E): number
+  includes(e: E): boolean
   reverseIterator(): Generator<E>
 }
 ```
 The interface `ICollection` adds the following to the lists:
 ```typescript
-export interface ICollection<E> extends Iterable<E> {
+interface ICollection<E> extends ISortable<E>, Iterable<E>, IReverseIterable<E> {
+  add(e: E): void
   size: number
   isEmpty(): boolean
   clear(): void
@@ -204,20 +240,38 @@ interface Iterable<T> {
     [Symbol.iterator](): Iterator<T>;
 }
 ```
-and `ISortable` adds:
+`ISortable` adds:
 ```typescript
 export interface ISortable<V> {
   sort(cmp?: Comparator<V>): void
 }
 ```
-There are 2 sorting algorithmen's provided with the implementation. One quicksort, and one heapsort variante using a fibonacci heap.
+`IReverseIterable` adds:
+```typescript
+interface IReverseIterable<E> {
+  reverseIterator(): Generator<E>
+}
+```
+and `IListFunctions` adds some common functions:
+```typescript
+interface IListFunctions<E> {
+  map<V>(fn: (e: E) => V): IList<V>
+  reduce<V>(fn: (accumulator: V, element: E) => V, initialValue?: V): V
+  filter(predicate: (e: E) => boolean): IList<E>
+  every(predicate: (e: E) => boolean): boolean
+  some(predicate: (e: E) => boolean): boolean
+  slice(startIndex: number, endIndex: number): IList<E>
+  slice2(startIndex: number, endIndex: number): IList<E>
+  splice(startIndex: number, deleteCount: number): IList<E>
+}
+```
 
 ## List
 List implementation using the **native array** as data structure _to have a reference_ when [**benchmarking**](test/benchmarks/list.bench.ts) some list methods.
 
 ```typescript
 const list = new List<number>()
-const list = new List<number>([1,2,3])
+const list2 = new List<number>([1,2,3])
 ```
 
 ## LinkedList
@@ -291,6 +345,8 @@ const queue = new PriorityQueue<number>()
 A Dequeue merge a Stack and a Queue, so both type of functions are usable (`enqueue`, `dequeue`, `push`, `pop`, `head`, `top`)
 
 ```typescript
+export interface IDequeue<E> extends IQueue<E>, IStack<E> { }
+
 const dequeue = new Dequeue<number>()
 ```
 
@@ -298,11 +354,11 @@ const dequeue = new Dequeue<number>()
 Stacks have the following interface:
 ```typescript
 export interface IStack<E> extends ICollection<E> {
+  comparator: Comparator<E>
   push(e: E): void
   pop(): E
   top(): E
   contains(e: E): boolean
-  comparator: Comparator<E>
 }
 ```
 ## Stack
@@ -353,16 +409,32 @@ export type HeapNode<E> = {
 ```
 
 # Sorting
-One of the quickest ways of sorting a collection is the quicksort. Additionally to this sorting algorithm a heapsort variant is provided by this package, using a FibonacciHeap for sorting.
+There are 2 sorting algorithmen's provided with the implementation. One quicksort, and one heapsort variant using a fibonacci heap. The heapsort can be run on `Iterable`s and the quicksort on `ICollection`.
 
 ## Quicksort
-The quicksort has the following function signature:
+The quicksort algorithm has the following function signature and returns a sorted collection, which creation must be passed as factory function (third parameter):
 ```typescript
-quicksort<V>(A: IList<V>, comparator: Comparator<V>): IList<V>
+function quicksort<V>(
+        collection: ICollection<V>,
+        comparator: Comparator<V>,
+        factory: () => ICollection<V>
+): ICollection<V> {}
 ```
 
-## Heapsort
-Sorting a list using a FibonnaciHeap has the following function signature:
+A comparator like the following (for numbers) must be specified for sorting the collection:
 ```typescript
-heapSort<V>(A: IList<V>, comparator: Comparator<V>): FibonnaciHeap<V>
+function numberComparatorASC(n1: number, n2: number) {
+  if (n1 === n2) return Ordering.EQ // 0
+  if (n1 < n2) return Ordering.LT // -1
+
+  return Ordering.GT // 1
+}
+```
+It's also possible to pass a comparator which returns bigger numbers.
+
+## Heapsort
+Sorting a list using a FibonacciHeap has the following function signature:
+
+```typescript
+function heapSort<V>(A: Iterable<V>, comparator: Comparator<V>): FibonacciHeap<V> {}
 ```
