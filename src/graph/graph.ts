@@ -41,7 +41,6 @@ export interface IGraph<V extends IVertex, E extends IEdge> extends GraphPropert
     isForest(): boolean;
     isDirected(): boolean;
     isConnected(): boolean;
-    isConnectedFrom(v: V): boolean;
     isStronglyConnected(): boolean;
     isMixed(): boolean;
     isDense(): boolean;
@@ -295,10 +294,36 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
   }
 
   /**
-     * Minimal spanning tree algorithmen (Kruskal) for undirected, connected and weighted graphs
+     * Minimal spanning tree algorithmen (Kruskal and minimum branching) for undirected/directed, connected and weighted graphs
      */
   minimalSpanningTree(): IGraph<V, E> {
-    if (this.directed || !this.connected) throw new Error('graph must be undirected, connected and weighted')
+    if (this.directed) {
+      // Directed case: Minimum Branching (simplified Edmonds' algorithm)
+      const incomingEdges = new Map<V, E>();
+      const vertices = Array.from(this.vertices);
+
+      for (const v of vertices) {
+        if (v == vertices[0]) continue; // Assume first vertex as root, no incoming edge needed
+
+        const inEdges = Array.from(this.edges).filter(e => e.to === v);
+        if (inEdges.length === 0) {
+          throw new Error(`Vertex ${v} is unreachable, cannot form a branching`);
+        }
+
+        // Select the minimum weight incoming edge
+        const minEdge = inEdges.reduce((prev, curr) => (prev.weight! <= curr.weight! ? prev : curr));
+        incomingEdges.set(v, minEdge);
+      }
+
+      const _edges = new Set<E>(incomingEdges.values());
+
+      return new AGraph<V, E>({
+        vertices: this.vertices,
+        edges: _edges
+      }, this.comparator, this.vertexType, this.edgeType);
+    }
+
+    if (!this.connected) throw new Error('graph must be undirected, connected and weighted')
     const _edges = new Set<E>()
     const ignores = new Set<V>()
     const comparator = (e1: E, e2: E) => {
@@ -436,7 +461,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
     let markedVertices: Array<V> = []
 
     if (!this.directed) {
-      // @TODO nicht fertig
+      // @TODO must be revised
       for (const vertex of this.vertices) {
         const stack: Array<V> = []
         stack.splice(0, stack.length)
@@ -827,6 +852,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
   }
 
   addEdge(e: E): boolean {
+    if (this.edges.has(e)) return false
     this.edges.add(e)
     return true
   }
@@ -863,6 +889,7 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
   }
 
   addVertex(v: V): boolean {
+    if (this.vertices.has(v)) return false
     this.vertices.add(v)
     return true
   }
