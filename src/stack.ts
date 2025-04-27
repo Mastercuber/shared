@@ -1,14 +1,11 @@
-import { Comparator, Node, Ordering } from './index'
+import {Comparator, ICollection, Node, Ordering, quicksort} from './index'
 
-export interface IStack<E> extends Iterable<E> {
-  size: number
+export interface IStack<E> extends ICollection<E> {
   comparator: Comparator<E>
   push(e: E): void
   pop(): E
   top(): E
   contains(e: E): boolean
-  isEmpty(): boolean
-  clear(): void
 }
 
 export class Stack<E> implements IStack<E> {
@@ -76,6 +73,25 @@ export class Stack<E> implements IStack<E> {
         } as IteratorResult<E>
       }
     }
+  }
+
+  add(e: E): void {
+    this.push(e)
+  }
+
+  *reverseIterator(): Generator<E> {
+    const tmp = []
+    for (const e of this) {
+      tmp.push(e)
+    }
+
+    for (const e of tmp.reverse()) {
+      yield e
+    }
+  }
+
+  sort(cmp?: Comparator<E>): void {
+    this.arr.sort(cmp || this.comparator)
   }
 }
 
@@ -166,6 +182,29 @@ export class LinkedStack<E> implements IStack<E> {
           value: _top?.value!
         }
       }
+    }
+  }
+
+  add(e: E): void {
+    this.push(e)
+  }
+
+  *reverseIterator(): Generator<E> {
+    const tmp = []
+    for (const e of this) {
+      tmp.push(e)
+    }
+
+    for (const e of tmp.reverse()) {
+      yield e
+    }
+  }
+
+  sort(cmp?: Comparator<E>): void {
+    const sorted = quicksort(this, cmp || this.comparator, () => new LinkedStack())
+    this.clear()
+    for (const sortedElement of sorted) {
+      this.push(sortedElement)
     }
   }
 }

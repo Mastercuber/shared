@@ -1,4 +1,4 @@
-import { CyclicDoublyLinkedList, LinkedList, Comparator, Ordering } from './index'
+import {Comparator, CyclicDoublyLinkedList, ICollection, LinkedList, Ordering, quicksort} from './index'
 
 export type HeapNode<E> = {
   value: E
@@ -14,7 +14,7 @@ export type HeapNode<E> = {
 // This is needed for delete to function correctly
 
 
-export interface IFibonacciHeap<E> extends Iterable<E> {
+export interface IFibonacciHeap<E> extends ICollection<E> {
   size: number
   rootList: HeapNode<E>
   minNode: HeapNode<E>
@@ -71,6 +71,10 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
     }
     this.size++
     return node
+  }
+
+  add(e: E): HeapNode<E> {
+    return this.insert(e)
   }
 
   /**
@@ -136,8 +140,10 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
       if (this.size === 1) {
         this.minNode = this.rootList = undefined!
       } else {
-        if (this.comparator(min.left.value, min.right.value) === Ordering.LT) this.minNode = min.left
-        else this.minNode = min.right
+        if (this.comparator(min.left.value, min.right.value) === Ordering.LT)
+          this.minNode = min.left
+        else
+          this.minNode = min.right
         this.consolidate()
       }
 
@@ -188,7 +194,6 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
     this.rootList = this.minNode = undefined!
     this.size = 0
   }
-
   extractNeighbours(node: HeapNode<E>, includeSelf: boolean = false): CyclicDoublyLinkedList<HeapNode<E>> {
     const list = new CyclicDoublyLinkedList<HeapNode<E>>()
     includeSelf && list.add(node)
@@ -201,6 +206,7 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
 
     return list
   }
+
   extractChildren(node: HeapNode<E>): CyclicDoublyLinkedList<HeapNode<E>> {
     const nodes = new CyclicDoublyLinkedList<HeapNode<E>>()
     let _node = node.child!
@@ -231,7 +237,6 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
     }
   }
 
-  // sieht gut aus
   private addToChildList(parent: HeapNode<E>, newChild: HeapNode<E>) {
     if (!parent.child) {
       newChild.left = newChild.right = newChild
@@ -377,6 +382,33 @@ export class FibonacciHeap<E> implements IFibonacciHeap<E> {
           value: min.value
         }
       }
+    }
+  }
+
+  *reverseIterator(): Generator<E> {
+    const result = []
+    for (const e of this) {
+      result.unshift(e)
+    }
+
+    for (const e of result) {
+      yield e
+    }
+  }
+
+  /**
+   * This sort function changes the comparator, if one is given as parameter!
+   *
+   * @param cmp
+   */
+  sort(cmp?: Comparator<E>): void {
+    const sorted = quicksort(this, cmp || this.comparator, () => new FibonacciHeap<E>(cmp || this.comparator))
+    this.clear()
+    if (cmp) {
+      this.comparator = cmp
+    }
+    for (const sortedElement of sorted) {
+      this.insert(sortedElement)
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Comparator, heapSort, ISortable, Node, Ordering } from './index'
+import {Comparator, heapSort, ICollection, Node, Ordering} from './index'
 export interface IListFunctions<E> {
   map<V>(fn: (e: E) => V): IList<V>
   reduce<V>(fn: (accumulator: V, element: E) => V, initialValue?: V): V
@@ -10,11 +10,8 @@ export interface IListFunctions<E> {
   splice(startIndex: number, deleteCount: number): IList<E>
 }
 
-export interface IList<E> extends ISortable<E>, Iterable<E>, IListFunctions<E> {
+export interface IList<E> extends ICollection<E>, IListFunctions<E> {
   comparator: Comparator<E>
-  size: number
-  isEmpty(): boolean
-  clear(): void
   add(e: E): void
   addAll(c: Iterable<E>): void
   get(index: number): E
@@ -548,14 +545,14 @@ export class LinkedList<E> implements ILinkedList<E> {
       case this.size - 1:
         return this.removeLast()
       case 1:
-        toRemove = this.getNode(1)
+        toRemove = this.getNode(1)!
         this.first!.next = toRemove.next
         value = toRemove.value
         toRemove.next = toRemove.value = undefined! // GC
         break
       default:
         const prevNode = this.getNode(index - 1)
-        toRemove = prevNode?.next
+        toRemove = prevNode?.next!
         prevNode!.next = prevNode?.next?.next
         value = toRemove.value
         toRemove.next = toRemove.value = undefined! // GC

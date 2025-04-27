@@ -1,34 +1,40 @@
-import { Comparator, FibonacciHeap, IList, Ordering } from '../index.ts'
+import {Comparator, FibonacciHeap, ICollection, IList} from '../index.ts'
 
 export interface ISortable<V> {
   sort(cmp?: Comparator<V>): void
 }
 
-function choosePivot<V>(A: IList<V>): V {
-  return A.get(Math.floor(A.size / 2))
-}
+export function quicksort<V>(
+  collection: ICollection<V>,
+  comparator: Comparator<V>,
+  factory: () => ICollection<V>
+): ICollection<V> {
+  if (collection.size <= 1) return collection
 
-export function quicksort<V>(A: IList<V>, comparator: Comparator<V>): IList<V> {
-  if (A.size <= 1) return A
-  const pivot = choosePivot(A)
+  const iterator = collection[Symbol.iterator]()
+  const pivot = iterator.next().value
 
-  const smaller = A.splice(0, 0)
-  const bigger = A.splice(0, 0)
+  const smaller = factory()
+  const bigger = factory()
 
-  for (const v of A) {
-    if (comparator(v, pivot) === Ordering.EQ) continue
-    if (comparator(v, pivot) < Ordering.EQ) smaller.add(v)
+  for (const v of collection) {
+    if (v === pivot) continue // Skip pivot itself (optional behavior)
+    const cmp = comparator(v, pivot)
+    if (cmp < 0) smaller.add(v)
     else bigger.add(v)
   }
 
-  const sortedSmaller = quicksort(smaller, comparator)
-  const sortedBigger = quicksort(bigger, comparator)
-  const result = A.splice(0, 0)
-  result.addAll(sortedSmaller)
+  const sortedSmaller = quicksort(smaller, comparator, factory)
+  const sortedBigger = quicksort(bigger, comparator, factory)
+
+  const result = factory()
+  for (const v of sortedSmaller) result.add(v)
   result.add(pivot)
-  result.addAll(sortedBigger)
+  for (const v of sortedBigger) result.add(v)
+
   return result
 }
+
 
 /**
  * Heapsort variant using a fibonacci heap

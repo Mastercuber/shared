@@ -1,27 +1,29 @@
-import { Comparator, FibonacciHeap, IStack, Node, Ordering } from './index'
+import {Comparator, FibonacciHeap, ICollection, IReverseIterable, IStack, Node, Ordering, quicksort} from './index'
 
-export interface IQueue<E> extends Iterable<E> {
-  size: number
+export interface IQueue<E> extends ICollection<E> {
   enqueue(e: E): void
   dequeue(): E
   head(): E
-  isEmpty(): boolean
-  clear(): void
 }
 
-export interface IDequeue<E> extends IQueue<E>, IStack<E> {
-  reverseIterator(): Generator<E>
+export interface IDequeue<E> extends IQueue<E>, IStack<E>, IReverseIterable<E> {
 }
 
 export class Queue<E> implements IQueue<E> {
   private arr: E[] = []
   size = 0
+  comparator: Comparator<E> = null!
 
-  constructor(elements?: Iterable<E>) {
+  constructor(elements?: Iterable<E>, comparator?: Comparator<E>) {
     if (elements) {
       for(const el of elements) {
         this.enqueue(el)
       }
+    }
+
+    if (comparator) {
+      this.comparator = comparator
+      this.sort()
     }
   }
 
@@ -42,6 +44,10 @@ export class Queue<E> implements IQueue<E> {
       this.arr.unshift(e)
       this.size++
     }
+  }
+
+  add(e: E): void {
+    this.enqueue(e)
   }
 
   isEmpty(): boolean {
@@ -68,18 +74,39 @@ export class Queue<E> implements IQueue<E> {
       }
     }
   }
+
+  *reverseIterator(): Generator<E> {
+    for (let i = 0; i < this.size; i++) {
+      yield this.arr[i]
+    }
+  }
+
+  sort(cmp?: Comparator<E>): void {
+    const backupCmp = this.comparator
+    if (cmp) {
+      this.comparator = cmp
+    }
+    this.arr
+      .sort(this.comparator)
+      .reverse()
+    this.comparator = backupCmp
+  }
 }
 
 export class LinkedQueue<E> implements IQueue<E> {
   private _head: Node<E>
   private tail: Node<E>
   size = 0
+  comparator: Comparator<E> = null!
 
-  constructor(elements?: Iterable<E>) {
+  constructor(elements?: Iterable<E>, comparator?: Comparator<E>) {
     if (elements) {
       for(const el of elements) {
         this.enqueue(el)
       }
+    }
+    if (comparator) {
+      this.comparator = comparator
     }
   }
 
@@ -97,6 +124,10 @@ export class LinkedQueue<E> implements IQueue<E> {
     if (this._head) oldTail!.next = this.tail
     else this._head = this.tail
     this.size++
+  }
+
+  add(e: E): void {
+    this.enqueue(e)
   }
 
   /**
@@ -155,6 +186,25 @@ export class LinkedQueue<E> implements IQueue<E> {
       }
     }
   }
+
+  *reverseIterator(): Generator<E> {
+    const tmp = []
+    for (const e of this) {
+      tmp.push(e)
+    }
+
+    for (const e of tmp.reverse()) {
+      yield e
+    }
+  }
+
+  sort(cmp?: Comparator<E>): void {
+    const sorted = quicksort(this, cmp || this.comparator, () => new LinkedQueue())
+    this.clear()
+    for (const sortedElement of sorted) {
+      this.enqueue(sortedElement)
+    }
+  }
 }
 
 export class PriorityQueue<E> implements IQueue<E> {
@@ -193,6 +243,10 @@ export class PriorityQueue<E> implements IQueue<E> {
     return this.heap.minimum().value
   }
 
+  add(e: E): void {
+    this.enqueue(e)
+  }
+
   isEmpty(): boolean {
     return this.size === 0
   }
@@ -204,6 +258,21 @@ export class PriorityQueue<E> implements IQueue<E> {
 
   [Symbol.iterator](): Iterator<E> {
     return this.heap[Symbol.iterator]()
+  }
+
+  *reverseIterator(): Generator<E> {
+    const tmp = []
+    for (const e of this) {
+      tmp.push(e)
+    }
+
+    for (const e of tmp.reverse()) {
+      yield e
+    }
+  }
+
+  sort(cmp?: Comparator<E>): void {
+    this.heap.sort(cmp || this.comparator)
   }
 }
 
@@ -244,6 +313,10 @@ export class Dequeue<E> implements IDequeue<E> {
       this.tail = newTail
     }
     this.size++
+  }
+
+  add(e: E): void {
+    this.enqueue(e)
   }
 
   /**
@@ -355,6 +428,23 @@ export class Dequeue<E> implements IDequeue<E> {
   /**
    * O(size)
    */
+  [Symbol.iterator](): Iterator<E> {
+    let head = this._head
+    return {
+      next: () => {
+        const _head = head
+        head = _head?.next
+        return {
+          done: _head == undefined,
+          value: _head?.value!
+        }
+      }
+    }
+  }
+
+  /**
+   * O(size)
+   */
   *reverseIterator() {
     if (!this.tail && !this._head) return
     if (!this.tail) {
@@ -369,20 +459,11 @@ export class Dequeue<E> implements IDequeue<E> {
     }
   }
 
-  /**
-   * O(size)
-   */
-  [Symbol.iterator](): Iterator<E> {
-    let head = this._head
-    return {
-      next: () => {
-        const _head = head
-        head = _head?.next
-        return {
-          done: _head == undefined,
-          value: _head?.value!
-        }
-      }
+  sort(cmp?: Comparator<E>): void {
+    const sorted = quicksort(this, cmp || this.comparator, () => new Dequeue())
+    this.clear()
+    for (const sortedElement of sorted) {
+      this.enqueue(sortedElement)
     }
   }
 }
