@@ -1,6 +1,6 @@
 import { bench, describe, expect } from 'vitest'
 import c from 'chalk'
-import { Dequeue, IQueue, LinkedQueue, numberComparator, PriorityQueue, Queue } from '../../src'
+import { Dequeue, IQueue, LinkedQueue, numberComparatorASC, PriorityQueue, Queue } from '../../src'
 
 const options = {
   time: 50,
@@ -20,7 +20,7 @@ describe(c.blue('queue (enqueue)'), () => {
   function queueAddTest(queueType: new(options?: any) => IQueue<number>, isPriorityQueueTested = false) {
     let queue
     if (isPriorityQueueTested) {
-      queue = new queueType(numberComparator)
+      queue = new queueType(numberComparatorASC)
     } else {
       queue = new queueType()
     }
@@ -44,7 +44,7 @@ describe(c.blue('queue (dequeue)'), () => {
   function queueDequeueTest(queueType: new(options?: any) => IQueue<number>, isPriorityQueueTested = false) {
     let queue
     if (isPriorityQueueTested) {
-      queue = new queueType(numberComparator)
+      queue = new queueType(numberComparatorASC)
     } else {
       queue = new queueType()
     }

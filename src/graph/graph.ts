@@ -101,9 +101,9 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
       hasCycles: false,
       cycleCount: 0,
       hasNegativeCycles: false,
-      isConnected: false,
-      isMixes: false,
-      isDirected: false,
+      connected: false,
+      mixed: false,
+      directed: false,
       ...options
     }
     this.uuid = options.uuid as string
@@ -838,10 +838,10 @@ export class AGraph<V extends IVertex, E extends IEdge> implements IGraph<V, E> 
       this.edges = new Set(arr)
     }
     if (e.from) {
-      e.from.outgoingEdges.delete(e.from)
+      e.from.outgoingEdges?.delete(e)
     }
     if (e.to) {
-      e.to.incomingEdges.delete(e.to)
+      e.to.incomingEdges?.delete(e)
     }
 
     return sizeBefore != arr.length

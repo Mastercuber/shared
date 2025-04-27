@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { FibonacciHeap, HeapNode, numberComparator, Ordering, stringComparator } from '../src'
+import {FibonacciHeap, numberComparatorASC, numberComparatorDESC, Ordering, stringComparator} from '../src'
 
 // A bunch of tests of this test file are taken from "ts-fibonacci-heap" which is under the MIT license
 // Copyright (c) 2014 Daniel Imms, http://www.growingwiththeweb.com
@@ -123,7 +123,7 @@ describe('fibonacci heap', () => {
       expect(heap.extractMin().value).toBe(10) // {}
     })
     it('should consolidate 8 nodes into a well formed order 2 tree', () => {
-      const heap = new FibonacciHeap<number>(numberComparator)
+      const heap = new FibonacciHeap<number>(numberComparatorASC)
       const node0 = heap.insert(0)
       const node1 = heap.insert(1)
       const node2 = heap.insert(2)
@@ -141,20 +141,20 @@ describe('fibonacci heap', () => {
       expect(heap.extractMin().value).toBe(node0.value)
       expect(heap.size).toBe(4)
       expect(node1.parent).toBeFalsy()
-      expect(numberComparator(node2.parent!.value!, node1.value!)).toEqual(Ordering.EQ)
-      expect(numberComparator(node3.parent!.value!, node1.value!)).toEqual(Ordering.EQ)
-      expect(numberComparator(node4.parent!.value!, node3.value!)).toEqual(Ordering.EQ)
-      expect(numberComparator(node1.right!.value!, node1.value!)).toEqual(Ordering.EQ)
-      expect(numberComparator(node2.right!.value!, node3.value!)).toEqual(Ordering.EQ)
-      expect(numberComparator(node3.right!.value!, node2.value!)).toEqual(Ordering.EQ)
-      expect(numberComparator(node4.right!.value!, node4.value!)).toEqual(Ordering.EQ)
-      expect(numberComparator(node1.child!.value!, node2.value!)).toEqual(Ordering.EQ)
+      expect(numberComparatorASC(node2.parent!.value!, node1.value!)).toEqual(Ordering.EQ)
+      expect(numberComparatorASC(node3.parent!.value!, node1.value!)).toEqual(Ordering.EQ)
+      expect(numberComparatorASC(node4.parent!.value!, node3.value!)).toEqual(Ordering.EQ)
+      expect(numberComparatorASC(node1.right!.value!, node1.value!)).toEqual(Ordering.EQ)
+      expect(numberComparatorASC(node2.right!.value!, node3.value!)).toEqual(Ordering.EQ)
+      expect(numberComparatorASC(node3.right!.value!, node2.value!)).toEqual(Ordering.EQ)
+      expect(numberComparatorASC(node4.right!.value!, node4.value!)).toEqual(Ordering.EQ)
+      expect(numberComparatorASC(node1.child!.value!, node2.value!)).toEqual(Ordering.EQ)
       expect(node2.child).toBeFalsy()
-      expect(numberComparator(node3.child!.value!, node4.value!)).toEqual(Ordering.EQ)
+      expect(numberComparatorASC(node3.child!.value!, node4.value!)).toEqual(Ordering.EQ)
       expect(node4.child).toBeFalsy()
     })
     it('should consolidate after extract min is called on a tree with a single tree in the root node list', () => {
-      const heap = new FibonacciHeap<number>(numberComparator)
+      const heap = new FibonacciHeap<number>(numberComparatorASC)
       const node0 = heap.insert(0)
       const node1 = heap.insert(1)
       const node2 = heap.insert(2)
@@ -285,13 +285,13 @@ describe('fibonacci heap', () => {
 
   describe('union', () => {
     it('should union the 2 heaps together given 2 heaps of size 5 with overlapping elements added in order together', () => {
-      const heap = new FibonacciHeap<number>(numberComparator)
+      const heap = new FibonacciHeap<number>(numberComparatorASC)
       heap.insert(0)
       heap.insert(2)
       heap.insert(4)
       heap.insert(6)
       heap.insert(8)
-      const other = new FibonacciHeap<number>(numberComparator)
+      const other = new FibonacciHeap<number>(numberComparatorASC)
       other.insert(1)
       other.insert(3)
       other.insert(5)
@@ -308,13 +308,13 @@ describe('fibonacci heap', () => {
       expect(heap.isEmpty()).toBeTruthy()
     })
     it('should union the 2 heaps together given 2 heaps of size 5 with overlapping elements added in reverse order together', () => {
-      const heap = new FibonacciHeap<number>(numberComparator)
+      const heap = new FibonacciHeap<number>(numberComparatorASC)
       heap.insert(9)
       heap.insert(7)
       heap.insert(5)
       heap.insert(3)
       heap.insert(1)
-      const other = new FibonacciHeap<number>(numberComparator)
+      const other = new FibonacciHeap<number>(numberComparatorASC)
       other.insert(8)
       other.insert(6)
       other.insert(4)
@@ -357,8 +357,8 @@ describe('fibonacci heap', () => {
       expect(heaps[0].isEmpty()).toBeTruthy()
     })
     it('should union an empty heap with another non empty one', () => {
-      const emptyHeap = new FibonacciHeap(numberComparator)
-      const otherHeap = new FibonacciHeap(numberComparator)
+      const emptyHeap = new FibonacciHeap(numberComparatorASC)
+      const otherHeap = new FibonacciHeap(numberComparatorASC)
       const n1 = otherHeap.insert(1)
       const n2 = otherHeap.insert(2)
 
@@ -375,7 +375,7 @@ describe('fibonacci heap', () => {
 
   describe('delete', () => {
     it('should delete the min value of the heap', () => {
-      const heap = new FibonacciHeap(numberComparator)
+      const heap = new FibonacciHeap(numberComparatorASC)
       const node1 = heap.insert(1)
       const node2 = heap.insert(2)
       expect(heap.delete(node1)).toEqual(node1)
@@ -384,7 +384,7 @@ describe('fibonacci heap', () => {
     })
 
     it('should delete nodes in a heap with multiple elements', () => {
-      const heap = new FibonacciHeap<number>(numberComparator)
+      const heap = new FibonacciHeap<number>(numberComparatorASC)
       const node3 = heap.insert(13)
       const node4 = heap.insert(26)
       const node2 = heap.insert(3)
@@ -401,7 +401,7 @@ describe('fibonacci heap', () => {
     })
 
     it('should delete nodes in a flat Fibonacci heap', () => {
-      const heap = new FibonacciHeap(numberComparator)
+      const heap = new FibonacciHeap(numberComparatorASC)
       const node3 = heap.insert(13)
       const node4 = heap.insert(26)
       const node2 = heap.insert(3)
@@ -418,7 +418,7 @@ describe('fibonacci heap', () => {
     })
 
     it('should cut the node from the tree if the node is not the minimum it does not have a grandparent', () => {
-      const heap = new FibonacciHeap(numberComparator)
+      const heap = new FibonacciHeap(numberComparatorASC)
       const node1 = heap.insert(1)
       const node2 = heap.insert(2)
       const node3 = heap.insert(3)
@@ -443,7 +443,7 @@ describe('fibonacci heap', () => {
     })
 
     it('should cut the node from the tree if the node is not the minimum and it has a grandparent', () => {
-      const heap = new FibonacciHeap(numberComparator)
+      const heap = new FibonacciHeap(numberComparatorASC)
       const node0 = heap.insert(0)
       const node1 = heap.insert(1)
       const node2 = heap.insert(2)
@@ -493,7 +493,7 @@ describe('fibonacci heap', () => {
     })
 
     it('should cut the node from the tree if the node is not the minimum, it has a grandparent and its parent is marked', () => {
-      const heap = new FibonacciHeap(numberComparator)
+      const heap = new FibonacciHeap(numberComparatorASC)
       const node0 = heap.insert(0)
       const node1 = heap.insert(1)
       const node2 = heap.insert(2)
@@ -552,7 +552,7 @@ describe('fibonacci heap', () => {
     })
 
     it('should correctly assign an indirect child when a direct child is cut from the parent', () => {
-      const heap = new FibonacciHeap(numberComparator)
+      const heap = new FibonacciHeap(numberComparatorASC)
       const node0 = heap.insert(0)
       heap.insert(1)
       heap.insert(2)
@@ -593,13 +593,13 @@ describe('fibonacci heap', () => {
 
   describe('decreaseKey', () => {
     it('should throw an exception given a non-existent node', () => {
-      const heap = new FibonacciHeap(numberComparator)
+      const heap = new FibonacciHeap(numberComparatorASC)
       expect(() => heap.decreaseKey(<any>undefined, 2)).toThrowError('node to decrease is null!')
       expect(() => heap.decreaseKey(<any>null, 2)).toThrowError('node to decrease is null!')
     })
 
     it('should throw an exception given a new key larger than the old key', () => {
-      const heap = new FibonacciHeap(numberComparator)
+      const heap = new FibonacciHeap(numberComparatorASC)
       expect(() => {
         const node = heap.insert(1)
         heap.decreaseKey(node, 2)
@@ -607,7 +607,7 @@ describe('fibonacci heap', () => {
     })
 
     it('should decrease the minimum node', () => {
-      const heap = new FibonacciHeap(numberComparator)
+      const heap = new FibonacciHeap(numberComparatorASC)
       const node1 = heap.insert(1)
       heap.insert(2)
       heap.decreaseKey(node1, -3)
@@ -617,7 +617,7 @@ describe('fibonacci heap', () => {
     })
 
     it('should decrease and bubble up a non-minimum node', () => {
-      const heap = new FibonacciHeap(numberComparator)
+      const heap = new FibonacciHeap(numberComparatorASC)
       heap.insert(1)
       const node2 = heap.insert(2)
       heap.decreaseKey(node2, -3)
@@ -627,7 +627,7 @@ describe('fibonacci heap', () => {
     })
 
     it('should decrease and bubble up a non-minimum node in a large heap', () => {
-      const heap = new FibonacciHeap(numberComparator)
+      const heap = new FibonacciHeap(numberComparatorASC)
       heap.insert(13)
       heap.insert(26)
       heap.insert(3)
@@ -643,7 +643,7 @@ describe('fibonacci heap', () => {
     })
 
     it('should leave a valid tree on a flat Fibonacci heap', () => {
-      const heap = new FibonacciHeap(numberComparator)
+      const heap = new FibonacciHeap(numberComparatorASC)
       heap.insert(13)
       heap.insert(26)
       heap.insert(3)
@@ -666,7 +666,7 @@ describe('fibonacci heap', () => {
     })
 
     it('should leave a valid tree on a consolidated Fibonacci heap', () => {
-      const heap = new FibonacciHeap(numberComparator)
+      const heap = new FibonacciHeap(numberComparatorASC)
       const node0 = heap.insert(0)
       const node1 = heap.insert(1)
       const node2 = heap.insert(2)
@@ -715,7 +715,7 @@ describe('fibonacci heap', () => {
     })
 
     it('should delete the node\'s parent reference after a cut', () => {
-      const heap = new FibonacciHeap(numberComparator)
+      const heap = new FibonacciHeap(numberComparatorASC)
       const node1 = heap.insert(1)
       heap.insert(2)
       const node3 = heap.insert(3)
@@ -741,21 +741,36 @@ describe('fibonacci heap', () => {
       expect(node3.parent).toBeFalsy()
     })
   })
-  it('should ', () => {
-    expect(heap['removeFromRootList']).toBeTruthy()
-    heap['removeFromRootList']({ parent: {} } as HeapNode<number>)
-    heap['removeFromChildList']({ degree: 0 } as HeapNode<number>, {} as HeapNode<number>)
-  })
+
+  it('should sort the heap', () => {
+    const heap = new FibonacciHeap<number>(numberComparatorDESC)
+    heap.insert(1)
+    heap.insert(2)
+    heap.insert(3)
+    expect([...heap]).toEqual([3,2,1])
+    heap.sort(numberComparatorASC)
+    expect([...heap]).toEqual([1,2,3])
+  });
+
+  it('should reverse iterate over the heap', () => {
+    const heap = new FibonacciHeap<number>(numberComparatorASC)
+    heap.insert(1)
+    heap.insert(2)
+    heap.insert(3)
+    expect([...heap.reverseIterator()]).toEqual([3,2,1])
+    heap.sort(numberComparatorDESC)
+    expect([...heap.reverseIterator()]).toEqual([1,2,3])
+  });
 })
 function constructJumbledHeaps(): FibonacciHeap<number>[] {
-  const first = new FibonacciHeap<number>(numberComparator)
+  const first = new FibonacciHeap<number>(numberComparatorASC)
   first.insert(9)
   first.insert(2)
   first.insert(6)
   first.insert(1)
   first.insert(3)
   expect(first.size).toBe(5)
-  const second = new FibonacciHeap<number>(numberComparator)
+  const second = new FibonacciHeap<number>(numberComparatorASC)
   second.insert(4)
   second.insert(8)
   second.insert(5)

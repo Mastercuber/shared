@@ -9,8 +9,7 @@ import {
   LinkedList,
   LinkedQueue,
   LinkedStack,
-  List,
-  numberComparator,
+  List, numberComparatorASC,
   PriorityQueue,
   Queue,
   Stack
@@ -260,15 +259,13 @@ function commonListTests(list: IList<number>, listType: new (elements?: Iterable
         expect(_list.get(2)).toBe(1)
       })
       it('from Queue', () => {
-        const queue = new Queue<number>()
+        const queue = new Queue<number>([], numberComparatorASC)
         queue.enqueue(-1)
         queue.enqueue(0)
         queue.enqueue(1)
         const _list = new listType(queue)
         expect(_list.size).toBe(3)
-        expect(_list.get(0)).toBe(-1)
-        expect(_list.get(1)).toBe(0)
-        expect(_list.get(2)).toBe(1)
+        expect([..._list]).toEqual([-1,0,1])
       })
       it('from LinkedQueue', () => {
         const queue = new LinkedQueue<number>()
@@ -282,7 +279,7 @@ function commonListTests(list: IList<number>, listType: new (elements?: Iterable
         expect(_list.get(2)).toBe(1)
       })
       it('from PriorityQueue', () => {
-        const queue = new PriorityQueue<number>(numberComparator)
+        const queue = new PriorityQueue<number>(numberComparatorASC)
         queue.enqueue(-1)
         queue.enqueue(0)
         queue.enqueue(1)
@@ -314,7 +311,7 @@ function commonListTests(list: IList<number>, listType: new (elements?: Iterable
         expect(_list2.get(2)).toBe(1)
       })
       it('from FibonacciHeap', () => {
-        const heap = new FibonacciHeap<number>(numberComparator)
+        const heap = new FibonacciHeap<number>(numberComparatorASC)
         heap.insert(0)
         heap.insert(1)
         heap.insert(-1)
@@ -603,7 +600,7 @@ function commonListTests(list: IList<number>, listType: new (elements?: Iterable
         list.add(2)
         list.add(3)
 
-        list.comparator = numberComparator
+        list.comparator = numberComparatorASC
         const otherListUnequal = new listType([1,2,2])
         expect(list.equals(otherListUnequal)).toBeFalsy()
       });
@@ -612,7 +609,7 @@ function commonListTests(list: IList<number>, listType: new (elements?: Iterable
         list.add(2)
         list.add(3)
 
-        list.comparator = numberComparator
+        list.comparator = numberComparatorASC
         let otherList = new listType([1,2,3])
         expect(list.equals(otherList)).toBeTruthy()
         list.clear()
@@ -2207,7 +2204,7 @@ function commonListTests(list: IList<number>, listType: new (elements?: Iterable
 
       fillList()
       assertValues()
-      list.comparator = numberComparator
+      list.comparator = numberComparatorASC
       list.sort()
       assertSortedValues()
       list.clear()
@@ -2215,7 +2212,7 @@ function commonListTests(list: IList<number>, listType: new (elements?: Iterable
       fillList()
       assertValues()
       list.comparator = null!
-      list.sort(numberComparator)
+      list.sort(numberComparatorASC)
       assertSortedValues()
     })
     it('should find indices for list elements', () => {
@@ -2224,7 +2221,7 @@ function commonListTests(list: IList<number>, listType: new (elements?: Iterable
       list.add(0)
       list.add(2)
       list.add(-2)
-      list.comparator = numberComparator
+      list.comparator = numberComparatorASC
 
       expect(list.indexOf(1)).toBe(0)
       expect(list.indexOf(-1)).toBe(1)
@@ -2246,7 +2243,7 @@ function commonListTests(list: IList<number>, listType: new (elements?: Iterable
       list.add(0)
       list.add(1)
       list.add(-1)
-      list.comparator = numberComparator
+      list.comparator = numberComparatorASC
       expect(list.includes(1)).toBeTruthy()
       expect(list.includes(-1)).toBeTruthy()
       expect(list.includes(0)).toBeTruthy()

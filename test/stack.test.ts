@@ -7,8 +7,8 @@ import {
   LinkedList,
   LinkedQueue,
   LinkedStack,
-  List,
-  numberComparator,
+  List, numberComparatorASC,
+  numberComparatorDESC,
   PriorityQueue,
   Queue,
   Stack
@@ -40,7 +40,6 @@ function stackTests(stack: IStack<number>, stackType: new (elements: Iterable<nu
       })
       it('from Queue', () => {
         const _stack = new stackType(new Queue([-1, 0, 1]))
-
         expect(_stack.size).toBe(3)
         expect(_stack.pop()).toBe(1)
         expect(_stack.pop()).toBe(0)
@@ -57,7 +56,7 @@ function stackTests(stack: IStack<number>, stackType: new (elements: Iterable<nu
         expect(_stack.size).toBe(0)
       })
       it('from PriorityQueue', () => {
-        const _stack = new stackType(new PriorityQueue(numberComparator, [-1, 0, 1]))
+        const _stack = new stackType(new PriorityQueue(numberComparatorASC, [-1, 0, 1]))
 
         expect(_stack.size).toBe(3)
         expect(_stack.pop()).toBe(1)
@@ -266,7 +265,7 @@ function stackTests(stack: IStack<number>, stackType: new (elements: Iterable<nu
       stack.push(-2)
       stack.push(-3)
       stack.push(3)
-      stack.comparator = numberComparator
+      stack.comparator = numberComparatorDESC
       expect(stack.contains(-4)).toBeFalsy()
       expect(stack.contains(-3)).toBeTruthy()
       expect(stack.contains(-2)).toBeTruthy()

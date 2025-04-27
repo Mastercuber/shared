@@ -235,12 +235,12 @@ describe('Graph Testsuite', () => {
         expect(ccs[0].vertices!.size).toBe(2)
         expect(ccs[0].edges!.size).toBe(2)
         const vals = ccs[0].vertices!.values()
-        expect(vals.next().value.title).toBe('v1')
-        expect(vals.next().value.title).toBe('v2')
-        expect(ccs[0].vertices!.values().next().value.title).toBe('v1')
+        expect(vals.next().value?.title).toBe('v1')
+        expect(vals.next().value?.title).toBe('v2')
+        expect(ccs[0].vertices!.values().next().value?.title).toBe('v1')
 
         expect(ccs[1].vertices!.size).toBe(1)
-        expect(ccs[1].vertices!.values().next().value.title).toBe('v3')
+        expect(ccs[1].vertices!.values().next().value?.title).toBe('v3')
         expect(ccs[1].edges!.size).toBe(0)
       })
       it('Example Graph A', () => {

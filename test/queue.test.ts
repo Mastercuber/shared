@@ -9,7 +9,7 @@ import {
   LinkedList,
   LinkedQueue,
   LinkedStack,
-  numberComparator,
+  numberComparatorASC,
   Ordering,
   PriorityQueue,
   Queue,
@@ -27,7 +27,7 @@ function queueTests(queue: IQueue<number>, queueType: QueueType, priorityQueueTe
         let _queue
         if (priorityQueueTests) {
           // @ts-ignore
-          _queue = new queueType(numberComparator, [1, 2, 3])
+          _queue = new queueType(numberComparatorASC, [1, 2, 3])
         } else {
           // @ts-ignore
           _queue = new queueType([1, 2, 3])
@@ -42,7 +42,7 @@ function queueTests(queue: IQueue<number>, queueType: QueueType, priorityQueueTe
         let _queue
         if (priorityQueueTests) {
           // @ts-ignore
-          _queue = new queueType(numberComparator, new Set([-1, 1, 0]))
+          _queue = new queueType(numberComparatorASC, new Set([-1, 1, 0]))
         } else {
           // @ts-ignore
           _queue = new queueType(new Set([-1, 0, 1]))
@@ -58,7 +58,7 @@ function queueTests(queue: IQueue<number>, queueType: QueueType, priorityQueueTe
         let _queue
         if (priorityQueueTests) {
           // @ts-ignore
-          _queue = new queueType(numberComparator, new Queue([1, -1, 0, 2]))
+          _queue = new queueType(numberComparatorASC, new Queue([1, -1, 0, 2]))
         } else {
           // @ts-ignore
           _queue = new queueType(new Queue([-1, 0, 1, 2]))
@@ -75,7 +75,7 @@ function queueTests(queue: IQueue<number>, queueType: QueueType, priorityQueueTe
         let _queue
         if (priorityQueueTests) {
           // @ts-ignore
-          _queue = new queueType(numberComparator, new LinkedQueue([0, 1, 2, -1]))
+          _queue = new queueType(numberComparatorASC, new LinkedQueue([0, 1, 2, -1]))
         } else {
           // @ts-ignore
           _queue = new queueType(new LinkedQueue([-1, 0, 1, 2]))
@@ -92,10 +92,10 @@ function queueTests(queue: IQueue<number>, queueType: QueueType, priorityQueueTe
         let _queue
         if (priorityQueueTests) {
           // @ts-ignore
-          _queue = new queueType(numberComparator, new PriorityQueue(numberComparator, [0, 2, -1, 1]))
+          _queue = new queueType(numberComparatorASC, new PriorityQueue(numberComparatorASC, [0, 2, -1, 1]))
         } else {
           // @ts-ignore
-          _queue = new queueType(new PriorityQueue(numberComparator, [2, 0, -1, 1]))
+          _queue = new queueType(new PriorityQueue(numberComparatorASC, [2, 0, -1, 1]))
         }
 
         expect(_queue.size).toBe(4)
@@ -109,7 +109,7 @@ function queueTests(queue: IQueue<number>, queueType: QueueType, priorityQueueTe
         let _queue
         if (priorityQueueTests) {
           // @ts-ignore
-          _queue = new queueType(numberComparator, new Dequeue([0, 2, -1, 1]))
+          _queue = new queueType(numberComparatorASC, new Dequeue([0, 2, -1, 1]))
         } else {
           // @ts-ignore
           _queue = new queueType(new Dequeue([-1, 0, 1, 2]))
@@ -126,7 +126,7 @@ function queueTests(queue: IQueue<number>, queueType: QueueType, priorityQueueTe
         let _queue
         if (priorityQueueTests) {
           // @ts-ignore
-          _queue = new queueType(numberComparator, new Stack([0, 2, -1, 1]))
+          _queue = new queueType(numberComparatorASC, new Stack([0, 2, -1, 1]))
         } else {
           // @ts-ignore
           _queue = new queueType(new Stack([2, 1, 0, -1]))
@@ -143,7 +143,7 @@ function queueTests(queue: IQueue<number>, queueType: QueueType, priorityQueueTe
         let _queue
         if (priorityQueueTests) {
           // @ts-ignore
-          _queue = new queueType(numberComparator, new LinkedStack([0, 2, -1, 1]))
+          _queue = new queueType(numberComparatorASC, new LinkedStack([0, 2, -1, 1]))
         } else {
           // @ts-ignore
           _queue = new queueType(new LinkedStack([2, 1, 0, -1]))
@@ -160,7 +160,7 @@ function queueTests(queue: IQueue<number>, queueType: QueueType, priorityQueueTe
         let _queue
         if (priorityQueueTests) {
           // @ts-ignore
-          _queue = new queueType(numberComparator, new List([0, 2, -1, 1]))
+          _queue = new queueType(numberComparatorASC, new List([0, 2, -1, 1]))
         } else {
           // @ts-ignore
           _queue = new queueType(new List([-1, 0, 1, 2]))
@@ -177,7 +177,7 @@ function queueTests(queue: IQueue<number>, queueType: QueueType, priorityQueueTe
         let _queue
         if (priorityQueueTests) {
           // @ts-ignore
-          _queue = new queueType(numberComparator, new LinkedList([0, 2, -1, 1]))
+          _queue = new queueType(numberComparatorASC, new LinkedList([0, 2, -1, 1]))
         } else {
           // @ts-ignore
           _queue = new queueType(new LinkedList([-1, 0, 1, 2]))
@@ -194,7 +194,7 @@ function queueTests(queue: IQueue<number>, queueType: QueueType, priorityQueueTe
         let _queue
         if (priorityQueueTests) {
           // @ts-ignore
-          _queue = new queueType(numberComparator, new DoublyLinkedList([0, 2, -1, 1]))
+          _queue = new queueType(numberComparatorASC, new DoublyLinkedList([0, 2, -1, 1]))
         } else {
           // @ts-ignore
           _queue = new queueType(new DoublyLinkedList([-1, 0, 1, 2]))
@@ -211,7 +211,7 @@ function queueTests(queue: IQueue<number>, queueType: QueueType, priorityQueueTe
         let _queue
         if (priorityQueueTests) {
           // @ts-ignore
-          _queue = new queueType(numberComparator, new CyclicDoublyLinkedList([0, 2, -1, 1]))
+          _queue = new queueType(numberComparatorASC, new CyclicDoublyLinkedList([0, 2, -1, 1]))
         } else {
           // @ts-ignore
           _queue = new queueType(new CyclicDoublyLinkedList([-1, 0, 1, 2]))
@@ -352,6 +352,29 @@ function queueTests(queue: IQueue<number>, queueType: QueueType, priorityQueueTe
       expect(queue.isEmpty()).toBeTruthy()
       expect(() => queue.dequeue()).toThrowError('no such element')
     })
+  })
+
+  describe('reverse Iterator tests', () => {
+    it('should correctly reverse iterate a queue', () => {
+      const queue = new Queue([1,2,3,4])
+      const numbers = queue.reverseIterator().toArray()
+      expect(numbers).toEqual([4,3,2,1])
+    });
+    it('should correctly reverse iterate a linked queue', () => {
+      const queue = new LinkedQueue([1,2,3,4])
+      const numbers = queue.reverseIterator().toArray()
+      expect(numbers).toEqual([4,3,2,1])
+    });
+    it('should correctly reverse iterate a priority queue', () => {
+      const queue = new PriorityQueue(numberComparatorASC, [1,2,3,4])
+      const numbers = queue.reverseIterator().toArray()
+      expect(numbers).toEqual([4,3,2,1])
+    });
+    it('should correctly reverse iterate a dequeue', () => {
+      const queue = new Dequeue([1,2,3,4])
+      const numbers = queue.reverseIterator().toArray()
+      expect(numbers).toEqual([4,3,2,1])
+    });
   })
 }
 
@@ -506,7 +529,7 @@ describe('queues', () => {
       dequeue.enqueue(3)
       dequeue.enqueue(-1)
       dequeue.enqueue(0)
-      dequeue.comparator = numberComparator
+      dequeue.comparator = numberComparatorASC
       expect(dequeue.contains(-3)).toBeFalsy()
       expect(dequeue.contains(-2)).toBeTruthy()
       expect(dequeue.contains(-1)).toBeTruthy()

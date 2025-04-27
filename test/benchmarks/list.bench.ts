@@ -5,7 +5,7 @@ import {
   IList,
   LinkedList,
   List,
-  numberComparator,
+  numberComparatorASC,
   quicksort,
 } from '../../src'
 import c from 'chalk'
@@ -26,7 +26,7 @@ const options = {
 describe(c.blue('sort (heap sort)'), () => {
   function listSortTest(listType: new(options?: any) => IList<number>) {
     const list = new listType()
-    list.comparator = numberComparator
+    list.comparator = numberComparatorASC
     list.add(5)
     list.add(3)
     list.add(4)
@@ -63,7 +63,7 @@ describe(c.blue('sort (quick sort)'), () => {
     list.add(2)
     list.add(1)
 
-    const sorted = quicksort(list, numberComparator)
+    const sorted = quicksort(list, numberComparatorASC, () => new listType())
     expect(sorted.get(0)).toBe(1)
     expect(sorted.get(1)).toBe(2)
     expect(sorted.get(2)).toBe(3)
