@@ -105,21 +105,46 @@ class Graph extends AGraph<CustomVertex, CustomEdge> {
 A custom comparator can be provided for CustomVertex or a default one (`_cmp`) could be used.
 
 ## Graph Properties
+
 * `density(): number`
-  * [Density](https://en.wikipedia.org/wiki/Dense_graph) of the graph
+  * Calculates the [density](https://en.wikipedia.org/wiki/Dense_graph) of the graph. Density is the ratio of the number of actual edges to the maximum possible number of edges. A value close to 1 indicates a dense graph; a value close to 0 indicates a sparse graph.
+
 * `order(): number`
+  * Returns the number of vertices (nodes) in the graph.
+
 * `size(): number`
+  * Returns the number of edges in the graph.
+
 * `isCyclic(): boolean`
+  * Checks whether the graph contains at least one cycle (i.e., a path that starts and ends at the same node).
+
 * `isAcyclic(): boolean`
+  * Checks whether the graph is acyclic (i.e., contains no cycles).
+
 * `isTree(): boolean`
+  * Checks whether the graph is a tree, meaning it is connected and acyclic.
+
 * `isForest(): boolean`
+  * Checks whether the graph is a forest, meaning it consists of a collection of disjoint trees.
+
 * `isDirected(): boolean`
+  * Returns whether the graph is directed (i.e., edges have a direction).
+
 * `isConnected(): boolean`
-* `isConnectedFrom(v: V): boolean`
-* `isStronglyConnectedFrom(v: V): boolean`
+  * Checks whether the directed or undirected graph is connected, meaning there is a path between any two nodes.
+
+* `isStronglyConnected(): boolean`
+  * Checks if there is a path from `v` to every other node and a path from every other node back to `v` (strong connectivity).
+
 * `isMixed(): boolean`
+  * Returns whether the graph has both directed and undirected edges (mixed graph).
+
 * `isDense(): boolean`
+  * Checks whether the graph is considered dense based on a defined density threshold (density >= threshold).
+
 * `isSparse(): boolean`
+  * Checks whether the graph is considered sparse, meaning it has relatively few edges compared to the number of possible edges (density < threshold).
+
 
 ## Algorithms
 * `depthFirstSearch(startVertex: V)`
