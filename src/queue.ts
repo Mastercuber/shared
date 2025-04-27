@@ -6,8 +6,7 @@ export interface IQueue<E> extends ICollection<E> {
   head(): E
 }
 
-export interface IDequeue<E> extends IQueue<E>, IStack<E>, IReverseIterable<E> {
-}
+export interface IDequeue<E> extends IQueue<E>, IStack<E> { }
 
 export class Queue<E> implements IQueue<E> {
   private arr: E[] = []

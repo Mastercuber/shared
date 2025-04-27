@@ -15,11 +15,8 @@ export type HeapNode<E> = {
 
 
 export interface IFibonacciHeap<E> extends ICollection<E> {
-  size: number
   rootList: HeapNode<E>
   minNode: HeapNode<E>
-  isEmpty(): boolean
-  clear(): void
   insert(element: E): HeapNode<E>
   delete(node: HeapNode<E>): HeapNode<E>
   decreaseKey(node: HeapNode<E>, newValue: E): void

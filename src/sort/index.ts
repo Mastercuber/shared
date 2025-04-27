@@ -42,6 +42,6 @@ export function quicksort<V>(
  * @param A must have a comparator set!
  * @param comparator
  */
-export function heapSort<V>(A: IList<V>, comparator: Comparator<V>) {
+export function heapSort<V>(A: Iterable<V>, comparator: Comparator<V>) {
   return new FibonacciHeap<V>(comparator, A)
 }

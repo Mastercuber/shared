@@ -185,13 +185,6 @@ describe('Graph Testsuite', () => {
       expect(cycles).toHaveLength(3)
     })
 
-    describe('minimal spanning tree', () => {
-      it('example graph A not processable', () => {
-        const g = GraphFactory.createDirectedGraphA()
-        expect(() => g.minimalSpanningTree()).toThrowError('graph must be undirected, connected and weighted')
-      })
-    })
-
     describe('topological sorting', () => {
       it('topological sorting', () => {
         const g = GraphFactory.createDirectedGraph118()

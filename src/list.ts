@@ -12,7 +12,6 @@ export interface IListFunctions<E> {
 
 export interface IList<E> extends ICollection<E>, IListFunctions<E> {
   comparator: Comparator<E>
-  add(e: E): void
   addAll(c: Iterable<E>): void
   get(index: number): E
   set(index: number, e: E | null): boolean
