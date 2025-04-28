@@ -1,4 +1,4 @@
-import {Comparator, FibonacciHeap, ICollection, IReverseIterable, IStack, Node, Ordering, quicksort} from './index'
+import {Comparator, FibonacciHeap, ICollection, IStack, Node, Ordering, quicksort} from './index'
 
 export interface IQueue<E> extends ICollection<E> {
   enqueue(e: E): void

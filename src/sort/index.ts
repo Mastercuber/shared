@@ -1,4 +1,4 @@
-import {Comparator, FibonacciHeap, ICollection, IList} from '../index.ts'
+import {Comparator, FibonacciHeap, ICollection} from '../index.ts'
 
 export interface ISortable<V> {
   sort(cmp?: Comparator<V>): void
