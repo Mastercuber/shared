@@ -1,12 +1,31 @@
 ### About this package
 
-This package contains a collection of essential data structures and graph algorithms written in TypeScript, with zero dependencies. It supports CommonJS, ESM, and browser environments, and includes several utility functions for practical everyday use.
+A lightweight and dependency-free collection of essential data structures and graph algorithms, written entirely in TypeScript. This library supports CommonJS, ESM, and browser environments, and includes utility functions for practical, everyday tasks in modern development.
 
-The concept of organizing and structuring data reaches back long before the era of modern programming. In the **19th century**, mathematics introduced structured forms like **matrices** and **polynomials**. In **1854**, **George Boole** laid the foundations for logical structures with his algebra. By **1837**, **Charles Babbage** envisioned tabular memory structures in his design of the *Analytical Engine*. **Herman Hollerith** followed in **1890** with punched cards as a form of structured data storage. Later, in **1936**, **Alan Turing** described the *Turing machine*, which operated on an infinite tape – a conceptual precursor to modern abstractions like tapes, arrays, or queues.
+### Historical Background
 
-Finally, in the 1940s, **Konrad Zuse** introduced the *Plankalkül*, one of the first formal programming languages, which explicitly defined typed data structures and operations – laying groundwork for modern abstractions as used in this package.
+The organization and structuring of data has deep roots, reaching far beyond the digital age. In the **19th century**, mathematics introduced formal constructs such as **matrices** and **polynomials**. In **1837**, **Charles Babbage** conceptualized tabular memory in his design of the *Analytical Engine*, followed by **George Boole** in **1854**, who laid the foundations of Boolean logic. **Herman Hollerith** introduced punched cards for structured data input in **1890**.
 
-This library draws inspiration from these foundational ideas while focusing on clean implementation, type safety, and broad applicability in modern JavaScript and TypeScript projects.
+Theoretical computing advanced significantly in the 20th century:  
+In **1936**, **Alan Turing** proposed the *Turing machine*, a model based on an infinite tape, which inspired later abstractions such as arrays, buffers, and queues. Around the same time, **Alonzo Church** developed the *lambda calculus*, laying the foundation for functional programming — which in turn influenced **Konrad Zuse**, who in the 1940s designed the *Plankalkül*, the first high-level language to define typed data structures and formal operations.
+
+This library embraces these historical concepts and translates them into a clean, type-safe, and modern TypeScript implementation suitable for a wide range of applications.
+
+### Interactive Graph Visualization
+
+For visual experimentation and algorithm demos, we recommend using [GraphOnline](https://graphonline.ru/en/), a free and intuitive tool that allows you to:
+
+- Draw directed and undirected graphs
+- Assign weights and labels to edges
+- Run built-in algorithms like DFS, BFS, Dijkstra, and Floyd-Warshall
+- Visualize traversal steps and shortest paths interactively
+
+This external tool complements the core features of the library, making it easier to prototype and test graph-based logic.
+
+---
+
+Whether you're working on academic projects, interview preparation, or production-level applications, this library offers a solid foundation rooted in theory and optimized for practical use.
+
 
 Here are two examples of using the package directly in the browser:
 ```html
