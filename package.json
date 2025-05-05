@@ -1,12 +1,12 @@
 {
   "name": "@avensio/shared",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": false,
   "main": "./dist/shared.cjs.js",
   "module": "./dist/shared.es.js",
   "browser": "./dist/shared.iife.js",
   "types": "./dist/shared.es.d.ts",
-  "author": "armin",
+  "author": "Armin",
   "scripts": {
     "dev": "vitest --logHeapUsage --coverage",
     "bench": "vitest bench test/benchmarks/",
@@ -26,6 +26,14 @@
   },
   "bugs": {
     "url": "https://github.com/Mastercuber/shared/issues"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/shared.es.d.ts",
+      "default": "./dist/shared.iife.js",
+      "import": "./dist/shared.es.js",
+      "require": "./dist/shared.cjs.js"
+    }
   },
   "keywords": [
     "stack",

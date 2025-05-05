@@ -14,9 +14,6 @@ export default defineConfig({
             '@': resolve(__dirname, 'src')
         }
     },
-    test: {
-        experimentalVmThreads: true,
-    },
     mode: 'production',
     build: {
         target: 'ES6',
@@ -26,6 +23,6 @@ export default defineConfig({
             formats: ['es', 'cjs', 'iife'],
             fileName: (format) => `shared.${format}.js`
         },
-        minify: 'esbuild'
+        minify: false
     }
 })

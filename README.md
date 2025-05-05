@@ -1,4 +1,12 @@
-This is a package containing multiple **datastructures** and some **graph algorithms** written in typescript with no dependencies usable with commonjs, esm and in the browser. Also some other handy utility function are contained in this package.
+### About this package
+
+This package contains a collection of essential data structures and graph algorithms written in TypeScript, with zero dependencies. It supports CommonJS, ESM, and browser environments, and includes several utility functions for practical everyday use.
+
+The concept of organizing and structuring data reaches back long before the era of modern programming. In the **19th century**, mathematics introduced structured forms like **matrices** and **polynomials**. In **1854**, **George Boole** laid the foundations for logical structures with his algebra. By **1837**, **Charles Babbage** envisioned tabular memory structures in his design of the *Analytical Engine*. **Herman Hollerith** followed in **1890** with punched cards as a form of structured data storage. Later, in **1936**, **Alan Turing** described the *Turing machine*, which operated on an infinite tape – a conceptual precursor to modern abstractions like tapes, arrays, or queues.
+
+Finally, in the 1940s, **Konrad Zuse** introduced the *Plankalkül*, one of the first formal programming languages, which explicitly defined typed data structures and operations – laying groundwork for modern abstractions as used in this package.
+
+This library draws inspiration from these foundational ideas while focusing on clean implementation, type safety, and broad applicability in modern JavaScript and TypeScript projects.
 
 Here are two examples of using the package directly in the browser:
 ```html
@@ -10,6 +18,7 @@ Here are two examples of using the package directly in the browser:
     <script src="https://unpkg.com/@avensio/shared"></script>
   </head>
   <body>
+  
     <script>
       const a = new Vertex('A')
       const b = new Vertex('B')
@@ -19,25 +28,16 @@ Here are two examples of using the package directly in the browser:
       g.addEdge(new Edge(a, b))
       console.debug(g)
     </script>
-  </body>
-</html>
-```
-```html
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>include npm package as ES-module</title>
-  </head>
-  <body>
+    
     <script type="module">
       import { Vertex, Edge, Graph } from 'https://unpkg.com/@avensio/shared@latest/dist/shared.es.js'
     </script>
+  
   </body>
 </html>
 ```
 otherwise install it with `npm`/`pnpm`: `npm install @avensio/shared` and use the classes by importing them:
-```html
+```javascript
 import { Vertex, Edge, Graph} from '@avensio/shared'
 ```
 
