@@ -38,7 +38,7 @@ Here are two examples of using the package directly in the browser:
 ```
 otherwise install it with `npm`/`pnpm`: `npm install @avensio/shared` and use the classes by importing them:
 ```javascript
-import { Vertex, Edge, Graph} from '@avensio/shared'
+import { Vertex, Edge, Graph } from '@avensio/shared'
 ```
 
 The test coverage is about [90%](test/) and benchmarks for list, queue and stack tests are included.
